@@ -176,7 +176,7 @@ public class Board extends JPanel {
 		square17.setPrice(300);
 		square19.setPrice(320);
 		
-		// setting rent prcies
+		// setting rent prices
 		square01.setRentPrice(6);
 		square03.setRentPrice(6);
 		square04.setRentPrice(8);

@@ -181,6 +181,13 @@ public class MonopolyMain extends JFrame{
 				System.out.println(withdrawAmount);
 				currentPlayer.withdrawFromWallet(withdrawAmount);
 				ownerOfTheSquare.depositToWallet(withdrawAmount);
+				if(currentPlayer.getPlayerNumber() == 1) {
+					updatePanelPlayerTextArea("1", player1, gameBoard, panelPlayerTextArea);
+				} else if(currentPlayer.getPlayerNumber() == 2) {
+					updatePanelPlayerTextArea("2", player2, gameBoard, panelPlayerTextArea);
+				} else {
+					updatePanelPlayerTextArea("3", player3, gameBoard, panelPlayerTextArea);
+				}
 				
 				btnNextTurn.setEnabled(true);
 				btnPayRent.setEnabled(false);
