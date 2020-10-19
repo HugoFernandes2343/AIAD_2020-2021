@@ -113,7 +113,7 @@ public class MonopolyMain extends JFrame{
 		panelPlayer.add(panelPlayerTextArea);
 		playerAssetsPanel.add(panelPlayer, "1");
 
-		updatePanelPlayerTextArea("1", player1, gameBoard, panelPlayerTextArea);
+		updatePanelPlayerTextArea(player1, gameBoard, panelPlayerTextArea);
 
 		infoConsole = new JTextArea();
 		infoConsole.setColumns(20);
@@ -135,14 +135,8 @@ public class MonopolyMain extends JFrame{
 				int withdrawAmount = gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getPrice();
 				currentPlayer.withdrawFromWallet(withdrawAmount);
 				btnBuy.setEnabled(false);
-				//TODO
-				if(currentPlayer.getPlayerNumber() == 1) {
-					updatePanelPlayerTextArea("1", player1, gameBoard, panelPlayerTextArea);
-				} else if(currentPlayer.getPlayerNumber() == 2) {
-					updatePanelPlayerTextArea("2", player2, gameBoard, panelPlayerTextArea);
-				} else {
-					updatePanelPlayerTextArea("3", player3, gameBoard, panelPlayerTextArea);
-				}
+				updatePanelPlayerTextArea(currentPlayer, gameBoard, panelPlayerTextArea);
+
 			}
 		});
 
@@ -164,15 +158,7 @@ public class MonopolyMain extends JFrame{
 				System.out.println(withdrawAmount);
 				currentPlayer.withdrawFromWallet(withdrawAmount);
 				ownerOfTheSquare.depositToWallet(withdrawAmount);
-				//TODO
-				if(currentPlayer.getPlayerNumber() == 1) {
-					updatePanelPlayerTextArea("1", player1, gameBoard, panelPlayerTextArea);
-				} else if(currentPlayer.getPlayerNumber() == 2) {
-					updatePanelPlayerTextArea("2", player2, gameBoard, panelPlayerTextArea);
-				} else {
-					updatePanelPlayerTextArea("3", player3, gameBoard, panelPlayerTextArea);
-				}
-				
+				updatePanelPlayerTextArea(currentPlayer, gameBoard, panelPlayerTextArea);
 				btnNextTurn.setEnabled(true);
 				btnPayRent.setEnabled(false);
 				//currentPlayer.withdrawFromWallet(withdrawAmount);
@@ -202,7 +188,7 @@ public class MonopolyMain extends JFrame{
 						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 1", infoConsole);
 					}
 					else {
-						changeConsoleMessage("Click Next Turn To Allow PlayerUi 2 To Roll Dice", infoConsole);
+						changeConsoleMessage("Click Next Turn To Allow Player 2 To Roll Dice", infoConsole);
 					}
 
 				} else if (nowPlaying == 1){
@@ -212,7 +198,7 @@ public class MonopolyMain extends JFrame{
 						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 2", infoConsole);
 					}
 					else {
-						changeConsoleMessage("Click Next Turn To Allow PlayerUi 3 To Roll Dice", infoConsole);
+						changeConsoleMessage("Click Next Turn To Allow Player 3 To Roll Dice", infoConsole);
 					}
 				} else if (nowPlaying == 2) {
 					// player3's turn
@@ -221,7 +207,7 @@ public class MonopolyMain extends JFrame{
 						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 3", infoConsole);
 					}
 					else {
-						changeConsoleMessage("Click Next Turn To Allow PlayerUi 1 To Roll Dice", infoConsole);
+						changeConsoleMessage("Click Next Turn To Allow Player 1 To Roll Dice", infoConsole);
 					}
 				}
 
@@ -232,10 +218,7 @@ public class MonopolyMain extends JFrame{
 				// we have to add below 2 lines to avoid some GUI breakdowns.
 				layeredPane.remove(gameBoard);
 				layeredPane.add(gameBoard, new Integer(0));
-				
-				//updatePanelPlayer1TextArea();
-				//updatePanelPlayer2TextArea();
-				//updatePanelPlayer3TextArea();
+
 			}
 		});
 		btnRollDice.setBounds(81, 413, 246, 53);
@@ -261,7 +244,7 @@ public class MonopolyMain extends JFrame{
 							changeConsoleMessage("It's now player 2's turn", infoConsole);
 							updatePlayerPanel(panelPlayer, panelPlayerTitle, Color.BLUE, playerAssetsPanel, "2", "PlayerUi 2 Information", panelPlayerTextArea);
 						}
-						updatePanelPlayerTextArea("2", player2, gameBoard, panelPlayerTextArea);
+						updatePanelPlayerTextArea(player2, gameBoard, panelPlayerTextArea);
 					}
 					else if(nowPlaying == 1){
 						if(doubleDiceForPlayer2) {
@@ -271,7 +254,7 @@ public class MonopolyMain extends JFrame{
 							changeConsoleMessage("It's now player 3's turn", infoConsole);
 							updatePlayerPanel(panelPlayer, panelPlayerTitle, Color.YELLOW, playerAssetsPanel,"3", "PlayerUi 3 Information", panelPlayerTextArea);
 						}
-						updatePanelPlayerTextArea("3", player3, gameBoard, panelPlayerTextArea);
+						updatePanelPlayerTextArea(player3, gameBoard, panelPlayerTextArea);
 					}
 					else if(nowPlaying == 2) {
 						if(doubleDiceForPlayer3) {
@@ -281,7 +264,7 @@ public class MonopolyMain extends JFrame{
 							changeConsoleMessage("It's now player 1's turn", infoConsole);
 							updatePlayerPanel(panelPlayer, panelPlayerTitle, Color.RED, playerAssetsPanel, "1", "PlayerUi 1 Information", panelPlayerTextArea);
 						}
-						updatePanelPlayerTextArea("1", player1, gameBoard, panelPlayerTextArea);
+						updatePanelPlayerTextArea(player1, gameBoard, panelPlayerTextArea);
 					}
 			}
 		});
@@ -291,9 +274,9 @@ public class MonopolyMain extends JFrame{
 		btnNextTurn.setEnabled(false);
 	}
 
-	public void updatePanelPlayerTextArea(String playerNumber, Player player, Board gameBoard, JTextArea panelPlayerTextArea) {
+	public void updatePanelPlayerTextArea(Player player, Board gameBoard, JTextArea panelPlayerTextArea) {
 		// TODO Auto-generated method stub
-		String result = "PlayerUi " + playerNumber + " Now Playing" + "\n";
+		String result = "Player " + String.valueOf(player.getPlayerNumber()) + " Now Playing" + "\n";
 		result += "Current Balance: "+player.getWallet()+"\n";
 
 		result += "Title Deeds: \n";
