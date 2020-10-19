@@ -1,10 +1,9 @@
-package gui;
+package game;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Random;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
