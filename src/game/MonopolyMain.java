@@ -1,5 +1,9 @@
 package game;
 
+import jade.core.Profile;
+import jade.wrapper.ContainerController;
+import jade.wrapper.AgentController;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -7,9 +11,16 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import jade.core.ProfileImpl;
+import jade.core.Runtime;
+import jade.wrapper.StaleProxyException;
 
 public class MonopolyMain extends JFrame{
 
+
+	private Runtime runtimeInstance;
+	private Profile profile;
+	private ContainerController containerController;
 	private JPanel contentIncluder;
 	static JTextArea infoConsole;
 	JPanel playerAssetsPanel;
@@ -39,7 +50,39 @@ public class MonopolyMain extends JFrame{
 	Boolean doubleDiceForPlayer3 = false;
 	static int nowPlaying = 0;
 
-	public MonopolyMain() {
+	private Color getColor(int index) {
+		if(index == 1) {
+			return Color.RED;
+		}
+		if(index == 2) {
+			return Color.BLUE;
+		}
+		if(index == 3) {
+			return Color.YELLOW;
+		}
+		return Color.GREEN;
+	}
+
+	private void createAgents() throws StaleProxyException {
+		for(int i = 1; i < 5; i++) {
+			String id = "player_" + i;
+			Player player = new Player(i);
+			players.add(player);
+			PlayerUi playerUi = new PlayerUi(player, getColor(i));
+			playerUis.add(playerUi);
+			AgentController agentController = this.containerController.acceptNewAgent(id, player);
+			agentController.start();
+		}
+		GameManager gameManager = new GameManager();
+		AgentController agentController = this.containerController.acceptNewAgent("game_manager", gameManager);
+		agentController.start();
+	}
+
+	public MonopolyMain() throws StaleProxyException {
+		this.runtimeInstance = Runtime.instance();
+		this.profile = new ProfileImpl(true);
+		this.containerController = runtimeInstance.createMainContainer(profile);
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		setSize(1080,720);
@@ -57,31 +100,12 @@ public class MonopolyMain extends JFrame{
 		gameBoard.setBackground(new Color(51, 255, 153));
 		layeredPane.add(gameBoard, new Integer(0));
 
-		player1 = new Player(1);
-		players.add(player1);
-		player1Ui = new PlayerUi(player1,Color.RED);
-		playerUis.add(player1Ui);
-		layeredPane.add(player1Ui, new Integer(2));
+		this.createAgents();
 
-		player2 = new Player(2);
-		players.add(player2);
-		player2Ui = new PlayerUi(player2,Color.BLUE);
-		playerUis.add(player2Ui);
-		layeredPane.add(player2Ui, new Integer(2));
+		for(PlayerUi playerUi : playerUis) {
+			layeredPane.add(playerUi, new Integer(2));
+		}
 
-		player3 = new Player(3);
-		players.add(player3);
-		player3Ui = new PlayerUi(player3, Color.YELLOW);
-		playerUis.add(player3Ui);
-		layeredPane.add(player3Ui, new Integer(2));
-
-		/* player4 = new Player(4);
-		players.add(player4);
-		player4Ui = new PlayerUi(player3, Color.GREEN);
-		playerUis.add(player4Ui);
-		layeredPane.add(player4Ui, new Integer(2));**/
-
-		gameManager = new GameManager();
 
 		JPanel rightPanel = new JPanel();
 		rightPanel.setBackground(Color.LIGHT_GRAY);
@@ -113,7 +137,7 @@ public class MonopolyMain extends JFrame{
 		panelPlayer.add(panelPlayerTextArea);
 		playerAssetsPanel.add(panelPlayer, "1");
 
-		updatePanelPlayerTextArea(player1, gameBoard, panelPlayerTextArea);
+		updatePanelPlayerTextArea(players.get(0), gameBoard, panelPlayerTextArea);
 
 		infoConsole = new JTextArea();
 		infoConsole.setColumns(20);
@@ -121,7 +145,7 @@ public class MonopolyMain extends JFrame{
 		infoConsole.setBounds(6, 6, 234, 56);
 		test.add(infoConsole);
 		infoConsole.setLineWrap(true);
-		infoConsole.setText("PlayerUi 1 starts the game by clicking Roll Dice!");
+		infoConsole.setText("Player 1 starts the game by clicking Roll Dice!");
 
 		btnBuy = new JButton("Buy");
 		btnBuy.addActionListener(new ActionListener() {
@@ -307,7 +331,7 @@ public class MonopolyMain extends JFrame{
 	}
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws StaleProxyException {
 
 		MonopolyMain frame = new MonopolyMain();
 		frame.setVisible(true);

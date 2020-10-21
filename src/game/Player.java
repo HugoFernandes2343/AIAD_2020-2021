@@ -1,9 +1,11 @@
 package game;
 
-//import com.sun.xml.internal.bind.v2.TODO;
+import behaviors.BuyBehaviour;
+import behaviors.PayBehaviour;
+import behaviors.PlayBehaviour;
+import behaviors.ReceiveBehaviour;
 import jade.core.Agent;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -25,6 +27,19 @@ public class Player extends Agent{
         this.playerNumber = playerNumber;
 
     }
+
+    public void setup() {
+        addBehaviour(new PlayBehaviour());
+        addBehaviour(new PayBehaviour());
+        addBehaviour(new ReceiveBehaviour());
+        addBehaviour(new BuyBehaviour());
+        System.out.println(getLocalName() + ": starting to work!");
+    }
+
+    public void takeDown() {
+        System.out.println(getLocalName() + ": done working.");
+    }
+
 
     public ArrayList<Integer> getTitleDeeds() {
         return titleDeeds;
