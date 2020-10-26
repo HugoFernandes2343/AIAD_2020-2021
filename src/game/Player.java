@@ -4,19 +4,24 @@ import behaviors.BuyBehaviour;
 import behaviors.PayBehaviour;
 import behaviors.PlayBehaviour;
 import behaviors.ReceiveBehaviour;
+import jade.core.AID;
 import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
+import jade.lang.acl.ACLMessage;
+import jade.proto.SubscriptionInitiator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Player extends Agent{
+public class Player extends Agent {
 
     private int playerNumber;
 
-    //TODO Setup register
-
     //TODO change to private and create a method for it
-    public HashMap<Integer, Integer> ledger= new HashMap<>();
+    public HashMap<Integer, Integer> ledger = new HashMap<>();
 
     private int currentSquareNumber = 0; // where player is currently located on (0 - 19). initially zero
 
@@ -28,16 +33,48 @@ public class Player extends Agent{
 
     }
 
-    public void setup() {
-        addBehaviour(new PlayBehaviour());
+    protected void setup() {
+        DFAgentDescription dfd = new DFAgentDescription();
+        dfd.setName(getAID());
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("player");
+        sd.setName(getLocalName());
+        dfd.addServices(sd);
+        try {
+            DFService.register(this, dfd);
+        } catch (FIPAException fe) {
+            fe.printStackTrace();
+        }
+        addBehaviour(new DFSubscriptionInit(this, dfd));
+        addBehaviour(new PlayBehaviour(this));
         addBehaviour(new PayBehaviour());
         addBehaviour(new ReceiveBehaviour());
         addBehaviour(new BuyBehaviour());
-        System.out.println(getLocalName() + ": starting to work!");
     }
 
-    public void takeDown() {
+
+    protected void takeDown() {
+        try {
+            DFService.deregister(this);
+        } catch (FIPAException e) {
+            e.printStackTrace();
+        }
         System.out.println(getLocalName() + ": done working.");
+    }
+
+    protected void searchAgents() {
+        DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("player");
+        template.addServices(sd);
+        try {
+            DFAgentDescription[] result = DFService.search(this, template);
+            for (int i = 0; i < result.length; ++i) {
+                System.out.println("Found " + result[i].getName());
+            }
+        } catch (FIPAException fe) {
+            fe.printStackTrace();
+        }
     }
 
 
@@ -50,8 +87,8 @@ public class Player extends Agent{
     }
 
     public void withdrawFromWallet(int withdrawAmount) {
-        if(withdrawAmount > wallet) {
-            System.out.println("PlayerUi "+ playerNumber + " went bankrupt!");
+        if (withdrawAmount > wallet) {
+            System.out.println("PlayerUi " + playerNumber + " went bankrupt!");
         } else {
             wallet -= withdrawAmount;
         }
@@ -59,7 +96,7 @@ public class Player extends Agent{
 
     public void depositToWallet(int depositAmount) {
         wallet += depositAmount;
-        System.out.println("Payday for player "+getPlayerNumber()+". You earned $" + depositAmount +"!");
+        System.out.println("Payday for player " + getPlayerNumber() + ". You earned $" + depositAmount + "!");
     }
 
     public int getCurrentSquareNumber() {
@@ -75,7 +112,7 @@ public class Player extends Agent{
     }
 
     public void buyTitleDeed(int squareNumber) {
-        if(ledger.containsKey(squareNumber)) {
+        if (ledger.containsKey(squareNumber)) {
             System.out.println("It's already bought by someone. You cannot buy here.");
         } else {
             titleDeeds.add(this.getCurrentSquareNumber());
@@ -92,4 +129,23 @@ public class Player extends Agent{
         this.currentSquareNumber = targetSquare;
     }
 
+    class DFSubscriptionInit extends SubscriptionInitiator {
+
+        DFSubscriptionInit(Agent agent, DFAgentDescription dfad) {
+            super(agent, DFService.createSubscriptionMessage(agent, getDefaultDF(), dfad, null));
+        }
+
+        protected void handleInform(ACLMessage inform) {
+            try {
+                DFAgentDescription[] dfds = DFService.decodeNotification(inform.getContent());
+                for(int i=0; i<dfds.length; i++) {
+                    AID agent = dfds[i].getName();
+                    System.out.println("New agent in town: " + agent.getLocalName());
+                }
+            } catch (FIPAException fe) {
+                fe.printStackTrace();
+            }
+        }
+
+    }
 }

@@ -42,7 +42,6 @@ public class MonopolyMain extends JFrame{
 	PlayerUi player2Ui;
 	PlayerUi player3Ui;
 	PlayerUi player4Ui;
-	GameManager gameManager;
 	JPanel panelPlayer;
 	JLabel panelPlayerTitle;
 	Boolean doubleDiceForPlayer1 = false;
@@ -73,9 +72,6 @@ public class MonopolyMain extends JFrame{
 			AgentController agentController = this.containerController.acceptNewAgent(id, player);
 			agentController.start();
 		}
-		GameManager gameManager = new GameManager();
-		AgentController agentController = this.containerController.acceptNewAgent("game_manager", gameManager);
-		agentController.start();
 	}
 
 	public MonopolyMain() throws StaleProxyException {
@@ -155,7 +151,6 @@ public class MonopolyMain extends JFrame{
 				infoConsole.setText("You bought "+gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getName() +
 						" for " + gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getPrice() + " euros");
 				currentPlayer.buyTitleDeed(currentPlayer.getCurrentSquareNumber());
-				gameManager.setPropertyOwnership(gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getName(), currentPlayer);
 				int withdrawAmount = gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getPrice();
 				currentPlayer.withdrawFromWallet(withdrawAmount);
 				btnBuy.setEnabled(false);
@@ -176,7 +171,7 @@ public class MonopolyMain extends JFrame{
 				// TODO Auto-generated method stub
 				// turnCounter--;
 				Player currentPlayer = players.get(nowPlaying);
-				Player ownerOfTheSquare = gameManager.getPropertyOwnership(gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getName());
+				Player ownerOfTheSquare = null;
 				int withdrawAmount = gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getRentPrice();
 				infoConsole.setText("You paid " + withdrawAmount + " euros to PlayerUi "+ ownerOfTheSquare.getPlayerNumber());
 				System.out.println(withdrawAmount);
