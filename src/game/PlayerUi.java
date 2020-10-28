@@ -32,7 +32,7 @@ public class PlayerUi extends JPanel{
 		lblPlayerNumber.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		lblPlayerNumber.setForeground(Color.WHITE);
 		this.add(lblPlayerNumber); 
-		this.setBounds(playerNumber*30, 33, 20, 28); // need to fix here for adjustable player numbers
+		this.setBounds(playerNumber*20, 33, 20, 28); // need to fix here for adjustable player numbers
 		totalPlayers++;
 	}
 
@@ -49,20 +49,20 @@ public class PlayerUi extends JPanel{
 	}
 
 
-	int[] xLocationsOfPlayer1 = {26, 126, 226, 326, 426, 526,
-			526, 526, 526, 526, 526,
-			426, 326, 226, 126, 26,
-			26, 26, 26, 26};
+	int[] xLocationsOfPlayer1 = {15, 115, 215, 315, 415, 515,
+			515, 515, 515, 515, 515,
+			415, 315, 215, 115, 15,
+			15, 15, 15, 15};
 
 	int[] yLocationsOfPlayer1 = {33, 33, 33, 33, 33, 33,
 			133, 233, 333, 433, 533,
 			533, 533, 533, 533, 533,
 			433, 333, 233, 133};
 	
-	int[] xLocationsOfPlayer2 = {56, 156, 256, 356, 456, 556,
-			556, 556, 556, 556, 556,
-			456, 356, 256, 156, 56,
-			56, 56, 56, 56};
+	int[] xLocationsOfPlayer2 = {40, 140, 240, 340, 440, 540,
+			540, 540, 540, 540, 540,
+			440, 340, 240, 140, 40,
+			40, 40, 40, 40};
 
 	int[] yLocationsOfPlayer2 = {33, 33, 33, 33, 33, 33,
 			133, 233, 333, 433, 533,
@@ -79,18 +79,15 @@ public class PlayerUi extends JPanel{
 			533, 533, 533, 533, 533,
 			433, 333, 233, 133};
 
-	int[] xLocationsOfPlayer4 = {70, 170, 270, 370, 470, 570,
-			570, 570, 570, 570, 570,
-			470, 370, 270, 170, 70,
-			70, 70, 70, 70};
+	int[] xLocationsOfPlayer4 = {90, 190, 290, 390, 490, 590,
+			590, 590, 590, 590, 590,
+			490, 390, 290, 190, 90,
+			90, 90, 90, 90};
 
 	int[] yLocationsOfPlayer4 = {33, 33, 33, 33, 33, 33,
 			133, 233, 333, 433, 533,
 			533, 533, 533, 533, 533,
 			433, 333, 233, 133};
-
-
-	//TODO Add locations of players 3 e 4
 
 	public void move() {
 		int targetSquare = player.getCurrentSquareNumber();

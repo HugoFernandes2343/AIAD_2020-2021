@@ -126,6 +126,13 @@ public class Player extends Agent {
     }
 
     public void move() throws InterruptedException {
+        //Update the panel
+        MonopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
+        MonopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
+        MonopolyMain.updatePanelPlayerTextArea(this);
+
+        Thread.sleep(2000);
+
         ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
         int dicesTotal = diceResult.get(0) + diceResult.get(1);
         if (currentSquareNumber + dicesTotal > 19) {
@@ -134,21 +141,26 @@ public class Player extends Agent {
         int targetSquare = (currentSquareNumber + dicesTotal) % 20;
         this.currentSquareNumber = targetSquare;
         MonopolyMain.makePlayUI(this);
-        // TODO: Implement buy strategy
+
+        MonopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
+
+        Thread.sleep(2000);
+
+        // TODO: Implement buy strategies starting with the buy everything stratagy
+
         MonopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
         MonopolyMain.updatePanelPlayerTextArea(this);
+
         if(diceResult.get(0) == diceResult.get(1)) {
             MonopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
-            Thread.sleep(5000);
+            Thread.sleep(2000);
             move();
         }
         else{
             String nextPlayerNumber = getNextPlayerNumber();
             MonopolyMain.changeConsoleMessage("Next Player's turn");
-
-            Thread.sleep(5000);
+            Thread.sleep(2000);
             sendPlayMessage(nextPlayerNumber);
-
         }
     }
 

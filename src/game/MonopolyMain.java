@@ -30,6 +30,7 @@ public class MonopolyMain extends JFrame{
 	ArrayList<Player> players = new ArrayList<Player>();
 	static int turnCounter = 0;
 	static JTextArea panelPlayerTextArea;
+	JButton btnStart;
 	static Board gameBoard;
 	static Dice dice1;
 	static Dice dice2;
@@ -103,7 +104,7 @@ public class MonopolyMain extends JFrame{
 
 		panelPlayer = new JPanel();
 		panelPlayer.setBackground(Color.RED);
-		panelPlayerTitle = new JLabel("PlayerUi 1 All Wealth");
+		panelPlayerTitle = new JLabel("Player 1 Information");
 		panelPlayerTitle.setForeground(Color.WHITE);
 		panelPlayerTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		panelPlayerTitle.setBounds(0, 6, 240, 16);
@@ -124,14 +125,24 @@ public class MonopolyMain extends JFrame{
 		infoConsole.setLineWrap(true);
 		infoConsole.setText("Player 1 starts the game!");
 
-		try {
-			Thread.sleep(20000);
-			this.players.get(0).move();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 
-
+		btnStart = new JButton("start");
+		btnStart.setBounds(81, 478, 117, 29);
+		rightPanel.add(btnStart);
+		btnStart.addActionListener(new ActionListener() {
+			 public void actionPerformed(ActionEvent e) {
+				 try {
+					 btnStart.setEnabled(false);
+					 rightPanel.remove(btnStart);
+					 rightPanel.updateUI();
+					 layeredPane.remove(gameBoard);
+					 layeredPane.add(gameBoard, new Integer(0));
+					 players.get(0).move();
+				 } catch (InterruptedException interruptedException) {
+					 interruptedException.printStackTrace();
+				 }
+			 }
+		 });
 		/*btnBuy = new JButton("Buy");
 		btnBuy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
