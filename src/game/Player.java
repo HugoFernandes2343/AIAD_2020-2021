@@ -1,9 +1,6 @@
 package game;
 
-import behaviors.BuyBehaviour;
-import behaviors.PayBehaviour;
-import behaviors.PlayBehaviour;
-import behaviors.ReceiveBehaviour;
+import behaviors.PlayListeningBehaviour;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -12,7 +9,10 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionInitiator;
+import utils.ColorHelper;
+import utils.MessageType;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -30,7 +30,6 @@ public class Player extends Agent {
 
     public Player(int playerNumber) {
         this.playerNumber = playerNumber;
-
     }
 
     protected void setup() {
@@ -46,10 +45,7 @@ public class Player extends Agent {
             fe.printStackTrace();
         }
         addBehaviour(new DFSubscriptionInit(this, dfd));
-        addBehaviour(new PlayBehaviour(this));
-        addBehaviour(new PayBehaviour());
-        addBehaviour(new ReceiveBehaviour());
-        addBehaviour(new BuyBehaviour());
+        addBehaviour(new PlayListeningBehaviour(this));
     }
 
 
@@ -121,13 +117,59 @@ public class Player extends Agent {
         }
     }
 
-    public void move(int dicesTotal) {
+    private String getNextPlayerNumber() {
+        String nextPlayer = "player_";
+        if(this.getPlayerNumber() != 4) {
+            return nextPlayer + (this.getPlayerNumber() + 1);
+        }
+        return nextPlayer + 1;
+    }
+
+    public void move() throws InterruptedException {
+        ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
+        int dicesTotal = diceResult.get(0) + diceResult.get(1);
         if (currentSquareNumber + dicesTotal > 19) {
             depositToWallet(200);
         }
         int targetSquare = (currentSquareNumber + dicesTotal) % 20;
         this.currentSquareNumber = targetSquare;
+        MonopolyMain.makePlayUI(this);
+        // TODO: Implement buy strategy
+        MonopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
+        MonopolyMain.updatePanelPlayerTextArea(this);
+        if(diceResult.get(0) == diceResult.get(1)) {
+            MonopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
+            Thread.sleep(5000);
+            move();
+        }
+        else{
+            String nextPlayerNumber = getNextPlayerNumber();
+            MonopolyMain.changeConsoleMessage("Next Player's turn");
+
+            Thread.sleep(5000);
+            sendPlayMessage(nextPlayerNumber);
+
+        }
     }
+
+    public void sendACLMessage() {
+        jade.lang.acl.ACLMessage msg = new jade.lang.acl.ACLMessage(ACLMessage.INFORM);
+        msg.addUserDefinedParameter("MESSAGE_TYPE", MessageType.PLAY.toString());
+        msg.addReceiver(new AID("player_1", AID.ISLOCALNAME));
+        msg.setLanguage("English");
+        msg.setContent(this.getLocalName());
+        this.send(msg);
+    }
+
+    public void sendPlayMessage(String nextPlayerNumber) {
+        jade.lang.acl.ACLMessage msg = new jade.lang.acl.ACLMessage(ACLMessage.INFORM);
+        msg.addUserDefinedParameter("MESSAGE_TYPE", MessageType.PLAY.toString());
+        msg.addReceiver(new AID(nextPlayerNumber, AID.ISLOCALNAME));
+        msg.setLanguage("English");
+        msg.setContent(this.getLocalName());
+        this.send(msg);
+    }
+
 
     class DFSubscriptionInit extends SubscriptionInitiator {
 

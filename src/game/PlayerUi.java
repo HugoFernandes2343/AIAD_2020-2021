@@ -36,6 +36,10 @@ public class PlayerUi extends JPanel{
 		totalPlayers++;
 	}
 
+	public Player getPlayer() {
+		return this.player;
+	}
+
 	public void withdrawFromWallet(int withdrawAmount) {
 		//TODO add this to UI logs
 	}
@@ -45,25 +49,46 @@ public class PlayerUi extends JPanel{
 	}
 
 
-	int[] xLocationsOfPlayer1 = {31, 131, 231, 331, 431, 531,
-			531, 531, 531, 531, 531,
-			431, 331, 231, 131, 31,
-			31, 31, 31, 31};
+	int[] xLocationsOfPlayer1 = {26, 126, 226, 326, 426, 526,
+			526, 526, 526, 526, 526,
+			426, 326, 226, 126, 26,
+			26, 26, 26, 26};
 
 	int[] yLocationsOfPlayer1 = {33, 33, 33, 33, 33, 33,
 			133, 233, 333, 433, 533,
 			533, 533, 533, 533, 533,
 			433, 333, 233, 133};
 	
-	int[] xLocationsOfPlayer2 = {61, 191, 291, 361, 461, 561,
-			561, 561, 561, 561, 561,
-			461, 361, 261, 161, 61,
-			61, 61, 61, 61};
+	int[] xLocationsOfPlayer2 = {56, 156, 256, 356, 456, 556,
+			556, 556, 556, 556, 556,
+			456, 356, 256, 156, 56,
+			56, 56, 56, 56};
 
 	int[] yLocationsOfPlayer2 = {33, 33, 33, 33, 33, 33,
 			133, 233, 333, 433, 533,
 			533, 533, 533, 533, 533,
 			433, 333, 233, 133};
+
+	int[] xLocationsOfPlayer3 = {65, 165, 265, 365, 465, 565,
+			565, 565, 565, 565, 565,
+			465, 365, 265, 165, 65,
+			65, 65, 65, 65};
+
+	int[] yLocationsOfPlayer3 = {33, 33, 33, 33, 33, 33,
+			133, 233, 333, 433, 533,
+			533, 533, 533, 533, 533,
+			433, 333, 233, 133};
+
+	int[] xLocationsOfPlayer4 = {70, 170, 270, 370, 470, 570,
+			570, 570, 570, 570, 570,
+			470, 370, 270, 170, 70,
+			70, 70, 70, 70};
+
+	int[] yLocationsOfPlayer4 = {33, 33, 33, 33, 33, 33,
+			133, 233, 333, 433, 533,
+			533, 533, 533, 533, 533,
+			433, 333, 233, 133};
+
 
 	//TODO Add locations of players 3 e 4
 
@@ -71,9 +96,14 @@ public class PlayerUi extends JPanel{
 		int targetSquare = player.getCurrentSquareNumber();
 		if(MonopolyMain.nowPlaying == 0) {
 			this.setLocation(xLocationsOfPlayer1[targetSquare], yLocationsOfPlayer1[targetSquare]);
-		} else {
+		} else if(MonopolyMain.nowPlaying == 1) {
 			this.setLocation(xLocationsOfPlayer2[targetSquare], yLocationsOfPlayer2[targetSquare]);
+		} else if(MonopolyMain.nowPlaying == 2) {
+			this.setLocation(xLocationsOfPlayer3[targetSquare], yLocationsOfPlayer3[targetSquare]);
+		} else if(MonopolyMain.nowPlaying == 3) {
+			this.setLocation(xLocationsOfPlayer4[targetSquare], yLocationsOfPlayer4[targetSquare]);
 		}
+
 
 		if(this.player.ledger.containsKey(targetSquare)) {
 			MonopolyMain.infoConsole.setText("This property belongs to player "+this.player.ledger.get(targetSquare));

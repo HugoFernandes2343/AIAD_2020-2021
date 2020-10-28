@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.StaleProxyException;
+import utils.ColorHelper;
 
 public class MonopolyMain extends JFrame{
 
@@ -23,51 +24,26 @@ public class MonopolyMain extends JFrame{
 	private ContainerController containerController;
 	private JPanel contentIncluder;
 	static JTextArea infoConsole;
-	JPanel playerAssetsPanel;
+	static JPanel playerAssetsPanel;
 	CardLayout c1 = new CardLayout();
-	ArrayList<PlayerUi> playerUis = new ArrayList<PlayerUi>();
+	static ArrayList<PlayerUi> playerUis = new ArrayList<PlayerUi>();
 	ArrayList<Player> players = new ArrayList<Player>();
 	static int turnCounter = 0;
-	JButton btnNextTurn;
-	JButton btnRollDice;
-	JButton btnPayRent;
-	JButton btnBuy;
-	JTextArea panelPlayerTextArea;
-	Board gameBoard;
-	Player player1;
-	Player player2;
-	Player player3;
-	Player player4;
-	PlayerUi player1Ui;
-	PlayerUi player2Ui;
-	PlayerUi player3Ui;
-	PlayerUi player4Ui;
-	JPanel panelPlayer;
-	JLabel panelPlayerTitle;
-	Boolean doubleDiceForPlayer1 = false;
-	Boolean doubleDiceForPlayer2 = false;
-	Boolean doubleDiceForPlayer3 = false;
+	static JTextArea panelPlayerTextArea;
+	static Board gameBoard;
+	static Dice dice1;
+	static Dice dice2;
+	static JPanel panelPlayer;
+	static JLabel panelPlayerTitle;
+	static JLayeredPane layeredPane;
 	static int nowPlaying = 0;
-
-	private Color getColor(int index) {
-		if(index == 1) {
-			return Color.RED;
-		}
-		if(index == 2) {
-			return Color.BLUE;
-		}
-		if(index == 3) {
-			return Color.YELLOW;
-		}
-		return Color.GREEN;
-	}
 
 	private void createAgents() throws StaleProxyException {
 		for(int i = 1; i < 5; i++) {
 			String id = "player_" + i;
 			Player player = new Player(i);
 			players.add(player);
-			PlayerUi playerUi = new PlayerUi(player, getColor(i));
+			PlayerUi playerUi = new PlayerUi(player, ColorHelper.getColor(i));
 			playerUis.add(playerUi);
 			AgentController agentController = this.containerController.acceptNewAgent(id, player);
 			agentController.start();
@@ -87,7 +63,7 @@ public class MonopolyMain extends JFrame{
 		setContentPane(contentIncluder);
 		contentIncluder.setLayout(null);
 
-		JLayeredPane layeredPane = new JLayeredPane();
+		layeredPane = new JLayeredPane();
 		layeredPane.setBorder(new LineBorder(new Color(0, 0, 0)));
 		layeredPane.setBounds(6, 6, 632, 630);
 		contentIncluder.add(layeredPane);
@@ -96,12 +72,17 @@ public class MonopolyMain extends JFrame{
 		gameBoard.setBackground(new Color(51, 255, 153));
 		layeredPane.add(gameBoard, new Integer(0));
 
+		dice1 = new Dice(244, 406, 40, 40);
+		layeredPane.add(dice1, new Integer(1));
+
+		dice2 = new Dice(333, 406, 40, 40);
+		layeredPane.add(dice2, new Integer(1));
+
 		this.createAgents();
 
 		for(PlayerUi playerUi : playerUis) {
 			layeredPane.add(playerUi, new Integer(2));
 		}
-
 
 		JPanel rightPanel = new JPanel();
 		rightPanel.setBackground(Color.LIGHT_GRAY);
@@ -133,7 +114,7 @@ public class MonopolyMain extends JFrame{
 		panelPlayer.add(panelPlayerTextArea);
 		playerAssetsPanel.add(panelPlayer, "1");
 
-		updatePanelPlayerTextArea(players.get(0), gameBoard, panelPlayerTextArea);
+		updatePanelPlayerTextArea(players.get(0));
 
 		infoConsole = new JTextArea();
 		infoConsole.setColumns(20);
@@ -141,9 +122,17 @@ public class MonopolyMain extends JFrame{
 		infoConsole.setBounds(6, 6, 234, 56);
 		test.add(infoConsole);
 		infoConsole.setLineWrap(true);
-		infoConsole.setText("Player 1 starts the game by clicking Roll Dice!");
+		infoConsole.setText("Player 1 starts the game!");
 
-		btnBuy = new JButton("Buy");
+		try {
+			Thread.sleep(20000);
+			this.players.get(0).move();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+
+		/*btnBuy = new JButton("Buy");
 		btnBuy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//turnCounter--; // decrease because we increased at the end of the rolldice
@@ -190,43 +179,35 @@ public class MonopolyMain extends JFrame{
 		rightPanel.add(btnPayRent);
 		btnPayRent.setEnabled(false);
 
-		Dice dice1 = new Dice(244, 406, 40, 40);
-		layeredPane.add(dice1, new Integer(1));
-
-		Dice dice2 = new Dice(333, 406, 40, 40);
-		layeredPane.add(dice2, new Integer(1));
-
 		btnRollDice = new JButton("Roll Dice");
 		btnRollDice.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				if(nowPlaying == 0) {
 					// player1's turn
-					doubleDiceForPlayer1 = makePlay(player1, player1Ui, dice1, dice2);
+					doubleDiceForPlayer1 = makePlayUI(player1, player1Ui, dice1, dice2);
 					if(doubleDiceForPlayer1) {
-						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 1", infoConsole);
+						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 1");
 					}
 					else {
-						changeConsoleMessage("Click Next Turn To Allow Player 2 To Roll Dice", infoConsole);
+						changeConsoleMessage("Click Next Turn To Allow Player 2 To Roll Dice");
 					}
-
 				} else if (nowPlaying == 1){
 					// player2's turn
-					doubleDiceForPlayer2 = makePlay(player2, player2Ui, dice1, dice2);
+					doubleDiceForPlayer2 = makePlayUI(player2, player2Ui, dice1, dice2);
 					if(doubleDiceForPlayer2) {
-						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 2", infoConsole);
+						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 2");
 					}
 					else {
-						changeConsoleMessage("Click Next Turn To Allow Player 3 To Roll Dice", infoConsole);
+						changeConsoleMessage("Click Next Turn To Allow Player 3 To Roll Dice");
 					}
 				} else if (nowPlaying == 2) {
 					// player3's turn
-					doubleDiceForPlayer3 = makePlay(player3, player3Ui, dice1, dice2);
+					doubleDiceForPlayer3 = makePlayUI(player3, player3Ui, dice1, dice2);
 					if(doubleDiceForPlayer3) {
-						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 3", infoConsole);
+						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 3");
 					}
 					else {
-						changeConsoleMessage("Click Next Turn To Allow Player 1 To Roll Dice", infoConsole);
+						changeConsoleMessage("Click Next Turn To Allow Player 1 To Roll Dice");
 					}
 				}
 
@@ -234,9 +215,7 @@ public class MonopolyMain extends JFrame{
 
 
 
-				// we have to add below 2 lines to avoid some GUI breakdowns.
-				layeredPane.remove(gameBoard);
-				layeredPane.add(gameBoard, new Integer(0));
+
 
 			}
 		});
@@ -260,7 +239,7 @@ public class MonopolyMain extends JFrame{
 							nowPlaying = 0;
 						} else {
 							nowPlaying = 1;
-							changeConsoleMessage("It's now player 2's turn", infoConsole);
+							changeConsoleMessage("It's now player 2's turn");
 							updatePlayerPanel(panelPlayer, panelPlayerTitle, Color.BLUE, playerAssetsPanel, "2", "PlayerUi 2 Information", panelPlayerTextArea);
 						}
 						updatePanelPlayerTextArea(player2, gameBoard, panelPlayerTextArea);
@@ -270,7 +249,7 @@ public class MonopolyMain extends JFrame{
 							nowPlaying = 1;
 						} else {
 							nowPlaying = 2;
-							changeConsoleMessage("It's now player 3's turn", infoConsole);
+							changeConsoleMessage("It's now player 3's turn");
 							updatePlayerPanel(panelPlayer, panelPlayerTitle, Color.YELLOW, playerAssetsPanel,"3", "PlayerUi 3 Information", panelPlayerTextArea);
 						}
 						updatePanelPlayerTextArea(player3, gameBoard, panelPlayerTextArea);
@@ -280,7 +259,7 @@ public class MonopolyMain extends JFrame{
 							nowPlaying = 2;
 						} else {
 							nowPlaying = 0;
-							changeConsoleMessage("It's now player 1's turn", infoConsole);
+							changeConsoleMessage("It's now player 1's turn");
 							updatePlayerPanel(panelPlayer, panelPlayerTitle, Color.RED, playerAssetsPanel, "1", "PlayerUi 1 Information", panelPlayerTextArea);
 						}
 						updatePanelPlayerTextArea(player1, gameBoard, panelPlayerTextArea);
@@ -290,10 +269,10 @@ public class MonopolyMain extends JFrame{
 		
 		btnNextTurn.setBounds(81, 519, 246, 53);
 		rightPanel.add(btnNextTurn);
-		btnNextTurn.setEnabled(false);
+		btnNextTurn.setEnabled(false);*/
 	}
 
-	public void updatePanelPlayerTextArea(Player player, Board gameBoard, JTextArea panelPlayerTextArea) {
+	public static void updatePanelPlayerTextArea(Player player) {
 		// TODO Auto-generated method stub
 		String result = "Player " + String.valueOf(player.getPlayerNumber()) + " Now Playing" + "\n";
 		result += "Current Balance: "+player.getWallet()+"\n";
@@ -306,19 +285,19 @@ public class MonopolyMain extends JFrame{
 		panelPlayerTextArea.setText(result);
 	}
 
-	public void updatePlayerPanel(JPanel panelPlayer, JLabel panelPlayerTitle, Color color, JPanel playerAssetsPanel ,String constraintMessage, String labelMessage, JTextArea panelPlayerTextArea) {
+	public static void updatePlayerPanel(Color color, int playerNumber) {
 		panelPlayer.setBackground(color);
 		panelPlayer.setLayout(null);
-		panelPlayerTitle.setText(labelMessage);
+		panelPlayerTitle.setText("Player " + playerNumber + " Information");
 		panelPlayerTitle.setForeground(Color.WHITE);
 		panelPlayerTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		panelPlayerTitle.setBounds(0, 6, 240, 16);
 		panelPlayer.add(panelPlayerTitle);
-		playerAssetsPanel.add(panelPlayer, constraintMessage);
+		playerAssetsPanel.add(panelPlayer, String.valueOf(playerNumber));
 	}
 
-	public static void changeConsoleMessage(String message, JTextArea console) {
-		console.setText(message);
+	public static void changeConsoleMessage(String message) {
+		infoConsole.setText(message);
 	}
 	
 	public static void errorBox(String infoMessage, String titleBar) {
@@ -333,42 +312,32 @@ public class MonopolyMain extends JFrame{
 
 	}
 
-	private boolean makePlay(Player player, PlayerUi playerUi ,Dice dice1, Dice dice2) {
-		boolean doubleDiceForCurrentPlayer = false;
-		int dice1OldValue = dice1.getFaceValue();
-		int dice2OldValue = dice2.getFaceValue();
+	public static ArrayList<Integer> rollDiceUI() {
+		ArrayList<Integer> res = new ArrayList<>();
 		dice1.rollDice();
 		dice2.rollDice();
-		int dicesTotal = dice1.getFaceValue() + dice2.getFaceValue();
-		if(dice1.getFaceValue() == dice2.getFaceValue()) {
-			doubleDiceForCurrentPlayer = true;
-		}
-		player.move(dicesTotal);
-		playerUi.move();
+		res.add(dice1.getFaceValue());
+		res.add(dice2.getFaceValue());
+		return res;
+	}
 
-		if(player.ledger.containsKey(player.getCurrentSquareNumber()) // if bought by someone
-				&& player.ledger.get(player.getCurrentSquareNumber()) != player.getPlayerNumber() // not by itself
-		) {
-			btnBuy.setEnabled(false);
-			btnRollDice.setEnabled(false);
-			btnNextTurn.setEnabled(false);
-			btnPayRent.setEnabled(true);
+	private static PlayerUi getPlayerFromPlayerUI(Player player) {
+		for(PlayerUi playerUi: playerUis) {
+			if(playerUi.getPlayer().getPlayerNumber() == player.getPlayerNumber()) {
+				return playerUi;
+			}
 		}
-		if (player.ledger.containsKey(player.getCurrentSquareNumber()) // if bought by someone
-				&& player.ledger.get(player.getCurrentSquareNumber()) == player.getPlayerNumber()) { // and by itself
-			btnBuy.setEnabled(false);
-			btnPayRent.setEnabled(false);
-			btnNextTurn.setEnabled(true);
+		return null;
+	}
+
+	public static void makePlayUI(Player player) {
+		PlayerUi playerUi = getPlayerFromPlayerUI(player);
+		nowPlaying = player.getPlayerNumber() - 1;
+		if(playerUi != null) {
+			playerUi.move();
 		}
-		if(gameBoard.getUnbuyableSquares().contains(gameBoard.getAllSquares().get(player.getCurrentSquareNumber()))) {
-			btnBuy.setEnabled(false);
-			btnNextTurn.setEnabled(true);
-		} else if (!player.ledger.containsKey(player.getCurrentSquareNumber())) { // if not bought by someone
-			btnBuy.setEnabled(true);
-			btnNextTurn.setEnabled(true);
-			btnPayRent.setEnabled(false);
-		}
-		return doubleDiceForCurrentPlayer;
+		layeredPane.remove(gameBoard);
+		layeredPane.add(gameBoard, new Integer(0));
 	}
 
 }
