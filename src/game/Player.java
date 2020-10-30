@@ -72,7 +72,7 @@ public class Player extends Agent {
             for (DFAgentDescription dfAgentDescription : result) {
                 String playerName = dfAgentDescription.getName().getName();
                 System.out.println("Found " + playerName);
-                if (playerName.equals("player_" + this.playerNumber)) {
+                if (!playerName.equals("player_" + this.playerNumber)) {
                     players.add(playerName);
                 }
             }
@@ -100,7 +100,7 @@ public class Player extends Agent {
     public void withdrawFromWallet(int withdrawAmount) {
         if (withdrawAmount > wallet) {
             System.out.println("PlayerUi " + playerNumber + " went bankrupt!");
-            //Send bust message
+            //TODO Send bust message
             takeDown();
         } else {
             wallet -= withdrawAmount;
@@ -124,21 +124,16 @@ public class Player extends Agent {
         return titleDeeds.contains(squareNumber) ? true : false;
     }
 
-    public void buySquare(int squareNumber) {
-        if (ledger.containsKey(squareNumber)) {
-            System.out.println("It's already bought by someone. You cannot buy here.");
-        } else {
-            int price = MonopolyMain.priceOfPurchase(squareNumber);
-            withdrawFromWallet(price);
-            titleDeeds.add(this.getCurrentSquareNumber());
-            ledger.put(squareNumber, this.getPlayerNumber()); // everytime a player buys a title deed, it is written in ledger, for example square 1 belongs to player 2
+    private void buySquare(int squareNumber) {
+        int price = MonopolyMain.priceOfPurchase(squareNumber);
+        withdrawFromWallet(price);
+        titleDeeds.add(this.getCurrentSquareNumber());
+        ledger.put(squareNumber, this.getPlayerNumber()); // everytime a player buys a title deed, it is written in ledger, for example square 1 belongs to player 2
 
-            //sendBuyMessage
-            ArrayList<String> players = searchForPlayers();
-            for (String player : players) {
-                sendBuyMessage(player);
-            }
-
+        //sendBuyMessage
+        ArrayList<String> players = searchForPlayers();
+        for (String player : players) {
+            sendBuyMessage(player);
         }
     }
 
@@ -173,8 +168,10 @@ public class Player extends Agent {
 
         //Verificar se um square ja tem dono
         if(ledger.containsKey(targetSquare)) {
-            MonopolyMain.infoConsole.setText("This property belongs to player "+ledger.get(targetSquare) + " you need to pay rent.");
-            //Todo pagar renda
+            if (ledger.get(targetSquare) != playerNumber){
+                MonopolyMain.infoConsole.setText("This property belongs to player "+ledger.get(targetSquare) + " you need to pay rent.");
+                //Todo pagar renda
+            }
         }else{
             //Strategy is used to decide if the player buys the square or not
             //Output will be 1(Buy) or 0(Don't buy) or 255 if there is an error

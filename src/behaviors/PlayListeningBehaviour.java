@@ -34,6 +34,7 @@ public class PlayListeningBehaviour extends Behaviour{
                         break;
                     case  "BUST":
                         //bust(msg);
+                        //TODO Re-search for plaeyers or remove from list
                         break;
                     default:
                         System.out.println("PlayListeningBehavior - ERROR: message type " + tmp.toString() + " unknown");

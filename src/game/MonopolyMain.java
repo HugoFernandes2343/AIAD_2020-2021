@@ -45,8 +45,8 @@ public class MonopolyMain extends JFrame{
 		this.containerController = runtimeInstance.createMainContainer(profile);
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		setSize(1080,720);
+		setBounds(100, 100, 1030, 1030);
+		setSize(1600,1080);
 		contentIncluder = new JPanel();
 		contentIncluder.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentIncluder);
@@ -54,10 +54,10 @@ public class MonopolyMain extends JFrame{
 
 		layeredPane = new JLayeredPane();
 		layeredPane.setBorder(new LineBorder(new Color(0, 0, 0)));
-		layeredPane.setBounds(6, 6, 632, 630);
+		layeredPane.setBounds(6, 6, 1024, 1022);
 		contentIncluder.add(layeredPane);
 
-		gameBoard = new Board(6,6,612,612);
+		gameBoard = new Board(6,6,1012,1012);
 		gameBoard.setBackground(new Color(51, 255, 153));
 		layeredPane.add(gameBoard, new Integer(0));
 
@@ -76,7 +76,7 @@ public class MonopolyMain extends JFrame{
 		JPanel rightPanel = new JPanel();
 		rightPanel.setBackground(Color.LIGHT_GRAY);
 		rightPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		rightPanel.setBounds(634, 6, 419, 600);
+		rightPanel.setBounds(1100, 6, 419, 600);
 		contentIncluder.add(rightPanel);
 		rightPanel.setLayout(null);
 
