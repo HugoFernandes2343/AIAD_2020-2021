@@ -39,18 +39,6 @@ public class MonopolyMain extends JFrame{
 	static JLayeredPane layeredPane;
 	static int nowPlaying = 0;
 
-	private void createAgents() throws StaleProxyException {
-		for(int i = 1; i < 5; i++) {
-			String id = "player_" + i;
-			Player player = new Player(i);
-			players.add(player);
-			PlayerUi playerUi = new PlayerUi(player, ColorHelper.getColor(i));
-			playerUis.add(playerUi);
-			AgentController agentController = this.containerController.acceptNewAgent(id, player);
-			agentController.start();
-		}
-	}
-
 	public MonopolyMain() throws StaleProxyException {
 		this.runtimeInstance = Runtime.instance();
 		this.profile = new ProfileImpl(true);
@@ -283,6 +271,21 @@ public class MonopolyMain extends JFrame{
 		btnNextTurn.setEnabled(false);*/
 	}
 
+	private void createAgents() throws StaleProxyException {
+		for(int i = 1; i < 5; i++) {
+			//estrategias tao todas como a 1 currently
+			String id = "player_" + i;
+			Player player = new Player(i,1);
+			players.add(player);
+
+			PlayerUi playerUi = new PlayerUi(player, ColorHelper.getColor(i));
+			playerUis.add(playerUi);
+
+			AgentController agentController = this.containerController.acceptNewAgent(id, player);
+			agentController.start();
+		}
+	}
+
 	public static void updatePanelPlayerTextArea(Player player) {
 		// TODO Auto-generated method stub
 		String result = "Player " + String.valueOf(player.getPlayerNumber()) + " Now Playing" + "\n";
@@ -351,4 +354,14 @@ public class MonopolyMain extends JFrame{
 		layeredPane.add(gameBoard, new Integer(0));
 	}
 
+	public static int priceOfPurchase(int squareNumber) {
+		int price;
+		price = gameBoard.getSquareAtIndex(squareNumber).getPrice();
+		return price;
+	}
+	public static int priceOfRent(int squareNumber) {
+		int rent;
+		rent = gameBoard.getSquareAtIndex(squareNumber).getRentPrice();
+		return rent;
+	}
 }

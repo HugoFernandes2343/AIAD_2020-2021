@@ -18,18 +18,21 @@ import java.util.HashMap;
 
 public class Player extends Agent {
 
-    private int playerNumber;
+    private final int playerNumber;
 
     //TODO change to private and create a method for it
     public HashMap<Integer, Integer> ledger = new HashMap<>();
 
     private int currentSquareNumber = 0; // where player is currently located on (0 - 19). initially zero
 
-    private ArrayList<Integer> titleDeeds = new ArrayList<Integer>(); // squares that the player has
+    private ArrayList<Integer> titleDeeds = new ArrayList<>(); // squares that the player has
     private int wallet = 3200; // initial money
 
-    public Player(int playerNumber) {
+    private final Strategy strategy;
+
+    public Player(int playerNumber,int strategy) {
         this.playerNumber = playerNumber;
+        this.strategy = new Strategy(strategy);
     }
 
     protected void setup() {
@@ -58,19 +61,31 @@ public class Player extends Agent {
         System.out.println(getLocalName() + ": done working.");
     }
 
-    protected void searchAgents() {
+    protected ArrayList<String> searchForPlayers() {
+        ArrayList<String> players = new ArrayList<>();
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
         sd.setType("player");
         template.addServices(sd);
         try {
             DFAgentDescription[] result = DFService.search(this, template);
-            for (int i = 0; i < result.length; ++i) {
-                System.out.println("Found " + result[i].getName());
+            for (DFAgentDescription dfAgentDescription : result) {
+                String playerName = dfAgentDescription.getName().getName();
+                System.out.println("Found " + playerName);
+                if (playerName.equals("player_" + this.playerNumber)) {
+                    players.add(playerName);
+                }
             }
         } catch (FIPAException fe) {
             fe.printStackTrace();
         }
+
+        if (players.size()==0){
+            MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
+            takeDown();
+        }
+
+        return players;
     }
 
 
@@ -85,6 +100,8 @@ public class Player extends Agent {
     public void withdrawFromWallet(int withdrawAmount) {
         if (withdrawAmount > wallet) {
             System.out.println("PlayerUi " + playerNumber + " went bankrupt!");
+            //Send bust message
+            takeDown();
         } else {
             wallet -= withdrawAmount;
         }
@@ -107,12 +124,20 @@ public class Player extends Agent {
         return titleDeeds.contains(squareNumber) ? true : false;
     }
 
-    public void buyTitleDeed(int squareNumber) {
+    public void buySquare(int squareNumber) {
         if (ledger.containsKey(squareNumber)) {
             System.out.println("It's already bought by someone. You cannot buy here.");
         } else {
+            int price = MonopolyMain.priceOfPurchase(squareNumber);
+            withdrawFromWallet(price);
             titleDeeds.add(this.getCurrentSquareNumber());
             ledger.put(squareNumber, this.getPlayerNumber()); // everytime a player buys a title deed, it is written in ledger, for example square 1 belongs to player 2
+
+            //sendBuyMessage
+            ArrayList<String> players = searchForPlayers();
+            for (String player : players) {
+                sendBuyMessage(player);
+            }
 
         }
     }
@@ -146,12 +171,24 @@ public class Player extends Agent {
 
         Thread.sleep(2000);
 
-        // TODO: Implement buy strategies starting with the buy everything stratagy
+        //Verificar se um square ja tem dono
+        if(ledger.containsKey(targetSquare)) {
+            MonopolyMain.infoConsole.setText("This property belongs to player "+ledger.get(targetSquare) + " you need to pay rent.");
+            //Todo pagar renda
+        }else{
+            //Strategy is used to decide if the player buys the square or not
+            //Output will be 1(Buy) or 0(Don't buy) or 255 if there is an error
+            int decision = strategy.strategize(wallet,currentSquareNumber);
+            if (decision==1){
+                buySquare(currentSquareNumber);
+                //TODO method to buy and then send the buy message to the other players
+            }
+        }
 
         MonopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
         MonopolyMain.updatePanelPlayerTextArea(this);
 
-        if(diceResult.get(0) == diceResult.get(1)) {
+        if(diceResult.get(0).equals(diceResult.get(1))) {
             MonopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
             Thread.sleep(2000);
             move();
@@ -170,6 +207,15 @@ public class Player extends Agent {
         msg.addReceiver(new AID("player_1", AID.ISLOCALNAME));
         msg.setLanguage("English");
         msg.setContent(this.getLocalName());
+        this.send(msg);
+    }
+
+    public void sendBuyMessage(String player) {
+        jade.lang.acl.ACLMessage msg = new jade.lang.acl.ACLMessage(ACLMessage.INFORM);
+        msg.addUserDefinedParameter("MESSAGE_TYPE", MessageType.BUY.toString());
+        msg.addReceiver(new AID(player,AID.ISLOCALNAME));
+        msg.setLanguage("English");
+        msg.setContent(this.getLocalName() + currentSquareNumber);
         this.send(msg);
     }
 
