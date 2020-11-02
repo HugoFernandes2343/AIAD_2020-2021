@@ -27,8 +27,10 @@ public class Strategy {
         return 255;
     }
 
-    public int relentlessStrategy(int wallet, int squareNumber){
-
+    public int relentlessStrategy(int wallet, int squarePrice){
+        if(wallet > squarePrice) {
+            return 1;
+        }
         return 0;
     };
     public int secondStrategy(){return 0;}

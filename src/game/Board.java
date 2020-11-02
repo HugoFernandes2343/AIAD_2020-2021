@@ -109,6 +109,7 @@ public class Board extends JPanel {
 		Square square06 = new Square(606,6,100,100,squareNames[6],180);
 		this.add(square06);
 		allSquares.add(square06);
+		unbuyableSquares.add(square06);
 		Square square07 = new Square(706,6,100,100,squareNames[7],180);
 		this.add(square07);
 		allSquares.add(square07);
@@ -134,7 +135,6 @@ public class Board extends JPanel {
 		Square square12 = new Square(906,306,100,100,squareNames[12],-90);
 		this.add(square12);
 		allSquares.add(square12);
-		unbuyableSquares.add(square07);
 		
 		Square square13 = new Square(906,406,100,100,squareNames[13],-90);
 		this.add(square13);
@@ -157,17 +157,16 @@ public class Board extends JPanel {
 		Square square17 = new Square(906,806,100,100,squareNames[17],-135);
 		this.add(square17);
 		allSquares.add(square17);
-		unbuyableSquares.add(square17);
 
 		// squares on the bottom
 		Square square18 = new Square(906,906,100,100,squareNames[18],0);
 		this.add(square18);
 		allSquares.add(square18);
+		unbuyableSquares.add(square18);
 		
 		Square square19 = new Square(806,906,100,100,squareNames[19],0);
 		this.add(square19);
 		allSquares.add(square19);
-		unbuyableSquares.add(square19);
 		
 		Square square20 = new Square(706,906,100,100,squareNames[20],0);
 		this.add(square20);
@@ -210,11 +209,11 @@ public class Board extends JPanel {
 		Square square29 = new Square(6,706,100,100,squareNames[29],90);
 		this.add(square29);
 		allSquares.add(square29);
-		unbuyableSquares.add(square29);
 		
 		Square square30 = new Square(6,606,100,100,squareNames[30],90);
 		this.add(square30);
 		allSquares.add(square30);
+		unbuyableSquares.add(square30);
 
 		Square square31 = new Square(6,506,100,100,squareNames[31],90);
 		this.add(square31);
@@ -231,7 +230,6 @@ public class Board extends JPanel {
 		Square square34 = new Square(6,206,100,100,squareNames[34],90);
 		this.add(square34);
 		allSquares.add(square34);
-		unbuyableSquares.add(square34);
 
 		Square square35 = new Square(6,106,100,100,squareNames[35],90);
 		this.add(square35);
@@ -242,37 +240,66 @@ public class Board extends JPanel {
 		square03.setPrice(100);
 		square04.setPrice(120);
 		
-		square06.setPrice(140);
+		square05.setPrice(140);
 		square08.setPrice(140);
 		square09.setPrice(160);
 		
-		square11.setPrice(180);
-		square13.setPrice(180);
-		square14.setPrice(200);
+		square10.setPrice(180);
+		square12.setPrice(180);
+		square13.setPrice(200);
 		
+		square14.setPrice(300);
 		square16.setPrice(300);
-		square17.setPrice(300);
-		square19.setPrice(320);
-		
+		square17.setPrice(320);
+
+		square19.setPrice(340);
+		square21.setPrice(340);
+		square22.setPrice(360);
+
+		square23.setPrice(400);
+		square24.setPrice(400);
+		square26.setPrice(420);
+
+		square28.setPrice(440);
+		square29.setPrice(440);
+		square31.setPrice(460);
+
+		square32.setPrice(500);
+		square33.setPrice(500);
+		square35.setPrice(600);
+
 		// setting rent prices
 		square01.setRentPrice(6);
 		square03.setRentPrice(6);
 		square04.setRentPrice(8);
-		
-		square06.setRentPrice(10);
+
+		square05.setRentPrice(10);
 		square08.setRentPrice(10);
-		square09.setRentPrice(12);
-		
-		square11.setRentPrice(14);
-		square13.setRentPrice(14);
-		square14.setRentPrice(16);
-		
-		square16.setRentPrice(26);
-		square17.setRentPrice(26);
-		square19.setRentPrice(28);
-		
-		
-		
+		square09.setRentPrice(14);
+
+		square10.setRentPrice(20);
+		square12.setRentPrice(20);
+		square13.setRentPrice(24);
+
+		square14.setRentPrice(30);
+		square16.setRentPrice(30);
+		square17.setRentPrice(34);
+
+		square19.setRentPrice(40);
+		square21.setRentPrice(40);
+		square22.setRentPrice(44);
+
+		square23.setRentPrice(60);
+		square24.setRentPrice(60);
+		square26.setRentPrice(65);
+
+		square28.setRentPrice(80);
+		square29.setRentPrice(80);
+		square31.setRentPrice(90);
+
+		square32.setRentPrice(100);
+		square33.setRentPrice(100);
+		square35.setRentPrice(200);
 
 		JLabel lblMonopoly = new JLabel("MONOPOLY"){
 			protected void paintComponent(Graphics g) {

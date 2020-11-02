@@ -12,9 +12,9 @@ import jade.proto.SubscriptionInitiator;
 import utils.ColorHelper;
 import utils.MessageType;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Player extends Agent {
 
@@ -30,7 +30,7 @@ public class Player extends Agent {
 
     private final Strategy strategy;
 
-    public Player(int playerNumber,int strategy) {
+    public Player(int playerNumber, int strategy) {
         this.playerNumber = playerNumber;
         this.strategy = new Strategy(strategy);
     }
@@ -72,15 +72,16 @@ public class Player extends Agent {
             for (DFAgentDescription dfAgentDescription : result) {
                 String playerName = dfAgentDescription.getName().getName();
                 System.out.println("Found " + playerName);
-                if (!playerName.equals("player_" + this.playerNumber)) {
-                    players.add(playerName);
+                String[] splitInformation = playerName.split("@");
+                if (!splitInformation[0].equals("player_" + this.getPlayerNumber())) {
+                    players.add(splitInformation[0]);
                 }
             }
         } catch (FIPAException fe) {
             fe.printStackTrace();
         }
 
-        if (players.size()==0){
+        if (players.size() == 0) {
             MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
             takeDown();
         }
@@ -124,22 +125,34 @@ public class Player extends Agent {
         return titleDeeds.contains(squareNumber) ? true : false;
     }
 
-    private void buySquare(int squareNumber) {
+    public void registerTransactionInLedger(int squareNumber, int playerNumber) {
+        this.ledger.put(squareNumber, playerNumber);
+    }
+
+    private boolean isSquareUnbuyable(int squareNumber) {
+        for (Square square : MonopolyMain.gameBoard.getUnbuyableSquares()) {
+            if (square.getName().equalsIgnoreCase(MonopolyMain.gameBoard.getSquareAtIndex(squareNumber).getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void buySquare(int squareNumber, int playerNumber) {
         int price = MonopolyMain.priceOfPurchase(squareNumber);
         withdrawFromWallet(price);
-        titleDeeds.add(this.getCurrentSquareNumber());
-        ledger.put(squareNumber, this.getPlayerNumber()); // everytime a player buys a title deed, it is written in ledger, for example square 1 belongs to player 2
+        titleDeeds.add(squareNumber);
+        this.registerTransactionInLedger(squareNumber, playerNumber);  // everytime a player buys a title deed, it is written in ledger, for example square 1 belongs to player 2
 
-        //sendBuyMessage
         ArrayList<String> players = searchForPlayers();
         for (String player : players) {
-            sendBuyMessage(player);
+            sendBuyMessage(player, squareNumber, playerNumber);
         }
     }
 
     private String getNextPlayerNumber() {
         String nextPlayer = "player_";
-        if(this.getPlayerNumber() != 4) {
+        if (this.getPlayerNumber() != 4) {
             return nextPlayer + (this.getPlayerNumber() + 1);
         }
         return nextPlayer + 1;
@@ -167,30 +180,31 @@ public class Player extends Agent {
         Thread.sleep(2000);
 
         //Verificar se um square ja tem dono
-        if(ledger.containsKey(targetSquare)) {
-            if (ledger.get(targetSquare) != playerNumber){
-                MonopolyMain.infoConsole.setText("This property belongs to player "+ledger.get(targetSquare) + " you need to pay rent.");
+        if (ledger.containsKey(targetSquare)) {
+            if (ledger.get(targetSquare) != playerNumber) {
+                MonopolyMain.infoConsole.setText("This property belongs to player " + ledger.get(targetSquare) + " you need to pay rent.");
                 //Todo pagar renda
             }
-        }else{
+        } else {
             //Strategy is used to decide if the player buys the square or not
             //Output will be 1(Buy) or 0(Don't buy) or 255 if there is an error
-            int decision = strategy.strategize(wallet,currentSquareNumber);
-            if (decision==1){
-                buySquare(currentSquareNumber);
-                //TODO method to buy and then send the buy message to the other players
+            if (!isSquareUnbuyable(currentSquareNumber)) {
+                int decision = strategy.relentlessStrategy(wallet, MonopolyMain.priceOfPurchase(currentSquareNumber));
+                if (decision == 1) {
+                    buySquare(currentSquareNumber, this.getPlayerNumber());
+                    //TODO method to buy and then send the buy message to the other players
+                }
             }
         }
 
         MonopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
         MonopolyMain.updatePanelPlayerTextArea(this);
 
-        if(diceResult.get(0).equals(diceResult.get(1))) {
+        if (diceResult.get(0).equals(diceResult.get(1))) {
             MonopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
             Thread.sleep(2000);
             move();
-        }
-        else{
+        } else {
             String nextPlayerNumber = getNextPlayerNumber();
             MonopolyMain.changeConsoleMessage("Next Player's turn");
             Thread.sleep(2000);
@@ -198,21 +212,12 @@ public class Player extends Agent {
         }
     }
 
-    public void sendACLMessage() {
-        jade.lang.acl.ACLMessage msg = new jade.lang.acl.ACLMessage(ACLMessage.INFORM);
-        msg.addUserDefinedParameter("MESSAGE_TYPE", MessageType.PLAY.toString());
-        msg.addReceiver(new AID("player_1", AID.ISLOCALNAME));
-        msg.setLanguage("English");
-        msg.setContent(this.getLocalName());
-        this.send(msg);
-    }
-
-    public void sendBuyMessage(String player) {
+    private void sendBuyMessage(String player, int squareNumber, int originalPlayerNumber) {
         jade.lang.acl.ACLMessage msg = new jade.lang.acl.ACLMessage(ACLMessage.INFORM);
         msg.addUserDefinedParameter("MESSAGE_TYPE", MessageType.BUY.toString());
-        msg.addReceiver(new AID(player,AID.ISLOCALNAME));
+        msg.addReceiver(new AID(player, AID.ISLOCALNAME));
         msg.setLanguage("English");
-        msg.setContent(this.getLocalName() + currentSquareNumber);
+        msg.setContent(originalPlayerNumber+ "/" + squareNumber);
         this.send(msg);
     }
 
@@ -235,7 +240,7 @@ public class Player extends Agent {
         protected void handleInform(ACLMessage inform) {
             try {
                 DFAgentDescription[] dfds = DFService.decodeNotification(inform.getContent());
-                for(int i=0; i<dfds.length; i++) {
+                for (int i = 0; i < dfds.length; i++) {
                     AID agent = dfds[i].getName();
                     System.out.println("New agent in town: " + agent.getLocalName());
                 }

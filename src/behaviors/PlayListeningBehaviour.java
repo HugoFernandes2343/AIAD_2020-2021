@@ -27,14 +27,17 @@ public class PlayListeningBehaviour extends Behaviour{
                         }
                         break;
                     case "BUY":
-                        //airplaneMessage(msg);
+                        String[] splitInformation = msg.getContent().split("/");
+                        if(splitInformation.length == 2) {
+                            this.player.registerTransactionInLedger(Integer.parseInt(splitInformation[1]), Integer.parseInt(splitInformation[0]));
+                        }
                         break;
                     case "PAYMENT":
                         //companyMessage(msg);
                         break;
                     case  "BUST":
                         //bust(msg);
-                        //TODO Re-search for plaeyers or remove from list
+                        //TODO Re-search for players or remove from list
                         break;
                     default:
                         System.out.println("PlayListeningBehavior - ERROR: message type " + tmp.toString() + " unknown");

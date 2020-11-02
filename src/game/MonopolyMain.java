@@ -11,6 +11,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Map;
+
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.StaleProxyException;
@@ -348,6 +350,11 @@ public class MonopolyMain extends JFrame{
 		PlayerUi playerUi = getPlayerFromPlayerUI(player);
 		nowPlaying = player.getPlayerNumber() - 1;
 		if(playerUi != null) {
+			 System.out.println("Player With ID: " + playerUi.getPlayer().getPlayerNumber() + " Detects That");
+			 for(Map.Entry<Integer, Integer> entry : playerUi.getPlayer().ledger.entrySet()) {
+				System.out.println("Player : " + entry.getValue());
+				System.out.println("Owns : " + MonopolyMain.gameBoard.getSquareAtIndex(entry.getKey()).getName());
+				}
 			playerUi.move();
 		}
 		layeredPane.remove(gameBoard);
