@@ -168,10 +168,10 @@ public class Player extends Agent {
 
         ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
         int dicesTotal = diceResult.get(0) + diceResult.get(1);
-        if (currentSquareNumber + dicesTotal > 19) {
+        if (currentSquareNumber + dicesTotal > 35) {
             depositToWallet(200);
         }
-        int targetSquare = (currentSquareNumber + dicesTotal) % 20;
+        int targetSquare = (currentSquareNumber + dicesTotal) % 36;
         this.currentSquareNumber = targetSquare;
         MonopolyMain.makePlayUI(this);
 

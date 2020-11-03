@@ -23,6 +23,7 @@ public class MonopolyMain extends JFrame{
 
 	private Runtime runtimeInstance;
 	private Profile profile;
+	private JScrollPane scrollPane;
 	private ContainerController containerController;
 	private JPanel contentIncluder;
 	static JTextArea infoConsole;
@@ -45,6 +46,7 @@ public class MonopolyMain extends JFrame{
 		this.runtimeInstance = Runtime.instance();
 		this.profile = new ProfileImpl(true);
 		this.containerController = runtimeInstance.createMainContainer(profile);
+
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1030, 1030);
