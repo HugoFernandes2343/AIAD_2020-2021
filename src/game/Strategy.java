@@ -8,15 +8,15 @@ public class Strategy {
         this.strategyFlag = flag;
     }
 
-    public int strategize(int wallet, int squareNumber){
+    public int strategize(int wallet, int squareNumber, int squarePrice){
         try {
-            if(strategyFlag==1){
-                return relentlessStrategy(wallet,squareNumber);
-            }else if (strategyFlag==2){
+            if(getStrategyFlag() ==1){
+                return relentlessStrategy(wallet, squarePrice);
+            }else if (getStrategyFlag() ==2){
                 return secondStrategy();
-            }else if (strategyFlag==3){
+            }else if (getStrategyFlag() ==3){
                 return thirdStrategy();
-            }else if (strategyFlag==4){
+            }else if (getStrategyFlag() ==4){
                 return forthStrategy();
             }else {
                 throw new Exception();
@@ -38,5 +38,7 @@ public class Strategy {
     public int forthStrategy(){return 0;}
 
 
-
+    public int getStrategyFlag() {
+        return strategyFlag;
+    }
 }

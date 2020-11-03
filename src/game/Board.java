@@ -201,6 +201,7 @@ public class Board extends JPanel {
 		Square square27 = new Square(6,906,100,100,squareNames[27],90);
 		this.add(square27);
 		allSquares.add(square27);
+		unbuyableSquares.add(square27);
 		
 		Square square28 = new Square(6,806,100,100,squareNames[28],90);
 		this.add(square28);
@@ -241,8 +242,8 @@ public class Board extends JPanel {
 		square04.setPrice(120);
 		
 		square05.setPrice(140);
-		square08.setPrice(140);
-		square09.setPrice(160);
+		square07.setPrice(140);
+		square08.setPrice(160);
 		
 		square10.setPrice(180);
 		square12.setPrice(180);
@@ -274,8 +275,8 @@ public class Board extends JPanel {
 		square04.setRentPrice(8);
 
 		square05.setRentPrice(10);
-		square08.setRentPrice(10);
-		square09.setRentPrice(14);
+		square07.setRentPrice(10);
+		square08.setRentPrice(14);
 
 		square10.setRentPrice(20);
 		square12.setRentPrice(20);

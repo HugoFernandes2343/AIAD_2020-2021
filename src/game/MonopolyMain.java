@@ -135,144 +135,6 @@ public class MonopolyMain extends JFrame{
 				 }
 			 }
 		 });
-		/*btnBuy = new JButton("Buy");
-		btnBuy.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				//turnCounter--; // decrease because we increased at the end of the rolldice
-				Player currentPlayer = players.get(nowPlaying);
-				infoConsole.setText("You bought "+gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getName() +
-						" for " + gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getPrice() + " euros");
-				currentPlayer.buyTitleDeed(currentPlayer.getCurrentSquareNumber());
-				int withdrawAmount = gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getPrice();
-				currentPlayer.withdrawFromWallet(withdrawAmount);
-				btnBuy.setEnabled(false);
-				updatePanelPlayerTextArea(currentPlayer, gameBoard, panelPlayerTextArea);
-
-			}
-		});
-
-		btnBuy.setBounds(81, 478, 117, 29);
-		rightPanel.add(btnBuy);
-		btnBuy.setEnabled(false);
-
-		btnPayRent = new JButton("Pay Rent");
-		btnPayRent.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				// turnCounter--;
-				Player currentPlayer = players.get(nowPlaying);
-				Player ownerOfTheSquare = null;
-				int withdrawAmount = gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).getRentPrice();
-				infoConsole.setText("You paid " + withdrawAmount + " euros to PlayerUi "+ ownerOfTheSquare.getPlayerNumber());
-				System.out.println(withdrawAmount);
-				currentPlayer.withdrawFromWallet(withdrawAmount);
-				ownerOfTheSquare.depositToWallet(withdrawAmount);
-				updatePanelPlayerTextArea(currentPlayer, gameBoard, panelPlayerTextArea);
-				btnNextTurn.setEnabled(true);
-				btnPayRent.setEnabled(false);
-				//currentPlayer.withdrawFromWallet(withdrawAmount);
-				//turnCounter++;
-				gameBoard.getAllSquares().get(currentPlayer.getCurrentSquareNumber()).setRentPaid(true);
-			}
-
-		});
-		btnPayRent.setBounds(210, 478, 117, 29);
-		rightPanel.add(btnPayRent);
-		btnPayRent.setEnabled(false);
-
-		btnRollDice = new JButton("Roll Dice");
-		btnRollDice.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(nowPlaying == 0) {
-					// player1's turn
-					doubleDiceForPlayer1 = makePlayUI(player1, player1Ui, dice1, dice2);
-					if(doubleDiceForPlayer1) {
-						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 1");
-					}
-					else {
-						changeConsoleMessage("Click Next Turn To Allow Player 2 To Roll Dice");
-					}
-				} else if (nowPlaying == 1){
-					// player2's turn
-					doubleDiceForPlayer2 = makePlayUI(player2, player2Ui, dice1, dice2);
-					if(doubleDiceForPlayer2) {
-						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 2");
-					}
-					else {
-						changeConsoleMessage("Click Next Turn To Allow Player 3 To Roll Dice");
-					}
-				} else if (nowPlaying == 2) {
-					// player3's turn
-					doubleDiceForPlayer3 = makePlayUI(player3, player3Ui, dice1, dice2);
-					if(doubleDiceForPlayer3) {
-						changeConsoleMessage("Double Dice Roll Have Another Turn PlayerUi 3");
-					}
-					else {
-						changeConsoleMessage("Click Next Turn To Allow Player 1 To Roll Dice");
-					}
-				}
-
-				btnRollDice.setEnabled(false);
-
-
-
-
-
-			}
-		});
-		btnRollDice.setBounds(81, 413, 246, 53);
-		rightPanel.add(btnRollDice);
-
-		btnNextTurn = new JButton("Next Turn");
-		btnNextTurn.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				btnRollDice.setEnabled(true);
-				btnBuy.setEnabled(false);
-				btnPayRent.setEnabled(false);
-				btnNextTurn.setEnabled(false);
-
-				String text = "";
-					if(nowPlaying == 0) {
-						if(doubleDiceForPlayer1 ) {
-							nowPlaying = 0;
-						} else {
-							nowPlaying = 1;
-							changeConsoleMessage("It's now player 2's turn");
-							updatePlayerPanel(panelPlayer, panelPlayerTitle, Color.BLUE, playerAssetsPanel, "2", "PlayerUi 2 Information", panelPlayerTextArea);
-						}
-						updatePanelPlayerTextArea(player2, gameBoard, panelPlayerTextArea);
-					}
-					else if(nowPlaying == 1){
-						if(doubleDiceForPlayer2) {
-							nowPlaying = 1;
-						} else {
-							nowPlaying = 2;
-							changeConsoleMessage("It's now player 3's turn");
-							updatePlayerPanel(panelPlayer, panelPlayerTitle, Color.YELLOW, playerAssetsPanel,"3", "PlayerUi 3 Information", panelPlayerTextArea);
-						}
-						updatePanelPlayerTextArea(player3, gameBoard, panelPlayerTextArea);
-					}
-					else if(nowPlaying == 2) {
-						if(doubleDiceForPlayer3) {
-							nowPlaying = 2;
-						} else {
-							nowPlaying = 0;
-							changeConsoleMessage("It's now player 1's turn");
-							updatePlayerPanel(panelPlayer, panelPlayerTitle, Color.RED, playerAssetsPanel, "1", "PlayerUi 1 Information", panelPlayerTextArea);
-						}
-						updatePanelPlayerTextArea(player1, gameBoard, panelPlayerTextArea);
-					}
-			}
-		});
-		
-		btnNextTurn.setBounds(81, 519, 246, 53);
-		rightPanel.add(btnNextTurn);
-		btnNextTurn.setEnabled(false);*/
 	}
 
 	private void createAgents() throws StaleProxyException {
@@ -280,6 +142,7 @@ public class MonopolyMain extends JFrame{
 			//estrategias tao todas como a 1 currently
 			String id = "player_" + i;
 			Player player = new Player(i,1);
+
 			players.add(player);
 
 			PlayerUi playerUi = new PlayerUi(player, ColorHelper.getColor(i));
@@ -352,11 +215,6 @@ public class MonopolyMain extends JFrame{
 		PlayerUi playerUi = getPlayerFromPlayerUI(player);
 		nowPlaying = player.getPlayerNumber() - 1;
 		if(playerUi != null) {
-			 System.out.println("Player With ID: " + playerUi.getPlayer().getPlayerNumber() + " Detects That");
-			 for(Map.Entry<Integer, Integer> entry : playerUi.getPlayer().ledger.entrySet()) {
-				System.out.println("Player : " + entry.getValue());
-				System.out.println("Owns : " + MonopolyMain.gameBoard.getSquareAtIndex(entry.getKey()).getName());
-				}
 			playerUi.move();
 		}
 		layeredPane.remove(gameBoard);
@@ -372,5 +230,14 @@ public class MonopolyMain extends JFrame{
 		int rent;
 		rent = gameBoard.getSquareAtIndex(squareNumber).getRentPrice();
 		return rent;
+	}
+
+	// TODO: Remove From UI
+	public static void removeFromUI(Player player) {
+		for(PlayerUi playerUi : playerUis) {
+			if(playerUi.getPlayer().getPlayerNumber() == player.getPlayerNumber()) {
+				layeredPane.remove(playerUi);
+			}
+		}
 	}
 }

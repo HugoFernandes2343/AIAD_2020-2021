@@ -12,9 +12,7 @@ import jade.proto.SubscriptionInitiator;
 import utils.ColorHelper;
 import utils.MessageType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Player extends Agent {
 
@@ -24,8 +22,9 @@ public class Player extends Agent {
     public HashMap<Integer, Integer> ledger = new HashMap<>();
 
     private int currentSquareNumber = 0; // where player is currently located on (0 - 19). initially zero
-
+    private int currentTurnCounter;
     private ArrayList<Integer> titleDeeds = new ArrayList<>(); // squares that the player has
+    private ArrayList<String> otherPlayersQueue;
     private int wallet = 3200; // initial money
 
     private final Strategy strategy;
@@ -33,6 +32,8 @@ public class Player extends Agent {
     public Player(int playerNumber, int strategy) {
         this.playerNumber = playerNumber;
         this.strategy = new Strategy(strategy);
+        this.otherPlayersQueue = new ArrayList<>();
+        this.currentTurnCounter = 1;
     }
 
     protected void setup() {
@@ -51,7 +52,6 @@ public class Player extends Agent {
         addBehaviour(new PlayListeningBehaviour(this));
     }
 
-
     protected void takeDown() {
         try {
             DFService.deregister(this);
@@ -61,8 +61,7 @@ public class Player extends Agent {
         System.out.println(getLocalName() + ": done working.");
     }
 
-    protected ArrayList<String> searchForPlayers() {
-        ArrayList<String> players = new ArrayList<>();
+    protected void searchForPlayers() {
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
         sd.setType("player");
@@ -74,21 +73,21 @@ public class Player extends Agent {
                 System.out.println("Found " + playerName);
                 String[] splitInformation = playerName.split("@");
                 if (!splitInformation[0].equals("player_" + this.getPlayerNumber())) {
-                    players.add(splitInformation[0]);
+                    this.otherPlayersQueue.add(splitInformation[0]);
                 }
             }
         } catch (FIPAException fe) {
             fe.printStackTrace();
         }
 
-        if (players.size() == 0) {
+        Collections.sort(this.otherPlayersQueue);
+        /*if (players.size() == 0) {
             MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
             takeDown();
         }
 
-        return players;
+        return players;*/
     }
-
 
     public ArrayList<Integer> getTitleDeeds() {
         return titleDeeds;
@@ -98,14 +97,20 @@ public class Player extends Agent {
         return wallet;
     }
 
-    public void withdrawFromWallet(int withdrawAmount) {
+    public void setWallet(int wallet) {
+        this.wallet = wallet;
+    }
+
+    public boolean withdrawFromWallet(int withdrawAmount) {
         if (withdrawAmount > wallet) {
             System.out.println("PlayerUi " + playerNumber + " went bankrupt!");
             //TODO Send bust message
-            takeDown();
+            sendBustToOtherPlayers("player_" + this.getPlayerNumber());
+            return false;
         } else {
             wallet -= withdrawAmount;
         }
+        return true;
     }
 
     public void depositToWallet(int depositAmount) {
@@ -140,22 +145,62 @@ public class Player extends Agent {
 
     private void buySquare(int squareNumber, int playerNumber) {
         int price = MonopolyMain.priceOfPurchase(squareNumber);
-        withdrawFromWallet(price);
+        if (!withdrawFromWallet(price)) {
+            return;
+        }
         titleDeeds.add(squareNumber);
         this.registerTransactionInLedger(squareNumber, playerNumber);  // everytime a player buys a title deed, it is written in ledger, for example square 1 belongs to player 2
 
-        ArrayList<String> players = searchForPlayers();
-        for (String player : players) {
+        for (String player : this.otherPlayersQueue) {
             sendBuyMessage(player, squareNumber, playerNumber);
         }
     }
 
     private String getNextPlayerNumber() {
-        String nextPlayer = "player_";
-        if (this.getPlayerNumber() != 4) {
-            return nextPlayer + (this.getPlayerNumber() + 1);
+        if (this.otherPlayersQueue.isEmpty() && this.currentTurnCounter == 1) {
+            this.searchForPlayers();
         }
-        return nextPlayer + 1;
+        if (this.otherPlayersQueue.isEmpty() && this.currentTurnCounter > 1) {
+            return null;
+        }
+        if (this.getPlayerNumber() != 4) {
+            for (int i = 0; i < otherPlayersQueue.size(); i++) {
+                String[] splitInformation = otherPlayersQueue.get(i).split("_");
+                if (this.getPlayerNumber() < Integer.parseInt(splitInformation[1])) {
+                    return otherPlayersQueue.get(i);
+                }
+            }
+        }
+        return this.otherPlayersQueue.get(0);
+    }
+
+    private void removeBustedPlayerPropertiesFromLedger(String player) {
+        String[] splitInformation = player.split("_");
+        this.ledger.values().remove(Integer.parseInt(splitInformation[1]));
+    }
+
+    public void removePlayerFromQueue(String player) {
+        this.removeBustedPlayerPropertiesFromLedger(player);
+        if (this.otherPlayersQueue.contains(player)) {
+            this.otherPlayersQueue.remove(player);
+        }
+    }
+
+    public void receiveRentPayment(int rentValue) {
+        this.depositToWallet(rentValue);
+    }
+
+    private void payRent(String squareOwner, int rentValue) {
+        this.withdrawFromWallet(rentValue);
+        this.sendPaymentMessage(squareOwner, rentValue);
+    }
+
+    private void sendBustToOtherPlayers(String originalPlayer) {
+        MonopolyMain.removeFromUI(this);
+        for (String player : otherPlayersQueue) {
+            sendBustMessage(player, originalPlayer);
+        }
+        takeDown();
     }
 
     public void move() throws InterruptedException {
@@ -169,6 +214,7 @@ public class Player extends Agent {
         ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
         int dicesTotal = diceResult.get(0) + diceResult.get(1);
         if (currentSquareNumber + dicesTotal > 35) {
+            this.currentTurnCounter++;
             depositToWallet(200);
         }
         int targetSquare = (currentSquareNumber + dicesTotal) % 36;
@@ -183,16 +229,16 @@ public class Player extends Agent {
         if (ledger.containsKey(targetSquare)) {
             if (ledger.get(targetSquare) != playerNumber) {
                 MonopolyMain.infoConsole.setText("This property belongs to player " + ledger.get(targetSquare) + " you need to pay rent.");
-                //Todo pagar renda
+                payRent("player_" + ledger.get(targetSquare), MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
             }
         } else {
             //Strategy is used to decide if the player buys the square or not
             //Output will be 1(Buy) or 0(Don't buy) or 255 if there is an error
-            if (!isSquareUnbuyable(currentSquareNumber)) {
-                int decision = strategy.relentlessStrategy(wallet, MonopolyMain.priceOfPurchase(currentSquareNumber));
+            if (!isSquareUnbuyable(currentSquareNumber) && this.currentTurnCounter > 1) {
+                int decision = strategy.strategize(wallet, currentSquareNumber, MonopolyMain.priceOfPurchase(currentSquareNumber));
                 if (decision == 1) {
+                    MonopolyMain.infoConsole.setText("The property " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName() + " was bought by Player " + this.getPlayerNumber() + ".");
                     buySquare(currentSquareNumber, this.getPlayerNumber());
-                    //TODO method to buy and then send the buy message to the other players
                 }
             }
         }
@@ -206,9 +252,14 @@ public class Player extends Agent {
             move();
         } else {
             String nextPlayerNumber = getNextPlayerNumber();
-            MonopolyMain.changeConsoleMessage("Next Player's turn");
-            Thread.sleep(2000);
-            sendPlayMessage(nextPlayerNumber);
+            if (nextPlayerNumber != null) {
+                MonopolyMain.changeConsoleMessage("Next Player's turn");
+                Thread.sleep(2000);
+                sendPlayMessage(nextPlayerNumber);
+            } else {
+                MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
+                takeDown();
+            }
         }
     }
 
@@ -217,7 +268,7 @@ public class Player extends Agent {
         msg.addUserDefinedParameter("MESSAGE_TYPE", MessageType.BUY.toString());
         msg.addReceiver(new AID(player, AID.ISLOCALNAME));
         msg.setLanguage("English");
-        msg.setContent(originalPlayerNumber+ "/" + squareNumber);
+        msg.setContent(originalPlayerNumber + "/" + squareNumber);
         this.send(msg);
     }
 
@@ -230,6 +281,23 @@ public class Player extends Agent {
         this.send(msg);
     }
 
+    private void sendPaymentMessage(String squareOwner, int rentValue) {
+        jade.lang.acl.ACLMessage msg = new jade.lang.acl.ACLMessage(ACLMessage.INFORM);
+        msg.addUserDefinedParameter("MESSAGE_TYPE", MessageType.PAYMENT.toString());
+        msg.addReceiver(new AID(squareOwner, AID.ISLOCALNAME));
+        msg.setLanguage("English");
+        msg.setContent(String.valueOf(rentValue));
+        this.send(msg);
+    }
+
+    private void sendBustMessage(String player, String originalPlayer) {
+        jade.lang.acl.ACLMessage msg = new jade.lang.acl.ACLMessage(ACLMessage.INFORM);
+        msg.addUserDefinedParameter("MESSAGE_TYPE", MessageType.BUST.toString());
+        msg.addReceiver(new AID(player, AID.ISLOCALNAME));
+        msg.setLanguage("English");
+        msg.setContent(originalPlayer);
+        this.send(msg);
+    }
 
     class DFSubscriptionInit extends SubscriptionInitiator {
 
@@ -248,6 +316,5 @@ public class Player extends Agent {
                 fe.printStackTrace();
             }
         }
-
     }
 }

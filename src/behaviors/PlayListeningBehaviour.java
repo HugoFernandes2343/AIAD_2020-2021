@@ -33,11 +33,10 @@ public class PlayListeningBehaviour extends Behaviour{
                         }
                         break;
                     case "PAYMENT":
-                        //companyMessage(msg);
+                        this.player.receiveRentPayment(Integer.parseInt(msg.getContent()));
                         break;
                     case  "BUST":
-                        //bust(msg);
-                        //TODO Re-search for players or remove from list
+                        this.player.removePlayerFromQueue(msg.getContent());
                         break;
                     default:
                         System.out.println("PlayListeningBehavior - ERROR: message type " + tmp.toString() + " unknown");
