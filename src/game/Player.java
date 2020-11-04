@@ -25,7 +25,7 @@ public class Player extends Agent {
     private int currentTurnCounter;
     private ArrayList<Integer> titleDeeds = new ArrayList<>(); // squares that the player has
     private ArrayList<String> otherPlayersQueue;
-    private int wallet = 3200; // initial money
+    private int wallet = 2300; // initial money
 
     private final Strategy strategy;
 
@@ -183,6 +183,10 @@ public class Player extends Agent {
         this.removeBustedPlayerPropertiesFromLedger(player);
         if (this.otherPlayersQueue.contains(player)) {
             this.otherPlayersQueue.remove(player);
+            if(this.otherPlayersQueue.isEmpty()){
+                MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
+                takeDown();
+            }
         }
     }
 
@@ -209,7 +213,7 @@ public class Player extends Agent {
         MonopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
         MonopolyMain.updatePanelPlayerTextArea(this);
 
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
         int dicesTotal = diceResult.get(0) + diceResult.get(1);
@@ -223,7 +227,7 @@ public class Player extends Agent {
 
         MonopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
 
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         //Verificar se um square ja tem dono
         if (ledger.containsKey(targetSquare)) {
@@ -248,13 +252,13 @@ public class Player extends Agent {
 
         if (diceResult.get(0).equals(diceResult.get(1))) {
             MonopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
-            Thread.sleep(2000);
+            Thread.sleep(1000);
             move();
         } else {
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
                 MonopolyMain.changeConsoleMessage("Next Player's turn");
-                Thread.sleep(2000);
+                Thread.sleep(1000);
                 sendPlayMessage(nextPlayerNumber);
             } else {
                 MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);

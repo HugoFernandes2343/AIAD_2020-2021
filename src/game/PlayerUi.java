@@ -46,6 +46,9 @@ public class PlayerUi extends JPanel{
 		super.paintComponent(g);
 	}
 
+	public void removeComponent(){
+		this.getParent().remove(this);
+	}
 
 	int[] xLocationsOfPlayer1 = {15, 115, 215, 315, 415, 515,615,715,815,915,
 			915, 915,915,915,915,915,915,915,915,

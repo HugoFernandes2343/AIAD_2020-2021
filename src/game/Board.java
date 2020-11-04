@@ -106,10 +106,12 @@ public class Board extends JPanel {
 		Square square05 = new Square(506,6,100,100,squareNames[5],180);
 		this.add(square05);
 		allSquares.add(square05);
+
 		Square square06 = new Square(606,6,100,100,squareNames[6],180);
 		this.add(square06);
 		allSquares.add(square06);
 		unbuyableSquares.add(square06);
+
 		Square square07 = new Square(706,6,100,100,squareNames[7],180);
 		this.add(square07);
 		allSquares.add(square07);
@@ -131,6 +133,7 @@ public class Board extends JPanel {
 		Square square11 = new Square(906,206,100,100,squareNames[11],-90);
 		this.add(square11);
 		allSquares.add(square11);
+		unbuyableSquares.add(square11);
 		
 		Square square12 = new Square(906,306,100,100,squareNames[12],-90);
 		this.add(square12);
@@ -171,6 +174,7 @@ public class Board extends JPanel {
 		Square square20 = new Square(706,906,100,100,squareNames[20],0);
 		this.add(square20);
 		allSquares.add(square20);
+		unbuyableSquares.add(square20);
 		
 		Square square21 = new Square(606,906,100,100,squareNames[21],0);
 		this.add(square21);
@@ -192,6 +196,7 @@ public class Board extends JPanel {
 		Square square25 = new Square(206,906,100,100,squareNames[25],0);
 		this.add(square25);
 		allSquares.add(square25);
+		unbuyableSquares.add(square25);
 
 		Square square26 = new Square(106,906,100,100,squareNames[26],0);
 		this.add(square26);
@@ -231,6 +236,7 @@ public class Board extends JPanel {
 		Square square34 = new Square(6,206,100,100,squareNames[34],90);
 		this.add(square34);
 		allSquares.add(square34);
+		unbuyableSquares.add(square34);
 
 		Square square35 = new Square(6,106,100,100,squareNames[35],90);
 		this.add(square35);
@@ -270,37 +276,37 @@ public class Board extends JPanel {
 		square35.setPrice(600);
 
 		// setting rent prices
-		square01.setRentPrice(6);
-		square03.setRentPrice(6);
-		square04.setRentPrice(8);
+		square01.setRentPrice(90);
+		square03.setRentPrice(90);
+		square04.setRentPrice(100);
 
-		square05.setRentPrice(10);
-		square07.setRentPrice(10);
-		square08.setRentPrice(14);
+		square05.setRentPrice(120);
+		square07.setRentPrice(120);
+		square08.setRentPrice(130);
 
-		square10.setRentPrice(20);
-		square12.setRentPrice(20);
-		square13.setRentPrice(24);
+		square10.setRentPrice(150);
+		square12.setRentPrice(150);
+		square13.setRentPrice(160);
 
-		square14.setRentPrice(30);
-		square16.setRentPrice(30);
-		square17.setRentPrice(34);
+		square14.setRentPrice(180);
+		square16.setRentPrice(180);
+		square17.setRentPrice(190);
 
-		square19.setRentPrice(40);
-		square21.setRentPrice(40);
-		square22.setRentPrice(44);
+		square19.setRentPrice(210);
+		square21.setRentPrice(210);
+		square22.setRentPrice(220);
 
-		square23.setRentPrice(60);
-		square24.setRentPrice(60);
-		square26.setRentPrice(65);
+		square23.setRentPrice(240);
+		square24.setRentPrice(240);
+		square26.setRentPrice(250);
 
-		square28.setRentPrice(80);
-		square29.setRentPrice(80);
-		square31.setRentPrice(90);
+		square28.setRentPrice(270);
+		square29.setRentPrice(270);
+		square31.setRentPrice(280);
 
-		square32.setRentPrice(100);
-		square33.setRentPrice(100);
-		square35.setRentPrice(200);
+		square32.setRentPrice(300);
+		square33.setRentPrice(300);
+		square35.setRentPrice(350);
 
 		JLabel lblMonopoly = new JLabel("MONOPOLY"){
 			protected void paintComponent(Graphics g) {

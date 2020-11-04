@@ -90,7 +90,7 @@ public class MonopolyMain extends JFrame{
 		test.setLayout(null);
 
 		playerAssetsPanel = new JPanel();
-		playerAssetsPanel.setBounds(81, 28, 246, 189);
+		playerAssetsPanel.setBounds(81, 28, 246, 250);
 		rightPanel.add(playerAssetsPanel);
 		playerAssetsPanel.setLayout(c1);
 
@@ -99,11 +99,11 @@ public class MonopolyMain extends JFrame{
 		panelPlayerTitle = new JLabel("Player 1 Information");
 		panelPlayerTitle.setForeground(Color.WHITE);
 		panelPlayerTitle.setHorizontalAlignment(SwingConstants.CENTER);
-		panelPlayerTitle.setBounds(0, 6, 240, 16);
+		panelPlayerTitle.setBounds(0, 6, 240, 25);
 		panelPlayer.add(panelPlayerTitle);
 		panelPlayer.setLayout(null);
 		panelPlayerTextArea = new JTextArea();
-		panelPlayerTextArea.setBounds(10, 34, 230, 149);
+		panelPlayerTextArea.setBounds(10, 34, 230, 200);
 		panelPlayer.add(panelPlayerTextArea);
 		playerAssetsPanel.add(panelPlayer, "1");
 
