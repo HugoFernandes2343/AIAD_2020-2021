@@ -12,19 +12,25 @@ import jade.proto.SubscriptionInitiator;
 import utils.ColorHelper;
 import utils.MessageType;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Player extends Agent {
 
     private final int playerNumber;
+    private final String colorOfHousesToBuy;
 
     //TODO change to private and create a method for it
     public HashMap<Integer, Integer> ledger = new HashMap<>();
 
     private int currentSquareNumber = 0; // where player is currently located on (0 - 19). initially zero
     private int currentTurnCounter;
+    private int targetTurn;
+    private int jailTurnCounter;
+    private boolean isInJail;
     private ArrayList<Integer> titleDeeds = new ArrayList<>(); // squares that the player has
     private ArrayList<String> otherPlayersQueue;
+    private ArrayList<String> generatedColorsList;
     private int wallet = 2300; // initial money
 
     private final Strategy strategy;
@@ -33,7 +39,24 @@ public class Player extends Agent {
         this.playerNumber = playerNumber;
         this.strategy = new Strategy(strategy);
         this.otherPlayersQueue = new ArrayList<>();
+        this.isInJail = false;
+        this.jailTurnCounter = 0;
         this.currentTurnCounter = 1;
+        this.targetTurn = 0;
+        this.colorOfHousesToBuy = "";
+        this.generatedColorsList = generateColorSelection();
+    }
+
+    public Player(int playerNumber, int strategy, int targetTurn) {
+        this.playerNumber = playerNumber;
+        this.strategy = new Strategy(strategy);
+        this.otherPlayersQueue = new ArrayList<>();
+        this.isInJail = false;
+        this.jailTurnCounter = 0;
+        this.currentTurnCounter = 1;
+        this.targetTurn = targetTurn;
+        this.colorOfHousesToBuy = "";
+        this.generatedColorsList = generateColorSelection();
     }
 
     protected void setup() {
@@ -81,12 +104,6 @@ public class Player extends Agent {
         }
 
         Collections.sort(this.otherPlayersQueue);
-        /*if (players.size() == 0) {
-            MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
-            takeDown();
-        }
-
-        return players;*/
     }
 
     public ArrayList<Integer> getTitleDeeds() {
@@ -99,6 +116,27 @@ public class Player extends Agent {
 
     public void setWallet(int wallet) {
         this.wallet = wallet;
+    }
+
+    private int generateRandomNumber(int arrayLength) {
+        Random r = new Random();
+        int randomNumber = r.nextInt(arrayLength);
+        return randomNumber;
+    }
+
+    private ArrayList<String> generateColorSelection() {
+        String[] colorArray = {"PINK", "CYAN", "MAGENTA", "ORANGE", "RED", "YELLOW", "GREEN", "BLUE"};
+        ArrayList<String> colorGeneratedList = new ArrayList<>();
+        int firstChoice = generateRandomNumber(colorArray.length);
+        int secondChoice = generateRandomNumber(colorArray.length);
+        if(firstChoice == secondChoice) {
+            while(firstChoice == secondChoice) {
+                secondChoice = generateRandomNumber(colorArray.length);
+            }
+        }
+        colorGeneratedList.add(colorArray[firstChoice]);
+        colorGeneratedList.add(colorArray[secondChoice]);
+        return colorGeneratedList;
     }
 
     public boolean withdrawFromWallet(int withdrawAmount) {
@@ -215,6 +253,19 @@ public class Player extends Agent {
 
         Thread.sleep(1000);
 
+        if(this.isInJail && this.jailTurnCounter < 2) {
+            this.jailTurnCounter++;
+            String nextPlayerNumber = getNextPlayerNumber();
+            if (nextPlayerNumber != null) {
+                MonopolyMain.changeConsoleMessage("Next Player's turn");
+                Thread.sleep(1000);
+                sendPlayMessage(nextPlayerNumber);
+            }
+        } else {
+            this.jailTurnCounter = 0;
+            this.isInJail = false;
+        }
+
         ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
         int dicesTotal = diceResult.get(0) + diceResult.get(1);
         if (currentSquareNumber + dicesTotal > 35) {
@@ -223,11 +274,28 @@ public class Player extends Agent {
         }
         int targetSquare = (currentSquareNumber + dicesTotal) % 36;
         this.currentSquareNumber = targetSquare;
+
+        if(
+                (MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName().equals("Vá para a cadeia") ||
+                MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName().equals("Prisão"))
+                && this.currentTurnCounter > 1
+        ) {
+            this.isInJail = true;
+            this.jailTurnCounter = this.currentTurnCounter;
+            this.currentSquareNumber = 9;
+        }
+
         MonopolyMain.makePlayUI(this);
+
+        /*if(MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName().equals("Prisão")) {
+            this.isInJail = true;
+            this.turnCounterWhenPlayerWasArrested = this.currentTurnCounter;
+        }*/
 
         MonopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
 
         Thread.sleep(1000);
+
 
         //Verificar se um square ja tem dono
         if (ledger.containsKey(targetSquare)) {
@@ -239,7 +307,14 @@ public class Player extends Agent {
             //Strategy is used to decide if the player buys the square or not
             //Output will be 1(Buy) or 0(Don't buy) or 255 if there is an error
             if (!isSquareUnbuyable(currentSquareNumber) && this.currentTurnCounter > 1) {
-                int decision = strategy.strategize(wallet, currentSquareNumber, MonopolyMain.priceOfPurchase(currentSquareNumber));
+                int decision = strategy.strategize(
+                        wallet,
+                        MonopolyMain.priceOfPurchase(currentSquareNumber),
+                        this.currentTurnCounter,
+                        this.targetTurn,
+                        MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getColor(),
+                        this.generatedColorsList.get(0),
+                        this.generatedColorsList.get(1));
                 if (decision == 1) {
                     MonopolyMain.infoConsole.setText("The property " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName() + " was bought by Player " + this.getPlayerNumber() + ".");
                     buySquare(currentSquareNumber, this.getPlayerNumber());

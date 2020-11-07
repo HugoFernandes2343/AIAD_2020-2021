@@ -22,6 +22,7 @@ public class Square extends JPanel {
 	static int totalSquares = 0;
 	private int price;
 	private int rentPrice;
+	private String color;
 	
 	public void setRentPrice(int rentPrice) {
 		this.rentPrice = rentPrice;
@@ -42,6 +43,8 @@ public class Square extends JPanel {
 	public String getName() {
 		return name;
 	}
+
+	public String getColor() { return color; }
 	
 	
 	public Square(int xCoord, int yCoord, int width, int height, String labelString, int rotationDegrees) {
@@ -65,48 +68,58 @@ public class Square extends JPanel {
 		if(this.number == 1 || this.number == 3 || this.number == 4) {
 			g.drawRect(0, 0, this.getWidth(), 20);
 			g.setColor(Color.PINK);
-			g.fillRect(0, 0, this.getWidth(), 20);
-		}
-		if(this.number == 5 || this.number == 7 || this.number == 8) {
-			g.drawRect(0, 0, this.getWidth(), 20);
-			g.setColor(Color.CYAN);
+			this.color = "PINK";
 			g.fillRect(0, 0, this.getWidth(), 20);
 		}
 
+		if(this.number == 5 || this.number == 7 || this.number == 8) {
+			g.drawRect(0, 0, this.getWidth(), 20);
+			g.setColor(Color.CYAN);
+			this.color = "CYAN";
+			g.fillRect(0, 0, this.getWidth(), 20);
+		}
 
 		if(this.number == 10 || this.number == 12 || this.number == 13) {
 			g.drawRect(0, 0, this.getWidth(), 20);
 			g.setColor(Color.MAGENTA);
+			this.color = "MAGENTA";
 			g.fillRect(0, 0, this.getWidth(), 20);
 		}
+
 		if(this.number == 14 || this.number == 16 || this.number == 17) {
 			g.drawRect(0, 0, this.getWidth(), 20);
 			g.setColor(Color.ORANGE);
+			this.color = "ORANGE";
 			g.fillRect(0, 0, this.getWidth(), 20);
 		}
 
 		if(this.number == 19 || this.number == 21 || this.number == 22) {
 			g.drawRect(0, 0, this.getWidth(), 20);
 			g.setColor(Color.RED);
+			this.color = "RED";
 			g.fillRect(0, 0, this.getWidth(), 20);
 		}
+
 		if(this.number == 23 || this.number == 24 || this.number == 26) {
 			g.drawRect(0, 0, this.getWidth(), 20);
 			g.setColor(Color.YELLOW);
+			this.color = "YELLOW";
 			g.fillRect(0, 0, this.getWidth(), 20);
 		}
 
 		if(this.number == 28 || this.number == 29 || this.number == 31) {
 			g.drawRect(0, 0, this.getWidth(), 20);
 			g.setColor(Color.GREEN);
-			g.fillRect(0, 0, this.getWidth(), 20);
-		}
-		if(this.number == 32 || this.number == 33 || this.number == 35) {
-			g.drawRect(0, 0, this.getWidth(), 20);
-			g.setColor(Color.BLUE);
+			this.color = "GREEN";
 			g.fillRect(0, 0, this.getWidth(), 20);
 		}
 
+		if(this.number == 32 || this.number == 33 || this.number == 35) {
+			g.drawRect(0, 0, this.getWidth(), 20);
+			g.setColor(Color.BLUE);
+			this.color = "BLUE";
+			g.fillRect(0, 0, this.getWidth(), 20);
+		}
 	}
 
 	private boolean isRentPaid = false;

@@ -73,7 +73,7 @@ public class Board extends JPanel {
 				"R. dos Clérigos",
 				"Caixa da Comunidade",
 				"Av. Parque das Nações",
-				"R. das Amoreiras ",
+				"R. das Amoreiras",
 				"R. Augusta",
 				"Sorte",
 				"Rossio"
