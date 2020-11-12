@@ -65,10 +65,10 @@ public class MonopolyMain extends JFrame{
 		gameBoard.setBackground(new Color(51, 255, 153));
 		layeredPane.add(gameBoard, new Integer(0));
 
-		dice1 = new Dice(244, 406, 40, 40);
+		dice1 = new Dice(420, 706, 80, 80);
 		layeredPane.add(dice1, new Integer(1));
 
-		dice2 = new Dice(333, 406, 40, 40);
+		dice2 = new Dice(515, 706, 80, 80);
 		layeredPane.add(dice2, new Integer(1));
 
 		this.createAgents();

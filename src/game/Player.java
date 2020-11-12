@@ -1,12 +1,16 @@
 package game;
 
 import behaviors.PlayListeningBehaviour;
+import jade.content.lang.Codec;
+import jade.content.onto.OntologyException;
+import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.domain.JADEAgentManagement.ShutdownPlatform;
 import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionInitiator;
 import utils.ColorHelper;
@@ -31,7 +35,7 @@ public class Player extends Agent {
     private ArrayList<Integer> titleDeeds = new ArrayList<>(); // squares that the player has
     private ArrayList<String> otherPlayersQueue;
     private ArrayList<String> generatedColorsList;
-    private int wallet = 2300; // initial money
+    private int wallet = 1500; // initial money
 
     private final Strategy strategy;
 
@@ -82,6 +86,7 @@ public class Player extends Agent {
             e.printStackTrace();
         }
         System.out.println(getLocalName() + ": done working.");
+
     }
 
     protected void searchForPlayers() {
@@ -141,8 +146,7 @@ public class Player extends Agent {
 
     public boolean withdrawFromWallet(int withdrawAmount) {
         if (withdrawAmount > wallet) {
-            System.out.println("PlayerUi " + playerNumber + " went bankrupt!");
-            //TODO Send bust message
+            System.out.println("Player_" + playerNumber + " went bankrupt!");
             sendBustToOtherPlayers("player_" + this.getPlayerNumber());
             return false;
         } else {
@@ -253,7 +257,9 @@ public class Player extends Agent {
 
         Thread.sleep(1000);
 
-        if(this.isInJail && this.jailTurnCounter < 2) {
+        ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
+
+        if(this.isInJail && this.jailTurnCounter < 2 && !diceResult.get(0).equals(diceResult.get(1))) {
             this.jailTurnCounter++;
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
@@ -266,7 +272,7 @@ public class Player extends Agent {
             this.isInJail = false;
         }
 
-        ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
+
         int dicesTotal = diceResult.get(0) + diceResult.get(1);
         if (currentSquareNumber + dicesTotal > 35) {
             this.currentTurnCounter++;
@@ -296,14 +302,58 @@ public class Player extends Agent {
 
         Thread.sleep(1000);
 
+        //CASAS ESPECIAIS
+        if(currentSquareNumber==11){
+            withdrawFromWallet(200);
+            MonopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 200€ in taxes");
+            Thread.sleep(1000);
 
-        //Verificar se um square ja tem dono
-        if (ledger.containsKey(targetSquare)) {
-            if (ledger.get(targetSquare) != playerNumber) {
-                MonopolyMain.infoConsole.setText("This property belongs to player " + ledger.get(targetSquare) + " you need to pay rent.");
-                payRent("player_" + ledger.get(targetSquare), MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
+        }else if(currentSquareNumber==25){
+            withdrawFromWallet(100);
+            MonopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 100€ in taxes");
+            Thread.sleep(1000);
+
+        }else if( currentSquareNumber==6 || currentSquareNumber==20 || currentSquareNumber== 34) {
+            Random random = new Random();
+            boolean offset = random.nextBoolean();
+            if(offset){
+                currentSquareNumber += 2;
+
+                if(currentSquareNumber==36){
+                    currentSquareNumber=0;
+                    this.currentTurnCounter++;
+                    depositToWallet(200);
+                }
+                MonopolyMain.changeConsoleMessage("Player " + playerNumber + " moves 2 squares forward");
+            }else{
+                currentSquareNumber-=2;
+                MonopolyMain.changeConsoleMessage("Player " + playerNumber + " moves 2 squares backwards");
             }
-        } else {
+
+            MonopolyMain.makePlayUI(this);
+            Thread.sleep(1000);
+
+        }else if(currentSquareNumber==2 || currentSquareNumber==15 || currentSquareNumber== 30){
+            Random random2 = new Random();
+            boolean offset = random2.nextBoolean();
+            int i = random2.nextInt(200 - 10) + 10;
+            if(offset){
+                MonopolyMain.changeConsoleMessage("Player " + playerNumber + " recieved " + i );
+                depositToWallet(i);
+            }else{
+                MonopolyMain.changeConsoleMessage("Player " + playerNumber + " lost " + i);
+                withdrawFromWallet(i);
+            }
+            Thread.sleep(1000);
+        }
+
+
+        if (ledger.containsKey(currentSquareNumber)) {
+            if (ledger.get(currentSquareNumber) != playerNumber) {
+                MonopolyMain.infoConsole.setText("This property belongs to player " + ledger.get(currentSquareNumber) + " you need to pay rent.");
+                payRent("player_" + ledger.get(currentSquareNumber), MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
+            }
+        }else {
             //Strategy is used to decide if the player buys the square or not
             //Output will be 1(Buy) or 0(Don't buy) or 255 if there is an error
             if (!isSquareUnbuyable(currentSquareNumber) && this.currentTurnCounter > 1) {
@@ -335,13 +385,13 @@ public class Player extends Agent {
                 MonopolyMain.changeConsoleMessage("Next Player's turn");
                 Thread.sleep(1000);
                 sendPlayMessage(nextPlayerNumber);
-            } else {
+            }else{
                 MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
                 takeDown();
             }
         }
     }
-
+    
     private void sendBuyMessage(String player, int squareNumber, int originalPlayerNumber) {
         jade.lang.acl.ACLMessage msg = new jade.lang.acl.ACLMessage(ACLMessage.INFORM);
         msg.addUserDefinedParameter("MESSAGE_TYPE", MessageType.BUY.toString());

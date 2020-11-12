@@ -1,5 +1,7 @@
 package game;
 
+import java.util.Random;
+
 public class Strategy {
 
     private int strategyFlag;
@@ -49,7 +51,12 @@ public class Strategy {
     }
 
     //TODO: Implement fourth strategy
-    public int fourthStrategy(){
+    public int fourthStrategy(int squareNumber, int wallet, int squarePrice){
+       // Random r = new Random;
+
+
+
+
         return 0;
     }
 

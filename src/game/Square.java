@@ -22,7 +22,10 @@ public class Square extends JPanel {
 	static int totalSquares = 0;
 	private int price;
 	private int rentPrice;
+	private int defaultRentPrice;
+	private int housePrice;
 	private String color;
+	private double efficiency;
 	
 	public void setRentPrice(int rentPrice) {
 		this.rentPrice = rentPrice;
@@ -31,6 +34,8 @@ public class Square extends JPanel {
 	public int getRentPrice() {
 		return rentPrice;
 	}
+
+	public void resetRentPrice(){ rentPrice = defaultRentPrice;}
 	
 	public void setPrice(int price) {
 		this.price = price;
@@ -46,20 +51,42 @@ public class Square extends JPanel {
 
 	public String getColor() { return color; }
 	
-	
-	public Square(int xCoord, int yCoord, int width, int height, String labelString, int rotationDegrees) {
+	//Unbuyable square constructor
+	public Square(int xCoord, int yCoord, int width, int height, String name, int rotationDegrees) {
 		number = totalSquares;
 		totalSquares++;
 		setBorder(new LineBorder(new Color(0, 0, 0)));
 		setBounds(xCoord, yCoord, width, height);
-		name = labelString;
+		this.name = name;
 		this.setLayout(null);
 
-		nameLabel = new JLabel(labelString);
+		nameLabel = new JLabel(name);
 		nameLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 9));
 		nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		nameLabel.setBounds(0,0,this.getWidth(),this.getHeight());
 		this.add(nameLabel);
+
+	}
+
+	//Buyable Square constructor
+	public Square(int xCoord, int yCoord, int width, int height, String name, int rotationDegrees, int price, int defaultRentPrice, double efficiency) {
+		number = totalSquares;
+		totalSquares++;
+		setBorder(new LineBorder(new Color(0, 0, 0)));
+		setBounds(xCoord, yCoord, width, height);
+		this.name = name;
+		this.setLayout(null);
+
+		nameLabel = new JLabel(name);
+		nameLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 9));
+		nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		nameLabel.setBounds(0,0,this.getWidth(),this.getHeight());
+		this.add(nameLabel);
+
+		this.price = price;
+		this.defaultRentPrice = defaultRentPrice;
+		this.rentPrice = defaultRentPrice;
+		this.efficiency = efficiency;
 
 	}
 
