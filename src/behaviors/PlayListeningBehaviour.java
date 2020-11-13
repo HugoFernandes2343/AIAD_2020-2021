@@ -4,6 +4,8 @@ import game.Player;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 
+import static java.lang.System.*;
+
 public class PlayListeningBehaviour extends Behaviour{
     Player player;
 
@@ -39,7 +41,7 @@ public class PlayListeningBehaviour extends Behaviour{
                         this.player.removePlayerFromQueue(msg.getContent());
                         break;
                     default:
-                        System.out.println("PlayListeningBehavior - ERROR: message type " + tmp.toString() + " unknown");
+                        out.println("PlayListeningBehavior - ERROR: message type " + tmp.toString() + " unknown");
                 }
             }
         } else {

@@ -1,22 +1,17 @@
 package game;
 
 import behaviors.PlayListeningBehaviour;
-import jade.content.lang.Codec;
-import jade.content.onto.OntologyException;
-import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
-import jade.domain.JADEAgentManagement.ShutdownPlatform;
 import jade.lang.acl.ACLMessage;
 import jade.proto.SubscriptionInitiator;
 import utils.ColorHelper;
 import utils.MessageType;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Player extends Agent {
@@ -24,8 +19,7 @@ public class Player extends Agent {
     private final int playerNumber;
     private final String colorOfHousesToBuy;
 
-    //TODO change to private and create a method for it
-    public HashMap<Integer, Integer> ledger = new HashMap<>();
+    public transient HashMap<Integer, Integer> ledger = new HashMap<>();
 
     private int currentSquareNumber = 0; // where player is currently located on (0 - 19). initially zero
     private int currentTurnCounter;
@@ -36,8 +30,8 @@ public class Player extends Agent {
     private ArrayList<String> otherPlayersQueue;
     private ArrayList<String> generatedColorsList;
     private int wallet = 1500; // initial money
-
-    private final Strategy strategy;
+    private static final String PREFIX = "player_";
+    private final transient Strategy strategy;
 
     public Player(int playerNumber, int strategy) {
         this.playerNumber = playerNumber;
@@ -100,7 +94,7 @@ public class Player extends Agent {
                 String playerName = dfAgentDescription.getName().getName();
                 System.out.println("Found " + playerName);
                 String[] splitInformation = playerName.split("@");
-                if (!splitInformation[0].equals("player_" + this.getPlayerNumber())) {
+                if (!splitInformation[0].equals(PREFIX + this.getPlayerNumber())) {
                     this.otherPlayersQueue.add(splitInformation[0]);
                 }
             }
@@ -147,7 +141,7 @@ public class Player extends Agent {
     public boolean withdrawFromWallet(int withdrawAmount) {
         if (withdrawAmount > wallet) {
             System.out.println("Player_" + playerNumber + " went bankrupt!");
-            sendBustToOtherPlayers("player_" + this.getPlayerNumber());
+            sendBustToOtherPlayers(PREFIX + this.getPlayerNumber());
             return false;
         } else {
             wallet -= withdrawAmount;
@@ -351,20 +345,15 @@ public class Player extends Agent {
         if (ledger.containsKey(currentSquareNumber)) {
             if (ledger.get(currentSquareNumber) != playerNumber) {
                 MonopolyMain.infoConsole.setText("This property belongs to player " + ledger.get(currentSquareNumber) + " you need to pay rent.");
-                payRent("player_" + ledger.get(currentSquareNumber), MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
+                payRent(PREFIX + ledger.get(currentSquareNumber), MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
             }
         }else {
             //Strategy is used to decide if the player buys the square or not
             //Output will be 1(Buy) or 0(Don't buy) or 255 if there is an error
             if (!isSquareUnbuyable(currentSquareNumber) && this.currentTurnCounter > 1) {
-                int decision = strategy.strategize(
-                        wallet,
-                        MonopolyMain.priceOfPurchase(currentSquareNumber),
-                        this.currentTurnCounter,
-                        this.targetTurn,
-                        MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getColor(),
-                        this.generatedColorsList.get(0),
-                        this.generatedColorsList.get(1));
+                int priceOfPurchase = MonopolyMain.priceOfPurchase(currentSquareNumber);
+                String squareColor = MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getColor();
+                int decision = strategy.strategize(currentSquareNumber ,wallet, priceOfPurchase, this.currentTurnCounter, this.targetTurn, squareColor, this.generatedColorsList.get(0),this.generatedColorsList.get(1));
                 if (decision == 1) {
                     MonopolyMain.infoConsole.setText("The property " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName() + " was bought by Player " + this.getPlayerNumber() + ".");
                     buySquare(currentSquareNumber, this.getPlayerNumber());
@@ -434,6 +423,7 @@ public class Player extends Agent {
             super(agent, DFService.createSubscriptionMessage(agent, getDefaultDF(), dfad, null));
         }
 
+        @Override
         protected void handleInform(ACLMessage inform) {
             try {
                 DFAgentDescription[] dfds = DFService.decodeNotification(inform.getContent());

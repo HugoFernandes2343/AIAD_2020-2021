@@ -8,6 +8,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,14 +17,14 @@ import javax.swing.border.LineBorder;
 
 public class Board extends JPanel {
 
-	private final ArrayList<Square> allSquares = new ArrayList<Square>();
-	private final ArrayList<Square> unbuyableSquares = new ArrayList<Square>();
+	private final ArrayList<Square> allSquares = new ArrayList<>();
+	private final ArrayList<Square> unbuyableSquares = new ArrayList<>();
 	
-	public ArrayList<Square> getUnbuyableSquares(){
+	public List<Square> getUnbuyableSquares(){
 		return unbuyableSquares;
 	}
 	
-	public ArrayList<Square> getAllSquares(){
+	public List<Square> getAllSquares(){
 		return allSquares;
 	}
 	
@@ -39,6 +40,9 @@ public class Board extends JPanel {
 	}
 
 	private void initializeSquares() {
+		String sorte = "Sorte";
+		String caixa = "Caixa da Comunidade";
+
 		Square square00 = new Square(6,6,100,100,"Partida",135);
 		this.add(square00);
 		allSquares.add(square00);
@@ -48,7 +52,7 @@ public class Board extends JPanel {
 		this.add(square01);
 		allSquares.add(square01);
 		
-		Square square02 = new Square(206,6,100,100,"Caixa da Comunidade",180);
+		Square square02 = new Square(206,6,100,100,caixa,180);
 		this.add(square02);
 		allSquares.add(square02);
 		unbuyableSquares.add(square02);
@@ -65,7 +69,7 @@ public class Board extends JPanel {
 		this.add(square05);
 		allSquares.add(square05);
 
-		Square square06 = new Square(606,6,100,100,"Sorte",180);
+		Square square06 = new Square(606,6,100,100,sorte,180);
 		this.add(square06);
 		allSquares.add(square06);
 		unbuyableSquares.add(square06);
@@ -105,7 +109,7 @@ public class Board extends JPanel {
 		this.add(square14);
 		allSquares.add(square14);
 		
-		Square square15 = new Square(906,606,100,100,"Caixa da Comunidade",-45);
+		Square square15 = new Square(906,606,100,100,caixa,-45);
 		this.add(square15);
 		allSquares.add(square15);
 		unbuyableSquares.add(square15);
@@ -129,7 +133,7 @@ public class Board extends JPanel {
 		this.add(square19);
 		allSquares.add(square19);
 
-		Square square20 = new Square(706,906,100,100,"Sorte",0);
+		Square square20 = new Square(706,906,100,100,sorte,0);
 		this.add(square20);
 		allSquares.add(square20);
 		unbuyableSquares.add(square20);
@@ -173,7 +177,7 @@ public class Board extends JPanel {
 		this.add(square29);
 		allSquares.add(square29);
 		
-		Square square30 = new Square(6,606,100,100,"Caixa da Comunidade",90);
+		Square square30 = new Square(6,606,100,100,caixa,90);
 		this.add(square30);
 		allSquares.add(square30);
 		unbuyableSquares.add(square30);
@@ -190,7 +194,7 @@ public class Board extends JPanel {
 		this.add(square33);
 		allSquares.add(square33);
 
-		Square square34 = new Square(6,206,100,100,"Sorte",90);
+		Square square34 = new Square(6,206,100,100,sorte,90);
 		this.add(square34);
 		allSquares.add(square34);
 		unbuyableSquares.add(square34);
