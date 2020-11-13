@@ -50,14 +50,15 @@ public class Strategy {
         return 0;
     }
 
-    //TODO: Implement fourth strategy
     public int fourthStrategy(int squareNumber, int wallet, int squarePrice){
-       // Random r = new Random;
-
-
-
-
-        return 0;
+        double efficiency = MonopolyMain.squareEfficiency(squareNumber);
+        int percent = (int) (efficiency*100);
+        Random r = new Random();
+        if(r.nextInt(100)<percent){
+            return 1;
+        }else {
+            return 0;
+        }
     }
 
     public int getStrategyFlag() {

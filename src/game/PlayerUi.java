@@ -38,10 +38,6 @@ public class PlayerUi extends JPanel{
 		return this.player;
 	}
 
-	public void withdrawFromWallet(int withdrawAmount) {
-		//TODO add this to UI logs
-	}
-
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 	}

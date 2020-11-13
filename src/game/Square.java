@@ -26,7 +26,11 @@ public class Square extends JPanel {
 	private int housePrice;
 	private String color;
 	private double efficiency;
-	
+
+	public double getEfficiency(){
+		return  efficiency;
+	}
+
 	public void setRentPrice(int rentPrice) {
 		this.rentPrice = rentPrice;
 	}

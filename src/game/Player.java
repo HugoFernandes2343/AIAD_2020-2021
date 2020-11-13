@@ -391,7 +391,7 @@ public class Player extends Agent {
             }
         }
     }
-    
+
     private void sendBuyMessage(String player, int squareNumber, int originalPlayerNumber) {
         jade.lang.acl.ACLMessage msg = new jade.lang.acl.ACLMessage(ACLMessage.INFORM);
         msg.addUserDefinedParameter("MESSAGE_TYPE", MessageType.BUY.toString());

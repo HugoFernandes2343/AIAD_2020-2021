@@ -137,6 +137,10 @@ public class MonopolyMain extends JFrame{
 		 });
 	}
 
+	public static double squareEfficiency(int squareNumber) {
+		return gameBoard.getSquareAtIndex(squareNumber).getEfficiency();
+	}
+
 	private void createAgents() throws StaleProxyException {
 		for(int i = 1; i < 5; i++) {
 			//estrategias tao todas como a 1 currently
