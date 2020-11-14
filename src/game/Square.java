@@ -27,6 +27,7 @@ public class Square extends JPanel {
 	private double efficiency;
 	private int housePrice;
 	private int houseCounter = 0;
+	private double priceRatio=0;
 
 	public double getEfficiency(){
 		return  efficiency;
@@ -48,7 +49,7 @@ public class Square extends JPanel {
 
 	public void addHouse(){
 		this.name += "*";
-		this.rentPrice += (int) (rentPrice*efficiency);
+		this.rentPrice += (int) (rentPrice*priceRatio);
 		houseCounter++;
 	}
 
@@ -111,6 +112,19 @@ public class Square extends JPanel {
 		this.defaultRentPrice = defaultRentPrice;
 		this.rentPrice = defaultRentPrice;
 		this.efficiency = efficiency;
+		if(number>0 && number<9){
+			this.housePrice = 50;
+			this.priceRatio = 0.5;
+		}else if(number>9 && number<18){
+			this.housePrice = 75;
+			this.priceRatio = 0.60;
+		}else if(number>18 && number<24){
+			this.housePrice = 125;
+			this.priceRatio = 0.70;
+		}else if(number>24 && number<36){
+			this.housePrice = 200;
+			this.priceRatio = 0.80;
+		}
 		this.housePrice = 10;
 
 	}

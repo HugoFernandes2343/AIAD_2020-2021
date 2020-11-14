@@ -30,7 +30,7 @@ public class Player extends Agent {
     private ArrayList<Integer> titleDeeds = new ArrayList<>(); // squares that the player has
     private ArrayList<String> otherPlayersQueue;
     private ArrayList<String> generatedColorsList;
-    private int wallet = 1500; // initial money
+    private int wallet = 2000; // initial money
     private static final String PREFIX = "player_";
     private final transient Strategy strategy;
     private Random r = new Random();
@@ -363,7 +363,7 @@ public class Player extends Agent {
                 payRent(PREFIX + ledger.get(currentSquareNumber), MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
             }else{
                 Square currentSquare = MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber);
-                if(wallet>currentSquare.getHousePrice()*3 && currentSquare.getHouseCounter()<4){
+                if(wallet>currentSquare.getHousePrice()*3.5 && currentSquare.getHouseCounter()<4){
                     double efficiency = currentSquare.getEfficiency();
                     int percent = (int) (efficiency*100);
                     if(r.nextInt(100)<percent){
