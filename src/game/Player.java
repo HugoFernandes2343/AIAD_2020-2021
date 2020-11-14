@@ -13,13 +13,14 @@ import utils.ColorHelper;
 import utils.MessageType;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class Player extends Agent {
 
     private final int playerNumber;
-    private final String colorOfHousesToBuy;
 
-    public transient HashMap<Integer, Integer> ledger = new HashMap<>();
+
+    public  HashMap<Integer, Integer> ledger = new HashMap<>();
 
     private int currentSquareNumber = 0; // where player is currently located on (0 - 19). initially zero
     private int currentTurnCounter;
@@ -32,31 +33,34 @@ public class Player extends Agent {
     private int wallet = 1500; // initial money
     private static final String PREFIX = "player_";
     private final transient Strategy strategy;
+    private Random r = new Random();
 
     public Player(int playerNumber, int strategy) {
         this.playerNumber = playerNumber;
-        this.strategy = new Strategy(strategy);
+        if(strategy == 3){
+            this.generatedColorsList = generateColorSelection();
+            this.strategy = new Strategy(strategy,generatedColorsList.get(0),generatedColorsList.get(1),generatedColorsList.get(2));
+        }else{
+            this.strategy = new Strategy(strategy);
+        }
         this.otherPlayersQueue = new ArrayList<>();
         this.isInJail = false;
         this.jailTurnCounter = 0;
         this.currentTurnCounter = 1;
         this.targetTurn = 0;
-        this.colorOfHousesToBuy = "";
-        this.generatedColorsList = generateColorSelection();
     }
 
     public Player(int playerNumber, int strategy, int targetTurn) {
         this.playerNumber = playerNumber;
-        this.strategy = new Strategy(strategy);
+        this.strategy = new Strategy(strategy,targetTurn);
         this.otherPlayersQueue = new ArrayList<>();
         this.isInJail = false;
         this.jailTurnCounter = 0;
         this.currentTurnCounter = 1;
         this.targetTurn = targetTurn;
-        this.colorOfHousesToBuy = "";
-        this.generatedColorsList = generateColorSelection();
     }
 
+    @Override
     protected void setup() {
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
@@ -73,6 +77,7 @@ public class Player extends Agent {
         addBehaviour(new PlayListeningBehaviour(this));
     }
 
+    @Override
     protected void takeDown() {
         try {
             DFService.deregister(this);
@@ -118,7 +123,6 @@ public class Player extends Agent {
     }
 
     private int generateRandomNumber(int arrayLength) {
-        Random r = new Random();
         int randomNumber = r.nextInt(arrayLength);
         return randomNumber;
     }
@@ -128,23 +132,35 @@ public class Player extends Agent {
         ArrayList<String> colorGeneratedList = new ArrayList<>();
         int firstChoice = generateRandomNumber(colorArray.length);
         int secondChoice = generateRandomNumber(colorArray.length);
+        int thirdChoice = generateRandomNumber(colorArray.length);
         if(firstChoice == secondChoice) {
             while(firstChoice == secondChoice) {
                 secondChoice = generateRandomNumber(colorArray.length);
             }
         }
+        if(thirdChoice == firstChoice || thirdChoice==secondChoice){
+            while(thirdChoice == secondChoice||thirdChoice==firstChoice) {
+                thirdChoice = generateRandomNumber(colorArray.length);
+            }
+        }
         colorGeneratedList.add(colorArray[firstChoice]);
         colorGeneratedList.add(colorArray[secondChoice]);
+        colorGeneratedList.add(colorArray[thirdChoice]);
         return colorGeneratedList;
     }
 
     public boolean withdrawFromWallet(int withdrawAmount) {
         if (withdrawAmount > wallet) {
             System.out.println("Player_" + playerNumber + " went bankrupt!");
+            for(int i =0; i<titleDeeds.size();i++){
+                Square s = MonopolyMain.gameBoard.getSquareAtIndex(titleDeeds.get(i));
+                s.resetSquare();
+            }
             sendBustToOtherPlayers(PREFIX + this.getPlayerNumber());
             return false;
         } else {
             wallet -= withdrawAmount;
+            System.out.println("Player_" + playerNumber + " paid " + withdrawAmount + " at square " + currentSquareNumber);
         }
         return true;
     }
@@ -186,6 +202,7 @@ public class Player extends Agent {
         }
         titleDeeds.add(squareNumber);
         this.registerTransactionInLedger(squareNumber, playerNumber);  // everytime a player buys a title deed, it is written in ledger, for example square 1 belongs to player 2
+        System.out.println(PREFIX+playerNumber + " bought square number " + squareNumber);
 
         for (String player : this.otherPlayersQueue) {
             sendBuyMessage(player, squareNumber, playerNumber);
@@ -222,6 +239,8 @@ public class Player extends Agent {
             if(this.otherPlayersQueue.isEmpty()){
                 MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
                 takeDown();
+            }else if(this.otherPlayersQueue.size()==1 && strategy.getStrategyFlag()==3){
+                strategy.setStrategyFlag(1);
             }
         }
     }
@@ -232,6 +251,7 @@ public class Player extends Agent {
 
     private void payRent(String squareOwner, int rentValue) {
         this.withdrawFromWallet(rentValue);
+        System.out.println(PREFIX + playerNumber + " pays player " + squareOwner + " $" + rentValue );
         this.sendPaymentMessage(squareOwner, rentValue);
     }
 
@@ -249,7 +269,7 @@ public class Player extends Agent {
         MonopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
         MonopolyMain.updatePanelPlayerTextArea(this);
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
         ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
 
@@ -258,7 +278,7 @@ public class Player extends Agent {
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
                 MonopolyMain.changeConsoleMessage("Next Player's turn");
-                Thread.sleep(1000);
+                Thread.sleep(2000);
                 sendPlayMessage(nextPlayerNumber);
             }
         } else {
@@ -287,29 +307,23 @@ public class Player extends Agent {
 
         MonopolyMain.makePlayUI(this);
 
-        /*if(MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName().equals("Prisão")) {
-            this.isInJail = true;
-            this.turnCounterWhenPlayerWasArrested = this.currentTurnCounter;
-        }*/
-
         MonopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
 
-        Thread.sleep(1000);
+        Thread.sleep(2000);
 
         //CASAS ESPECIAIS
-        if(currentSquareNumber==11){
+        if(currentSquareNumber==11){//imposto capitais
             withdrawFromWallet(200);
             MonopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 200€ in taxes");
-            Thread.sleep(1000);
+            Thread.sleep(2000);
 
-        }else if(currentSquareNumber==25){
+        }else if(currentSquareNumber==25){//imposto luxo
             withdrawFromWallet(100);
             MonopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 100€ in taxes");
-            Thread.sleep(1000);
+            Thread.sleep(2000);
 
-        }else if( currentSquareNumber==6 || currentSquareNumber==20 || currentSquareNumber== 34) {
-            Random random = new Random();
-            boolean offset = random.nextBoolean();
+        }else if( currentSquareNumber==6 || currentSquareNumber==20 || currentSquareNumber== 34) {//sorte
+            boolean offset = r.nextBoolean();
             if(offset){
                 currentSquareNumber += 2;
 
@@ -325,20 +339,21 @@ public class Player extends Agent {
             }
 
             MonopolyMain.makePlayUI(this);
-            Thread.sleep(1000);
+            Thread.sleep(2000);
 
-        }else if(currentSquareNumber==2 || currentSquareNumber==15 || currentSquareNumber== 30){
-            Random random2 = new Random();
-            boolean offset = random2.nextBoolean();
-            int i = random2.nextInt(200 - 10) + 10;
+        }else if(currentSquareNumber==2 || currentSquareNumber==15 || currentSquareNumber== 30){//caixa comunidade
+            boolean offset = r.nextBoolean();
+            int i = r.nextInt(200 - 10) + 10;
             if(offset){
                 MonopolyMain.changeConsoleMessage("Player " + playerNumber + " recieved " + i );
+                System.out.println(PREFIX + playerNumber + " recieves " + i + "$ from the comunity");
                 depositToWallet(i);
             }else{
                 MonopolyMain.changeConsoleMessage("Player " + playerNumber + " lost " + i);
+                System.out.println(PREFIX + playerNumber + " pays " + i + "$ to the comunity");
                 withdrawFromWallet(i);
             }
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         }
 
 
@@ -346,6 +361,16 @@ public class Player extends Agent {
             if (ledger.get(currentSquareNumber) != playerNumber) {
                 MonopolyMain.infoConsole.setText("This property belongs to player " + ledger.get(currentSquareNumber) + " you need to pay rent.");
                 payRent(PREFIX + ledger.get(currentSquareNumber), MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
+            }else{
+                Square currentSquare = MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber);
+                if(wallet>currentSquare.getHousePrice()*3 && currentSquare.getHouseCounter()<4){
+                    double efficiency = currentSquare.getEfficiency();
+                    int percent = (int) (efficiency*100);
+                    if(r.nextInt(100)<percent){
+                        withdrawFromWallet(currentSquare.getHousePrice());
+                        currentSquare.addHouse();
+                    }
+                }
             }
         }else {
             //Strategy is used to decide if the player buys the square or not
@@ -353,7 +378,7 @@ public class Player extends Agent {
             if (!isSquareUnbuyable(currentSquareNumber) && this.currentTurnCounter > 1) {
                 int priceOfPurchase = MonopolyMain.priceOfPurchase(currentSquareNumber);
                 String squareColor = MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getColor();
-                int decision = strategy.strategize(currentSquareNumber ,wallet, priceOfPurchase, this.currentTurnCounter, this.targetTurn, squareColor, this.generatedColorsList.get(0),this.generatedColorsList.get(1));
+                int decision = strategy.strategize(currentSquareNumber ,wallet, priceOfPurchase, this.currentTurnCounter, squareColor);
                 if (decision == 1) {
                     MonopolyMain.infoConsole.setText("The property " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName() + " was bought by Player " + this.getPlayerNumber() + ".");
                     buySquare(currentSquareNumber, this.getPlayerNumber());
@@ -366,13 +391,13 @@ public class Player extends Agent {
 
         if (diceResult.get(0).equals(diceResult.get(1))) {
             MonopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
-            Thread.sleep(1000);
+            Thread.sleep(2000);
             move();
         } else {
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
                 MonopolyMain.changeConsoleMessage("Next Player's turn");
-                Thread.sleep(1000);
+                Thread.sleep(2000);
                 sendPlayMessage(nextPlayerNumber);
             }else{
                 MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);

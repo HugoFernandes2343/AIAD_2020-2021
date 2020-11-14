@@ -17,18 +17,39 @@ public class Square extends JPanel {
 
 	int number;
 	private String name;
-	String description;
+	private String defaultName;
 	JLabel nameLabel;
 	static int totalSquares = 0;
 	private int price;
 	private int rentPrice;
 	private int defaultRentPrice;
-	private int housePrice;
 	private String color;
 	private double efficiency;
+	private int housePrice;
+	private int houseCounter = 0;
 
 	public double getEfficiency(){
 		return  efficiency;
+	}
+
+	public int getHousePrice(){
+		return housePrice;
+	}
+
+	public int getHouseCounter(){
+		return houseCounter;
+	}
+
+	public void resetSquare(){
+		houseCounter = 0;
+		this.name = defaultName;
+		rentPrice = defaultRentPrice;
+	}
+
+	public void addHouse(){
+		this.name += "*";
+		this.rentPrice += (int) (rentPrice*efficiency);
+		houseCounter++;
 	}
 
 	public void setRentPrice(int rentPrice) {
@@ -39,8 +60,6 @@ public class Square extends JPanel {
 		return rentPrice;
 	}
 
-	public void resetRentPrice(){ rentPrice = defaultRentPrice;}
-	
 	public void setPrice(int price) {
 		this.price = price;
 	}
@@ -79,6 +98,7 @@ public class Square extends JPanel {
 		setBorder(new LineBorder(new Color(0, 0, 0)));
 		setBounds(xCoord, yCoord, width, height);
 		this.name = name;
+		this.defaultName = name;
 		this.setLayout(null);
 
 		nameLabel = new JLabel(name);
@@ -91,6 +111,7 @@ public class Square extends JPanel {
 		this.defaultRentPrice = defaultRentPrice;
 		this.rentPrice = defaultRentPrice;
 		this.efficiency = efficiency;
+		this.housePrice = 10;
 
 	}
 

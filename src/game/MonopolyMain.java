@@ -23,7 +23,6 @@ public class MonopolyMain extends JFrame{
 
 	private Runtime runtimeInstance;
 	private Profile profile;
-	private JScrollPane scrollPane;
 	private ContainerController containerController;
 	private JPanel contentIncluder;
 	static JTextArea infoConsole;
@@ -31,7 +30,6 @@ public class MonopolyMain extends JFrame{
 	CardLayout c1 = new CardLayout();
 	static ArrayList<PlayerUi> playerUis = new ArrayList<PlayerUi>();
 	ArrayList<Player> players = new ArrayList<Player>();
-	static int turnCounter = 0;
 	static JTextArea panelPlayerTextArea;
 	JButton btnStart;
 	static Board gameBoard;
@@ -80,17 +78,17 @@ public class MonopolyMain extends JFrame{
 		JPanel rightPanel = new JPanel();
 		rightPanel.setBackground(Color.LIGHT_GRAY);
 		rightPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		rightPanel.setBounds(1100, 6, 419, 600);
+		rightPanel.setBounds(1100, 6, 450, 900);
 		contentIncluder.add(rightPanel);
 		rightPanel.setLayout(null);
 
 		JPanel test = new JPanel();
-		test.setBounds(81, 312, 246, 68);
+		test.setBounds(81, 600, 300, 68);
 		rightPanel.add(test);
 		test.setLayout(null);
 
 		playerAssetsPanel = new JPanel();
-		playerAssetsPanel.setBounds(81, 28, 246, 250);
+		playerAssetsPanel.setBounds(81, 28, 300, 500);
 		rightPanel.add(playerAssetsPanel);
 		playerAssetsPanel.setLayout(c1);
 
@@ -99,27 +97,29 @@ public class MonopolyMain extends JFrame{
 		panelPlayerTitle = new JLabel("Player 1 Information");
 		panelPlayerTitle.setForeground(Color.WHITE);
 		panelPlayerTitle.setHorizontalAlignment(SwingConstants.CENTER);
-		panelPlayerTitle.setBounds(0, 6, 240, 25);
+		panelPlayerTitle.setBounds(0, 6, 294, 25);
 		panelPlayer.add(panelPlayerTitle);
 		panelPlayer.setLayout(null);
 		panelPlayerTextArea = new JTextArea();
-		panelPlayerTextArea.setBounds(10, 34, 230, 200);
+		panelPlayerTextArea.setBounds(10, 34, 280, 450);
+		panelPlayerTextArea.setEditable(false);
 		panelPlayer.add(panelPlayerTextArea);
 		playerAssetsPanel.add(panelPlayer, "1");
 
 		updatePanelPlayerTextArea(players.get(0));
 
 		infoConsole = new JTextArea();
+		infoConsole.setEditable(false);
 		infoConsole.setColumns(20);
 		infoConsole.setRows(5);
-		infoConsole.setBounds(6, 6, 234, 56);
+		infoConsole.setBounds(6, 6, 288, 56);
 		test.add(infoConsole);
 		infoConsole.setLineWrap(true);
-		infoConsole.setText("Player 1 starts the game!");
+		infoConsole.setText("Player 1 start the game!");
 
 
 		btnStart = new JButton("start");
-		btnStart.setBounds(81, 478, 117, 29);
+		btnStart.setBounds(81, 800, 117, 29);
 		rightPanel.add(btnStart);
 		btnStart.addActionListener(new ActionListener() {
 			 public void actionPerformed(ActionEvent e) {
@@ -142,23 +142,28 @@ public class MonopolyMain extends JFrame{
 	}
 
 	private void createAgents() throws StaleProxyException {
+		Player player1 = new Player(1,1);
+		Player player2 = new Player(2,2,3);
+		Player player3 = new Player(3,3);
+		Player player4 = new Player(4,4);
+
+		players.add(player1);
+		players.add(player2);
+		players.add(player3);
+		players.add(player4);
+
 		for(int i = 1; i < 5; i++) {
-			//estrategias tao todas como a 1 currently
 			String id = "player_" + i;
-			Player player = new Player(i,1);
 
-			players.add(player);
-
-			PlayerUi playerUi = new PlayerUi(player, ColorHelper.getColor(i));
+			PlayerUi playerUi = new PlayerUi(players.get(i-1), ColorHelper.getColor(i));
 			playerUis.add(playerUi);
 
-			AgentController agentController = this.containerController.acceptNewAgent(id, player);
+			AgentController agentController = this.containerController.acceptNewAgent(id, players.get(i-1));
 			agentController.start();
 		}
 	}
 
 	public static void updatePanelPlayerTextArea(Player player) {
-		// TODO Auto-generated method stub
 		String result = "Player " + String.valueOf(player.getPlayerNumber()) + " Now Playing" + "\n";
 		result += "Current Balance: "+player.getWallet()+"\n";
 

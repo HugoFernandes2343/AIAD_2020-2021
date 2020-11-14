@@ -5,19 +5,37 @@ import java.util.Random;
 public class Strategy {
 
     private int strategyFlag;
+    private int targetTurn;
+    private String desiredColor1;
+    private String desiredColor2;
+    private String desiredColor3;
 
     public Strategy(int flag){
         this.strategyFlag = flag;
     }
+    public Strategy(int flag, int targetTurn){
+        this.strategyFlag = flag;
+        this.targetTurn = targetTurn;
+    }
+    public Strategy(int flag, String desiredColor1, String desiredColor2,String desiredColor3){
+        this.strategyFlag = flag;
+        this.desiredColor1 = desiredColor1;
+        this.desiredColor2 = desiredColor2;
+        this.desiredColor3 = desiredColor3;
+    }
 
-    public int strategize(int squareNumber,int wallet, int squarePrice, int currentTurn, int targetTurn, String squareColor, String desiredColor1, String desiredColor2){
+    public void setStrategyFlag(int strategyFlag) {
+        this.strategyFlag = strategyFlag;
+    }
+
+    public int strategize(int squareNumber, int wallet, int squarePrice, int currentTurn, String squareColor){
         try {
             if(getStrategyFlag() ==1){
                 return relentlessStrategy(wallet, squarePrice);
             }else if (getStrategyFlag() ==2){
                 return buyOnlyAfterHavingDoneTargetAmountOfTurnsStrategy(currentTurn, targetTurn, wallet, squarePrice);
             }else if (getStrategyFlag() ==3){
-                return buyBlocksOfTwoColorHousesStrategy(desiredColor1, desiredColor2, squareColor, wallet, squarePrice);
+                return buyBlocksOfThreeColorHousesStrategy(desiredColor1, desiredColor2,desiredColor3, squareColor, wallet, squarePrice);
             }else if (getStrategyFlag() ==4){
                 return efficiencyStrategy(squareNumber,wallet,squarePrice);
             }else {
@@ -43,8 +61,8 @@ public class Strategy {
         return relentlessStrategy(wallet, squarePrice);
     }
 
-    public int buyBlocksOfTwoColorHousesStrategy(String desiredColor1, String desiredColor2, String squareColor, int wallet, int squarePrice){
-        if((desiredColor1.equals(squareColor) || desiredColor2.equals(squareColor)) && relentlessStrategy(wallet, squarePrice) == 1) {
+    public int buyBlocksOfThreeColorHousesStrategy(String desiredColor1, String desiredColor2,String desiredColor3, String squareColor, int wallet, int squarePrice){
+        if((desiredColor1.equals(squareColor) || desiredColor2.equals(squareColor) || desiredColor3.equals(squareColor) )&& relentlessStrategy(wallet, squarePrice) == 1) {
             return 1;
         }
         return 0;
