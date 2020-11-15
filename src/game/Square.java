@@ -125,7 +125,6 @@ public class Square extends JPanel {
 			this.housePrice = 200;
 			this.priceRatio = 0.80;
 		}
-		this.housePrice = 10;
 
 	}
 
