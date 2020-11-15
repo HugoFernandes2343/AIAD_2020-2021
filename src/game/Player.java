@@ -30,7 +30,7 @@ public class Player extends Agent {
     private ArrayList<Integer> titleDeeds = new ArrayList<>(); // squares that the player has
     private ArrayList<String> otherPlayersQueue;
     private ArrayList<String> generatedColorsList;
-    private int wallet = 2000; // initial money
+    private int wallet = 1500; // initial money
     private static final String PREFIX = "player_";
     private final transient Strategy strategy;
     private Random r = new Random();
@@ -269,7 +269,7 @@ public class Player extends Agent {
         MonopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
         MonopolyMain.updatePanelPlayerTextArea(this);
 
-        Thread.sleep(2000);
+        Thread.sleep(1500);
 
         ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
 
@@ -278,7 +278,7 @@ public class Player extends Agent {
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
                 MonopolyMain.changeConsoleMessage("Next Player's turn");
-                Thread.sleep(2000);
+                Thread.sleep(1500);
                 sendPlayMessage(nextPlayerNumber);
             }
         } else {
@@ -290,6 +290,7 @@ public class Player extends Agent {
         int dicesTotal = diceResult.get(0) + diceResult.get(1);
         if (currentSquareNumber + dicesTotal > 35) {
             this.currentTurnCounter++;
+            System.out.println(PREFIX+playerNumber + " passed by Partida gain 200$");
             depositToWallet(200);
         }
         int targetSquare = (currentSquareNumber + dicesTotal) % 36;
@@ -309,18 +310,18 @@ public class Player extends Agent {
 
         MonopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
 
-        Thread.sleep(2000);
+        Thread.sleep(1500);
 
         //CASAS ESPECIAIS
         if(currentSquareNumber==11){//imposto capitais
             withdrawFromWallet(200);
             MonopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 200€ in taxes");
-            Thread.sleep(2000);
+            Thread.sleep(1500);
 
         }else if(currentSquareNumber==25){//imposto luxo
             withdrawFromWallet(100);
             MonopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 100€ in taxes");
-            Thread.sleep(2000);
+            Thread.sleep(1500);
 
         }else if( currentSquareNumber==6 || currentSquareNumber==20 || currentSquareNumber== 34) {//sorte
             boolean offset = r.nextBoolean();
@@ -339,7 +340,7 @@ public class Player extends Agent {
             }
 
             MonopolyMain.makePlayUI(this);
-            Thread.sleep(2000);
+            Thread.sleep(1500);
 
         }else if(currentSquareNumber==2 || currentSquareNumber==15 || currentSquareNumber== 30){//caixa comunidade
             boolean offset = r.nextBoolean();
@@ -353,7 +354,7 @@ public class Player extends Agent {
                 System.out.println(PREFIX + playerNumber + " pays " + i + "$ to the comunity");
                 withdrawFromWallet(i);
             }
-            Thread.sleep(2000);
+            Thread.sleep(1500);
         }
 
 
@@ -391,13 +392,13 @@ public class Player extends Agent {
 
         if (diceResult.get(0).equals(diceResult.get(1))) {
             MonopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
-            Thread.sleep(2000);
+            Thread.sleep(1500);
             move();
         } else {
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
                 MonopolyMain.changeConsoleMessage("Next Player's turn");
-                Thread.sleep(2000);
+                Thread.sleep(1500);
                 sendPlayMessage(nextPlayerNumber);
             }else{
                 MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
