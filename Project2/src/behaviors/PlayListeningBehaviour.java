@@ -1,7 +1,7 @@
 package behaviors;
 
 import game.Player;
-import jade.core.behaviours.Behaviour;
+import sajas.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 
 import static java.lang.System.*;

@@ -1,8 +1,8 @@
 package game;
 
 import jade.core.Profile;
-import jade.wrapper.ContainerController;
-import jade.wrapper.AgentController;
+import sajas.wrapper.ContainerController;
+import sajas.wrapper.AgentController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,18 +11,17 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Map;
 
 import jade.core.ProfileImpl;
-import jade.core.Runtime;
+import sajas.core.Runtime;
 import jade.wrapper.StaleProxyException;
 import utils.ColorHelper;
 
 public class MonopolyMain extends JFrame{
 
 
-	private Runtime runtimeInstance;
-	private Profile profile;
+	//private Runtime runtimeInstance;
+	//private Profile profile;
 	private ContainerController containerController;
 	private JPanel contentIncluder;
 	static JTextArea infoConsole;
@@ -40,11 +39,11 @@ public class MonopolyMain extends JFrame{
 	static JLayeredPane layeredPane;
 	static int nowPlaying = 0;
 
-	public MonopolyMain() throws StaleProxyException {
-		this.runtimeInstance = Runtime.instance();
+	public MonopolyMain(ContainerController containerController) throws StaleProxyException {
+		/*this.runtimeInstance = Runtime.instance();
 		this.profile = new ProfileImpl(true);
-		this.containerController = runtimeInstance.createMainContainer(profile);
-
+		this.containerController = runtimeInstance.createMainContainer(profile);*/
+		this.containerController = containerController;
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1030, 1030);
@@ -195,12 +194,12 @@ public class MonopolyMain extends JFrame{
 	}
 
 
-	public static void main(String[] args) throws StaleProxyException {
+	/*public static void main(String[] args) throws StaleProxyException {
 
 		MonopolyMain frame = new MonopolyMain();
 		frame.setVisible(true);
 
-	}
+	}*/
 
 	public static ArrayList<Integer> rollDiceUI() {
 		ArrayList<Integer> res = new ArrayList<>();

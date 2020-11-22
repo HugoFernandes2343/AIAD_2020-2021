@@ -2,18 +2,17 @@ package game;
 
 import behaviors.PlayListeningBehaviour;
 import jade.core.AID;
-import jade.core.Agent;
-import jade.domain.DFService;
+import sajas.core.Agent;
+import sajas.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
-import jade.proto.SubscriptionInitiator;
+import sajas.proto.SubscriptionInitiator;
 import utils.ColorHelper;
 import utils.MessageType;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 public class Player extends Agent {
 
