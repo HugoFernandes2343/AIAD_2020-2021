@@ -1,0 +1,12 @@
+# Default ignored files
+/shelf/
+/.idea/workspace.xml
+# Datasource local storage ignored files
+/../../../../../../../:\Faculdade\FEUP\AIAD\Projetos\Project1\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+.idea/checkstyleidea.tmp/
+.idea/*
+out/
+bin/

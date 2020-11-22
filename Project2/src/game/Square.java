@@ -49,7 +49,7 @@ public class Square extends JPanel {
 
 	public void addHouse(){
 		this.name += "*";
-		this.rentPrice += (int) (rentPrice*priceRatio);
+		this.rentPrice = rentPrice + (int) (rentPrice*priceRatio);
 		houseCounter++;
 	}
 

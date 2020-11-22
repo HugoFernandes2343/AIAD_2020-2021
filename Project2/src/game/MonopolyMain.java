@@ -10,6 +10,7 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
 import jade.core.ProfileImpl;
@@ -22,7 +23,7 @@ public class MonopolyMain extends JFrame{
 
 	//private Runtime runtimeInstance;
 	//private Profile profile;
-	private ContainerController containerController;
+
 	private JPanel contentIncluder;
 	static JTextArea infoConsole;
 	static JPanel playerAssetsPanel;
@@ -39,11 +40,12 @@ public class MonopolyMain extends JFrame{
 	static JLayeredPane layeredPane;
 	static int nowPlaying = 0;
 
-	public MonopolyMain(ContainerController containerController) throws StaleProxyException {
+	public MonopolyMain(ArrayList<Player> players) {
 		/*this.runtimeInstance = Runtime.instance();
 		this.profile = new ProfileImpl(true);
 		this.containerController = runtimeInstance.createMainContainer(profile);*/
-		this.containerController = containerController;
+		this.players=players;
+		reset();
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1030, 1030);
@@ -68,7 +70,7 @@ public class MonopolyMain extends JFrame{
 		dice2 = new Dice(515, 706, 80, 80);
 		layeredPane.add(dice2, new Integer(1));
 
-		this.createAgents();
+		this.createUIs();
 
 		for(PlayerUi playerUi : playerUis) {
 			layeredPane.add(playerUi, new Integer(2));
@@ -136,20 +138,28 @@ public class MonopolyMain extends JFrame{
 		 });
 	}
 
+	private void reset() {
+		contentIncluder = null;
+		infoConsole = null;
+		playerAssetsPanel = null;
+		playerUis.clear();
+		panelPlayerTextArea = null;
+		btnStart = null;
+		dice1 = null;
+		dice2 = null;
+		panelPlayer = null;
+		panelPlayerTitle = null;
+		layeredPane = null;
+		nowPlaying = 0;
+		gameBoard = null;
+
+	}
+
 	public static double squareEfficiency(int squareNumber) {
 		return gameBoard.getSquareAtIndex(squareNumber).getEfficiency();
 	}
 
-	private void createAgents() throws StaleProxyException {
-		Player player1 = new Player(1,1);
-		Player player2 = new Player(2,2,3);
-		Player player3 = new Player(3,3);
-		Player player4 = new Player(4,4);
-
-		players.add(player1);
-		players.add(player2);
-		players.add(player3);
-		players.add(player4);
+	private void createUIs() {
 
 		for(int i = 1; i < 5; i++) {
 			String id = "player_" + i;
@@ -157,8 +167,7 @@ public class MonopolyMain extends JFrame{
 			PlayerUi playerUi = new PlayerUi(players.get(i-1), ColorHelper.getColor(i));
 			playerUis.add(playerUi);
 
-			AgentController agentController = this.containerController.acceptNewAgent(id, players.get(i-1));
-			agentController.start();
+			players.get(i-1).setFrame(this);
 		}
 	}
 
@@ -168,7 +177,7 @@ public class MonopolyMain extends JFrame{
 
 		result += "Title Deeds: \n";
 		for(int i = 0; i < player.getTitleDeeds().size(); i++) {
-			result += " - "+gameBoard.getAllSquares().get(player.getTitleDeeds().get(i)).getName()+"\n";
+			result += " - "+gameBoard.getAllSquares().get(player.getTitleDeeds().get(i)).getName()+player.getTitleDeeds().get(i)+"\n";
 		}
 
 		panelPlayerTextArea.setText(result);
