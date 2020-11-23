@@ -36,7 +36,14 @@ public class Board extends JPanel {
 		setBorder(new LineBorder(new Color(0, 0, 0)));
 		setBounds(xCoord, yCoord, width, height);
 		this.setLayout(null);
+		resetBoard();
 		initializeSquares();
+	}
+
+	public void resetBoard(){
+		Square.reset();
+		unbuyableSquares.clear();
+		allSquares.clear();
 	}
 
 	private void initializeSquares() {

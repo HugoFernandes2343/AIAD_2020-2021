@@ -28,7 +28,7 @@ public class Strategy {
         this.strategyFlag = strategyFlag;
     }
 
-    public int strategize(int squareNumber, int wallet, int squarePrice, int currentTurn, String squareColor){
+    public int strategize(int squareNumber, int wallet, int squarePrice, int currentTurn, String squareColor,double squareEfficiency){
         try {
             if(getStrategyFlag() ==1){
                 return relentlessStrategy(wallet, squarePrice);
@@ -37,7 +37,7 @@ public class Strategy {
             }else if (getStrategyFlag() ==3){
                 return buyBlocksOfThreeColorHousesStrategy(desiredColor1, desiredColor2,desiredColor3, squareColor, wallet, squarePrice);
             }else if (getStrategyFlag() ==4){
-                return efficiencyStrategy(squareNumber,wallet,squarePrice);
+                return efficiencyStrategy(squareNumber,wallet,squarePrice,squareEfficiency);
             }else {
                 throw new Exception();
             }
@@ -68,9 +68,8 @@ public class Strategy {
         return 0;
     }
 
-    public int efficiencyStrategy(int squareNumber, int wallet, int squarePrice){
-        double efficiency = MonopolyMain.squareEfficiency(squareNumber);
-        int percent = (int) (efficiency*100);
+    public int efficiencyStrategy(int squareNumber, int wallet, int squarePrice, double squareEfficiency){
+        int percent = (int) (squareEfficiency*100);
         Random r = new Random();
         if(r.nextInt(100)<percent){
             return 1;

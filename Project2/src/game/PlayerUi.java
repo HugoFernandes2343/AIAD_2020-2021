@@ -13,7 +13,7 @@ public class PlayerUi extends JPanel{
 	private Player player;
 
 	JLabel lblPlayerNumber;
-	static int totalPlayers = 0; // we might need this number later on
+	int totalPlayers = 0; // we might need this number later on
 
 
 	public PlayerUi(int xCoord, int yCoord, int width, int height) {
@@ -73,19 +73,19 @@ public class PlayerUi extends JPanel{
 
 	public void move() {
 		int targetSquare = player.getCurrentSquareNumber();
-		if(MonopolyMain.nowPlaying == 0) {
+		if(player.getMonopoly().nowPlaying == 0) {
 			this.setLocation(xLocationsOfPlayer1[targetSquare], yLocationsOfPlayer[targetSquare]);
-		} else if(MonopolyMain.nowPlaying == 1) {
+		} else if(player.getMonopoly().nowPlaying == 1) {
 			this.setLocation(xLocationsOfPlayer2[targetSquare], yLocationsOfPlayer[targetSquare]);
-		} else if(MonopolyMain.nowPlaying == 2) {
+		} else if(player.getMonopoly().nowPlaying == 2) {
 			this.setLocation(xLocationsOfPlayer3[targetSquare], yLocationsOfPlayer[targetSquare]);
-		} else if(MonopolyMain.nowPlaying == 3) {
+		} else if(player.getMonopoly().nowPlaying == 3) {
 			this.setLocation(xLocationsOfPlayer4[targetSquare], yLocationsOfPlayer[targetSquare]);
 		}
 
 
 		if(this.player.ledger.containsKey(targetSquare)) {
-			MonopolyMain.infoConsole.setText("This property belongs to player "+this.player.ledger.get(targetSquare));
+			player.getMonopoly().infoConsole.setText("This property belongs to player "+this.player.ledger.get(targetSquare));
 		}
 		//ledger.put(this.getCurrentSquareNumber(), this.getPlayerNumber());
 	}

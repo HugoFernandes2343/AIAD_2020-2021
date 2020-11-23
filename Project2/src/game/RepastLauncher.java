@@ -17,6 +17,7 @@ public class RepastLauncher extends Repast3Launcher {
     private Profile profile;
     private ContainerController containerController;
     ArrayList<Player> players = new ArrayList<>();
+    int numberOfAgents;
 
     @Override
     protected void launchJADE() {
@@ -30,7 +31,14 @@ public class RepastLauncher extends Repast3Launcher {
         MonopolyMain frame = null;
         frame = new MonopolyMain(players);
         frame.setVisible(true);
+        MonopolyMain finalFrame = frame;
+        Thread thread = new Thread("New Thread") {
+            public void run(){
+                finalFrame.start();
+            }
+        };
 
+        thread.start();
     }
 
     private void launchAgents() {
@@ -46,6 +54,8 @@ public class RepastLauncher extends Repast3Launcher {
             players.add(player3);
             players.add(player4);
 
+            setNumberOfAgents(4);
+
             for(int i = 1; i < 5; i++) {
                 String id = "player_" + i;
                 AgentController agentController = this.containerController.acceptNewAgent(id, players.get(i-1));
@@ -58,9 +68,15 @@ public class RepastLauncher extends Repast3Launcher {
 
     }
 
+    public void setNumberOfAgents(int numberOfAgents) {
+        this.numberOfAgents = numberOfAgents;
+    }
+    public int getNumberOfAgents() {
+        return numberOfAgents;
+    }
     @Override
     public String[] getInitParam() {
-        return new String[0];
+        return new String[]{"numberOfAgents"};
     }
 
     @Override
@@ -71,6 +87,6 @@ public class RepastLauncher extends Repast3Launcher {
     public static void main(String[] args) {
         SimInit init = new SimInit();
         init.setNumRuns(3);   // works only in batch mode
-        init.loadModel(new RepastLauncher(), null, true);
+        init.loadModel(new RepastLauncher(), null, false);
 	}
 }

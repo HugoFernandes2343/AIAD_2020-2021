@@ -20,25 +20,21 @@ import utils.ColorHelper;
 
 public class MonopolyMain extends JFrame{
 
-
-	//private Runtime runtimeInstance;
-	//private Profile profile;
-
 	private JPanel contentIncluder;
-	static JTextArea infoConsole;
-	static JPanel playerAssetsPanel;
+	JTextArea infoConsole;
+	JPanel playerAssetsPanel;
 	CardLayout c1 = new CardLayout();
-	static ArrayList<PlayerUi> playerUis = new ArrayList<PlayerUi>();
-	ArrayList<Player> players = new ArrayList<Player>();
-	static JTextArea panelPlayerTextArea;
+	ArrayList<PlayerUi> playerUis = new ArrayList<>();
+	ArrayList<Player> players;
+	JTextArea panelPlayerTextArea;
 	JButton btnStart;
-	static Board gameBoard;
-	static Dice dice1;
-	static Dice dice2;
-	static JPanel panelPlayer;
-	static JLabel panelPlayerTitle;
-	static JLayeredPane layeredPane;
-	static int nowPlaying = 0;
+	Board gameBoard;
+	Dice dice1;
+	Dice dice2;
+	JPanel panelPlayer;
+	JLabel panelPlayerTitle;
+	JLayeredPane layeredPane;
+	int nowPlaying = 0;
 
 	public MonopolyMain(ArrayList<Player> players) {
 		/*this.runtimeInstance = Runtime.instance();
@@ -138,13 +134,17 @@ public class MonopolyMain extends JFrame{
 		 });
 	}
 
+	public void start(){
+		btnStart.doClick();
+	}
+
 	private void reset() {
-		contentIncluder = null;
+		//contentIncluder = null;
 		infoConsole = null;
 		playerAssetsPanel = null;
 		playerUis.clear();
 		panelPlayerTextArea = null;
-		btnStart = null;
+		//btnStart = null;
 		dice1 = null;
 		dice2 = null;
 		panelPlayer = null;
@@ -155,7 +155,7 @@ public class MonopolyMain extends JFrame{
 
 	}
 
-	public static double squareEfficiency(int squareNumber) {
+	public double squareEfficiency(int squareNumber) {
 		return gameBoard.getSquareAtIndex(squareNumber).getEfficiency();
 	}
 
@@ -171,7 +171,7 @@ public class MonopolyMain extends JFrame{
 		}
 	}
 
-	public static void updatePanelPlayerTextArea(Player player) {
+	public void updatePanelPlayerTextArea(Player player) {
 		String result = "Player " + String.valueOf(player.getPlayerNumber()) + " Now Playing" + "\n";
 		result += "Current Balance: "+player.getWallet()+"\n";
 
@@ -183,7 +183,7 @@ public class MonopolyMain extends JFrame{
 		panelPlayerTextArea.setText(result);
 	}
 
-	public static void updatePlayerPanel(Color color, int playerNumber) {
+	public void updatePlayerPanel(Color color, int playerNumber) {
 		panelPlayer.setBackground(color);
 		panelPlayer.setLayout(null);
 		panelPlayerTitle.setText("Player " + playerNumber + " Information");
@@ -194,7 +194,7 @@ public class MonopolyMain extends JFrame{
 		playerAssetsPanel.add(panelPlayer, String.valueOf(playerNumber));
 	}
 
-	public static void changeConsoleMessage(String message) {
+	public void changeConsoleMessage(String message) {
 		infoConsole.setText(message);
 	}
 	
@@ -210,7 +210,7 @@ public class MonopolyMain extends JFrame{
 
 	}*/
 
-	public static ArrayList<Integer> rollDiceUI() {
+	public ArrayList<Integer> rollDiceUI() {
 		ArrayList<Integer> res = new ArrayList<>();
 		dice1.rollDice();
 		dice2.rollDice();
@@ -219,7 +219,7 @@ public class MonopolyMain extends JFrame{
 		return res;
 	}
 
-	private static PlayerUi getPlayerFromPlayerUI(Player player) {
+	private PlayerUi getPlayerFromPlayerUI(Player player) {
 		for(PlayerUi playerUi: playerUis) {
 			if(playerUi.getPlayer().getPlayerNumber() == player.getPlayerNumber()) {
 				return playerUi;
@@ -228,7 +228,7 @@ public class MonopolyMain extends JFrame{
 		return null;
 	}
 
-	public static void makePlayUI(Player player) {
+	public void makePlayUI(Player player) {
 		PlayerUi playerUi = getPlayerFromPlayerUI(player);
 		nowPlaying = player.getPlayerNumber() - 1;
 		if(playerUi != null) {
@@ -238,22 +238,22 @@ public class MonopolyMain extends JFrame{
 		layeredPane.add(gameBoard, new Integer(0));
 	}
 
-	public static int priceOfPurchase(int squareNumber) {
+	public int priceOfPurchase(int squareNumber) {
 		int price;
 		price = gameBoard.getSquareAtIndex(squareNumber).getPrice();
 		return price;
 	}
-	public static int priceOfRent(int squareNumber) {
+
+	public int priceOfRent(int squareNumber) {
 		int rent;
 		rent = gameBoard.getSquareAtIndex(squareNumber).getRentPrice();
 		return rent;
 	}
 
-	// TODO: Remove From UI
-	public static void removeFromUI(Player player) {
+	public void removeFromUI(int player) {
 		for(PlayerUi playerUi : playerUis) {
-			if(playerUi.getPlayer().getPlayerNumber() == player.getPlayerNumber()) {
-				layeredPane.remove(playerUi);
+			if(playerUi.getPlayer().getPlayerNumber() == player) {
+				playerUi.removeComponent();
 			}
 		}
 	}

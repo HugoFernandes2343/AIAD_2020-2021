@@ -53,6 +53,9 @@ public class Square extends JPanel {
 		houseCounter++;
 	}
 
+	public static void reset(){
+		totalSquares=0;
+	}
 	public void setRentPrice(int rentPrice) {
 		this.rentPrice = rentPrice;
 	}

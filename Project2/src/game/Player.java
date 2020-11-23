@@ -20,7 +20,7 @@ public class Player extends Agent {
 
     private final int playerNumber;
 
-    public JFrame monopolyMain;
+    public MonopolyMain monopolyMain;
 
 
     public  HashMap<Integer, Integer> ledger = new HashMap<>();
@@ -63,7 +63,7 @@ public class Player extends Agent {
         this.targetTurn = targetTurn;
     }
 
-    public void setFrame(JFrame monopolyMain){
+    public void setFrame(MonopolyMain monopolyMain){
         this.monopolyMain = monopolyMain;
     }
 
@@ -161,7 +161,7 @@ public class Player extends Agent {
         if (withdrawAmount > wallet) {
             System.out.println("Player_" + playerNumber + " went bankrupt!");
             for(int i =0; i<titleDeeds.size();i++){
-                Square s = MonopolyMain.gameBoard.getSquareAtIndex(titleDeeds.get(i));
+                Square s = monopolyMain.gameBoard.getSquareAtIndex(titleDeeds.get(i));
                 s.resetSquare();
             }
             sendBustToOtherPlayers(PREFIX + this.getPlayerNumber());
@@ -195,8 +195,8 @@ public class Player extends Agent {
     }
 
     private boolean isSquareUnbuyable(int squareNumber) {
-        for (Square square : MonopolyMain.gameBoard.getUnbuyableSquares()) {
-            if (square.getName().equalsIgnoreCase(MonopolyMain.gameBoard.getSquareAtIndex(squareNumber).getName())) {
+        for (Square square : monopolyMain.gameBoard.getUnbuyableSquares()) {
+            if (square.getName().equalsIgnoreCase(monopolyMain.gameBoard.getSquareAtIndex(squareNumber).getName())) {
                 return true;
             }
         }
@@ -204,7 +204,7 @@ public class Player extends Agent {
     }
 
     private void buySquare(int squareNumber, int playerNumber) {
-        int price = MonopolyMain.priceOfPurchase(squareNumber);
+        int price = monopolyMain.priceOfPurchase(squareNumber);
         if (!withdrawFromWallet(price)) {
             return;
         }
@@ -245,7 +245,9 @@ public class Player extends Agent {
         if (this.otherPlayersQueue.contains(player)) {
             this.otherPlayersQueue.remove(player);
             if(this.otherPlayersQueue.isEmpty()){
-                MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
+                monopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
+                monopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
+                monopolyMain.updatePanelPlayerTextArea(this);
                 System.out.println("YOU WON PLAYER " + this.playerNumber);
                 shutdown();
             }else if(this.otherPlayersQueue.size()==1 && strategy.getStrategyFlag()==3){
@@ -265,7 +267,8 @@ public class Player extends Agent {
     }
 
     private void sendBustToOtherPlayers(String originalPlayer) {
-        MonopolyMain.removeFromUI(this);
+        monopolyMain.removeFromUI(playerNumber);
+
         for (String player : otherPlayersQueue) {
             sendBustMessage(player, originalPlayer);
         }
@@ -274,19 +277,19 @@ public class Player extends Agent {
 
     public void move() throws InterruptedException {
         //Update the panel
-        MonopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
-        MonopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
-        MonopolyMain.updatePanelPlayerTextArea(this);
+        monopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
+        monopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
+        monopolyMain.updatePanelPlayerTextArea(this);
 
         Thread.sleep(200);
 
-        ArrayList<Integer> diceResult = MonopolyMain.rollDiceUI();
+        ArrayList<Integer> diceResult = monopolyMain.rollDiceUI();
 
         if(this.isInJail && this.jailTurnCounter < 2 && !diceResult.get(0).equals(diceResult.get(1))) {
             this.jailTurnCounter++;
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
-                MonopolyMain.changeConsoleMessage("Next Player's turn");
+                monopolyMain.changeConsoleMessage("Next Player's turn");
                 Thread.sleep(200);
                 sendPlayMessage(nextPlayerNumber);
             }
@@ -306,8 +309,8 @@ public class Player extends Agent {
         this.currentSquareNumber = targetSquare;
 
         if(
-                (MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName().equals("Vá para a cadeia") ||
-                MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName().equals("Prisão"))
+                (monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName().equals("Vá para a cadeia") ||
+                monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName().equals("Prisão"))
                 && this.currentTurnCounter > 1
         ) {
             this.isInJail = true;
@@ -315,21 +318,21 @@ public class Player extends Agent {
             this.currentSquareNumber = 9;
         }
 
-        MonopolyMain.makePlayUI(this);
+        monopolyMain.makePlayUI(this);
 
-        MonopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
+        monopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
 
         Thread.sleep(200);
 
         //CASAS ESPECIAIS
         if(currentSquareNumber==11){//imposto capitais
             withdrawFromWallet(200);
-            MonopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 200€ in taxes");
+            monopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 200€ in taxes");
             Thread.sleep(200);
 
         }else if(currentSquareNumber==25){//imposto luxo
             withdrawFromWallet(100);
-            MonopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 100€ in taxes");
+            monopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 100€ in taxes");
             Thread.sleep(200);
 
         }else if( currentSquareNumber==6 || currentSquareNumber==20 || currentSquareNumber== 34) {//sorte
@@ -342,24 +345,24 @@ public class Player extends Agent {
                     this.currentTurnCounter++;
                     depositToWallet(200);
                 }
-                MonopolyMain.changeConsoleMessage("Player " + playerNumber + " moves 2 squares forward");
+                monopolyMain.changeConsoleMessage("Player " + playerNumber + " moves 2 squares forward");
             }else{
                 currentSquareNumber-=2;
-                MonopolyMain.changeConsoleMessage("Player " + playerNumber + " moves 2 squares backwards");
+                monopolyMain.changeConsoleMessage("Player " + playerNumber + " moves 2 squares backwards");
             }
 
-            MonopolyMain.makePlayUI(this);
+            monopolyMain.makePlayUI(this);
             Thread.sleep(200);
 
         }else if(currentSquareNumber==2 || currentSquareNumber==15 || currentSquareNumber== 30){//caixa comunidade
             boolean offset = r.nextBoolean();
             int i = r.nextInt(200 - 10) + 10;
             if(offset){
-                MonopolyMain.changeConsoleMessage("Player " + playerNumber + " recieved " + i );
+                monopolyMain.changeConsoleMessage("Player " + playerNumber + " recieved " + i );
                 System.out.println(PREFIX + playerNumber + " recieves " + i + "$ from the comunity");
                 depositToWallet(i);
             }else{
-                MonopolyMain.changeConsoleMessage("Player " + playerNumber + " lost " + i);
+                monopolyMain.changeConsoleMessage("Player " + playerNumber + " lost " + i);
                 System.out.println(PREFIX + playerNumber + " pays " + i + "$ to the comunity");
                 withdrawFromWallet(i);
             }
@@ -369,10 +372,10 @@ public class Player extends Agent {
 
         if (ledger.containsKey(currentSquareNumber)) {
             if (ledger.get(currentSquareNumber) != playerNumber) {
-                MonopolyMain.infoConsole.setText("This property belongs to player " + ledger.get(currentSquareNumber) + " you need to pay rent.");
-                payRent(PREFIX + ledger.get(currentSquareNumber), MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
+                monopolyMain.infoConsole.setText("This property belongs to player " + ledger.get(currentSquareNumber) + " you need to pay rent.");
+                payRent(PREFIX + ledger.get(currentSquareNumber), monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
             }else{
-                Square currentSquare = MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber);
+                Square currentSquare = monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber);
                 if(wallet>currentSquare.getHousePrice()*3.5 && currentSquare.getHouseCounter()<4){
                     double efficiency = currentSquare.getEfficiency();
                     int percent = (int) (efficiency*100);
@@ -386,31 +389,32 @@ public class Player extends Agent {
             //Strategy is used to decide if the player buys the square or not
             //Output will be 1(Buy) or 0(Don't buy) or 255 if there is an error
             if (!isSquareUnbuyable(currentSquareNumber) && this.currentTurnCounter > 1) {
-                int priceOfPurchase = MonopolyMain.priceOfPurchase(currentSquareNumber);
-                String squareColor = MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getColor();
-                int decision = strategy.strategize(currentSquareNumber ,wallet, priceOfPurchase, this.currentTurnCounter, squareColor);
+                int priceOfPurchase = monopolyMain.priceOfPurchase(currentSquareNumber);
+                String squareColor = monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getColor();
+                double squareEfficiency = monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getEfficiency();
+                int decision = strategy.strategize(currentSquareNumber ,wallet, priceOfPurchase, this.currentTurnCounter, squareColor,squareEfficiency);
                 if (decision == 1) {
-                    MonopolyMain.infoConsole.setText("The property " + MonopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName() + " was bought by Player " + this.getPlayerNumber() + ".");
+                    monopolyMain.infoConsole.setText("The property " + monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName() + " was bought by Player " + this.getPlayerNumber() + ".");
                     buySquare(currentSquareNumber, this.getPlayerNumber());
                 }
             }
         }
 
-        MonopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
-        MonopolyMain.updatePanelPlayerTextArea(this);
+        monopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
+        monopolyMain.updatePanelPlayerTextArea(this);
 
         if (diceResult.get(0).equals(diceResult.get(1))) {
-            MonopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
+            monopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
             Thread.sleep(200);
             move();
         } else {
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
-                MonopolyMain.changeConsoleMessage("Next Player's turn");
+                monopolyMain.changeConsoleMessage("Next Player's turn");
                 Thread.sleep(200);
                 sendPlayMessage(nextPlayerNumber);
             }else{
-                MonopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
+                monopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
                 takeDown();
             }
         }
@@ -468,6 +472,10 @@ public class Player extends Agent {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public MonopolyMain getMonopoly() {
+        return monopolyMain;
     }
 
     class DFSubscriptionInit extends SubscriptionInitiator {
