@@ -8,7 +8,6 @@ import sajas.sim.repast3.Repast3Launcher;
 import sajas.wrapper.AgentController;
 import sajas.wrapper.ContainerController;
 import uchicago.src.sim.engine.SimInit;
-import utils.ColorHelper;
 
 import java.util.ArrayList;
 
@@ -81,12 +80,12 @@ public class RepastLauncher extends Repast3Launcher {
 
     @Override
     public String getName() {
-        return "192.168.56.1:1099/JADE";
+        return "Monopoly";
     }
 
     public static void main(String[] args) {
         SimInit init = new SimInit();
-        init.setNumRuns(3);   // works only in batch mode
+        //init.setNumRuns(3);   // works only in batch mode
         init.loadModel(new RepastLauncher(), null, false);
 	}
 }
