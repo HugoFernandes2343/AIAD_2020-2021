@@ -28,7 +28,7 @@ public class RepastLauncher extends Repast3Launcher {
         launchAgents();
 
         MonopolyMain frame = null;
-        frame = new MonopolyMain(players);
+        frame = new MonopolyMain(players, this);
         frame.setVisible(true);
         MonopolyMain finalFrame = frame;
         Thread thread = new Thread("New Thread") {
@@ -83,9 +83,14 @@ public class RepastLauncher extends Repast3Launcher {
         return "Monopoly";
     }
 
+    public void stopCurrentSim() {
+        this.fireStopSim();
+        this.fireEndSim();
+    }
+
     public static void main(String[] args) {
         SimInit init = new SimInit();
-        //init.setNumRuns(3);   // works only in batch mode
+        //init.setNumRuns(1);   // works only in batch mode
         init.loadModel(new RepastLauncher(), null, false);
 	}
 }

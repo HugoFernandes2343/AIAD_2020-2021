@@ -10,6 +10,7 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import sajas.proto.SubscriptionInitiator;
+import uchicago.src.sim.engine.SimModelImpl;
 import utils.ColorHelper;
 import utils.MessageType;
 
@@ -37,6 +38,7 @@ public class Player extends Agent {
     private static final String PREFIX = "player_";
     private final transient Strategy strategy;
     private Random r = new Random();
+    private SimModelImpl impl;
 
     public Player(int playerNumber, int strategy) {
         this.playerNumber = playerNumber;
@@ -465,8 +467,7 @@ public class Player extends Agent {
 
             takeDown();
             this.getContainerController().getPlatformController().kill();
-
-
+            this.getImpl().getController().exitSim();
         } catch (ControllerException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -478,11 +479,18 @@ public class Player extends Agent {
         return monopolyMain;
     }
 
+    public SimModelImpl getImpl() {
+        return impl;
+    }
+
+    public void setImpl(SimModelImpl impl) {
+        this.impl = impl;
+    }
+
     class DFSubscriptionInit extends SubscriptionInitiator {
 
         DFSubscriptionInit(Agent agent, DFAgentDescription dfad) {
             super(agent, DFService.createSubscriptionMessage(agent, getDefaultDF(), dfad, null));
-            System.out.println("REEEEEEEEEEEEEEEE");
         }
 
         @Override

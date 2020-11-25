@@ -1,6 +1,7 @@
 package game;
 
 import jade.core.Profile;
+import sajas.sim.repast3.Repast3Launcher;
 import sajas.wrapper.ContainerController;
 import sajas.wrapper.AgentController;
 
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import jade.core.ProfileImpl;
 import sajas.core.Runtime;
 import jade.wrapper.StaleProxyException;
+import uchicago.src.sim.engine.SimModelImpl;
 import utils.ColorHelper;
 
 public class MonopolyMain extends JFrame{
@@ -34,13 +36,15 @@ public class MonopolyMain extends JFrame{
 	JPanel panelPlayer;
 	JLabel panelPlayerTitle;
 	JLayeredPane layeredPane;
+	SimModelImpl impl;
 	int nowPlaying = 0;
 
-	public MonopolyMain(ArrayList<Player> players) {
+	public MonopolyMain(ArrayList<Player> players, Repast3Launcher impl) {
 		/*this.runtimeInstance = Runtime.instance();
 		this.profile = new ProfileImpl(true);
 		this.containerController = runtimeInstance.createMainContainer(profile);*/
 		this.players=players;
+		this.impl = impl;
 		reset();
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -69,6 +73,7 @@ public class MonopolyMain extends JFrame{
 		this.createUIs();
 
 		for(PlayerUi playerUi : playerUis) {
+			playerUi.getPlayer().setImpl(this.impl);
 			layeredPane.add(playerUi, new Integer(2));
 		}
 
@@ -201,14 +206,6 @@ public class MonopolyMain extends JFrame{
 	public static void errorBox(String infoMessage, String titleBar) {
 		JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + titleBar, JOptionPane.ERROR_MESSAGE);
 	}
-
-
-	/*public static void main(String[] args) throws StaleProxyException {
-
-		MonopolyMain frame = new MonopolyMain();
-		frame.setVisible(true);
-
-	}*/
 
 	public ArrayList<Integer> rollDiceUI() {
 		ArrayList<Integer> res = new ArrayList<>();
