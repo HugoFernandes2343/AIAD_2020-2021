@@ -36,10 +36,10 @@ public class MonopolyMain extends JFrame{
 	JPanel panelPlayer;
 	JLabel panelPlayerTitle;
 	JLayeredPane layeredPane;
-	SimModelImpl impl;
+	RepastLauncher impl;
 	int nowPlaying = 0;
 
-	public MonopolyMain(ArrayList<Player> players, Repast3Launcher impl) {
+	public MonopolyMain(ArrayList<Player> players, RepastLauncher impl) {
 		/*this.runtimeInstance = Runtime.instance();
 		this.profile = new ProfileImpl(true);
 		this.containerController = runtimeInstance.createMainContainer(profile);*/

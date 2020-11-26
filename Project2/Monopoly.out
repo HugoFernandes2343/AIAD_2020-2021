@@ -1,7 +1,9 @@
-Timestamp: Nov 25, 2020 1:45:39 AM
-NumberOfAgents: 0
+Timestamp: Nov 26, 2020 2:01:55 AM
+NumberOfAgents: 4
 
 
 "run","tick","RngSeed","numberOfAgents"
 
-End Time: Nov 25, 2020 1:47:31 AM1,0.0,1606268739897,4.0
+End Time: Nov 26, 2020 2:01:58 AM
+End Time: Nov 26, 2020 2:01:58 AM1,0.0,1606356115691,4.0
+2,0.0,1606356115691,4.0

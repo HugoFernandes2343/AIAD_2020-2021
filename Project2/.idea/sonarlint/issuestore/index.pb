@@ -21,8 +21,6 @@ L
 src/game/RepastLauncher.java,f\3\f3c1a55d5fb46f49dd3596a8d6fb170cfc6c735a
 J
 src/game/MonopolyMain.java,c\9\c99268d05514011c5b58ea8549606d86436f80d9
->
-parameters.xml,7\3\739a08b618364283da90a6f937aab38af1dc1ea5
 :
 
 repast.log,5\4\549dcbc5580e83a661a40d3b1d0f8edb7f0f66fa

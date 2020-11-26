@@ -10,6 +10,7 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import sajas.proto.SubscriptionInitiator;
+import sajas.sim.repast3.Repast3Launcher;
 import uchicago.src.sim.engine.SimModelImpl;
 import utils.ColorHelper;
 import utils.MessageType;
@@ -38,7 +39,7 @@ public class Player extends Agent {
     private static final String PREFIX = "player_";
     private final transient Strategy strategy;
     private Random r = new Random();
-    private SimModelImpl impl;
+    private RepastLauncher impl;
 
     public Player(int playerNumber, int strategy) {
         this.playerNumber = playerNumber;
@@ -90,6 +91,7 @@ public class Player extends Agent {
     protected void takeDown() {
         try {
             DFService.deregister(this);
+            impl.decrementNumberOfAgents();
             this.getContainerController().removeLocalAgent(this);
         } catch (FIPAException e) {
             e.printStackTrace();
@@ -262,10 +264,11 @@ public class Player extends Agent {
         this.depositToWallet(rentValue);
     }
 
-    private void payRent(String squareOwner, int rentValue) {
-        this.withdrawFromWallet(rentValue);
+    private boolean payRent(String squareOwner, int rentValue) {
+        boolean b = this.withdrawFromWallet(rentValue);
         System.out.println(PREFIX + playerNumber + " pays player " + squareOwner + " $" + rentValue );
         this.sendPaymentMessage(squareOwner, rentValue);
+        return b;
     }
 
     private void sendBustToOtherPlayers(String originalPlayer) {
@@ -326,14 +329,16 @@ public class Player extends Agent {
 
         Thread.sleep(200);
 
+        boolean alive=true;
+
         //CASAS ESPECIAIS
         if(currentSquareNumber==11){//imposto capitais
-            withdrawFromWallet(200);
+            alive = withdrawFromWallet(200);
             monopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 200€ in taxes");
             Thread.sleep(200);
 
         }else if(currentSquareNumber==25){//imposto luxo
-            withdrawFromWallet(100);
+            alive = withdrawFromWallet(100);
             monopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 100€ in taxes");
             Thread.sleep(200);
 
@@ -366,23 +371,26 @@ public class Player extends Agent {
             }else{
                 monopolyMain.changeConsoleMessage("Player " + playerNumber + " lost " + i);
                 System.out.println(PREFIX + playerNumber + " pays " + i + "$ to the comunity");
-                withdrawFromWallet(i);
+                alive = withdrawFromWallet(i);
             }
             Thread.sleep(200);
         }
 
+        if(!alive){
+            return;
+        }
 
         if (ledger.containsKey(currentSquareNumber)) {
             if (ledger.get(currentSquareNumber) != playerNumber) {
                 monopolyMain.infoConsole.setText("This property belongs to player " + ledger.get(currentSquareNumber) + " you need to pay rent.");
-                payRent(PREFIX + ledger.get(currentSquareNumber), monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
+                alive = payRent(PREFIX + ledger.get(currentSquareNumber), monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
             }else{
                 Square currentSquare = monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber);
                 if(wallet>currentSquare.getHousePrice()*3.5 && currentSquare.getHouseCounter()<4){
                     double efficiency = currentSquare.getEfficiency();
                     int percent = (int) (efficiency*100);
                     if(r.nextInt(100)<percent){
-                        withdrawFromWallet(currentSquare.getHousePrice());
+                       alive = withdrawFromWallet(currentSquare.getHousePrice());
                         currentSquare.addHouse();
                     }
                 }
@@ -402,8 +410,18 @@ public class Player extends Agent {
             }
         }
 
-        monopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
-        monopolyMain.updatePanelPlayerTextArea(this);
+        if(!alive){
+            String nextPlayerNumber = getNextPlayerNumber();
+            if (nextPlayerNumber != null) {
+                monopolyMain.changeConsoleMessage("Next Player's turn");
+                Thread.sleep(200);
+                sendPlayMessage(nextPlayerNumber);
+            }
+            return;
+        }else {
+            monopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
+            monopolyMain.updatePanelPlayerTextArea(this);
+        }
 
         if (diceResult.get(0).equals(diceResult.get(1))) {
             monopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
@@ -415,10 +433,10 @@ public class Player extends Agent {
                 monopolyMain.changeConsoleMessage("Next Player's turn");
                 Thread.sleep(200);
                 sendPlayMessage(nextPlayerNumber);
-            }else{
+            }/*else{
                 monopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
                 takeDown();
-            }
+            }*/
         }
     }
 
@@ -467,7 +485,8 @@ public class Player extends Agent {
 
             takeDown();
             this.getContainerController().getPlatformController().kill();
-            this.getImpl().getController().exitSim();
+            this.getImpl().stopSimulation();
+            this.getImpl().getController().stopSim();
         } catch (ControllerException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -479,11 +498,11 @@ public class Player extends Agent {
         return monopolyMain;
     }
 
-    public SimModelImpl getImpl() {
+    public RepastLauncher getImpl() {
         return impl;
     }
 
-    public void setImpl(SimModelImpl impl) {
+    public void setImpl(RepastLauncher impl) {
         this.impl = impl;
     }
 
