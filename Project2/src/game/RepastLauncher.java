@@ -31,22 +31,31 @@ public class RepastLauncher extends Repast3Launcher {
     int walletPercent3;
     int walletPercent4;
 
-    int player1Turn = 0;
-    int player2Turn = 0;
-    int player3Turn = 0;
-    int player4Turn = 0;
+    int player1Turn;
+    int player2Turn;
+    int player3Turn;
+    int player4Turn;
 
     int purchasesPlayer1;
     int purchasesPlayer2;
     int purchasesPlayer3;
     int purchasesPlayer4;
 
+    private ArrayList<Integer> recordOfPlayer1Results = new ArrayList<>();
+    private ArrayList<Integer> recordOfPlayer2Results = new ArrayList<>();
+    private ArrayList<Integer> recordOfPlayer3Results = new ArrayList<>();
+    private ArrayList<Integer> recordOfPlayer4Results = new ArrayList<>();
+
+    private int player1TotalScore = 0;
+    private int player2TotalScore = 0;
+    private int player3TotalScore = 0;
+    private int player4TotalScore = 0;
+
     @Override
     protected void launchJADE() {
         this.runtimeInstance = Runtime.instance();
         this.profile = new ProfileImpl(true);
         this.containerController = runtimeInstance.createMainContainer(profile);
-        System.out.println("a minha vida é triste");
         players.clear();
         launchAgents();
 
@@ -76,6 +85,22 @@ public class RepastLauncher extends Repast3Launcher {
             players.add(player3);
             players.add(player4);
 
+            this.player1Turn = 0;
+            this.player2Turn = 0;
+            this.player3Turn = 0;
+            this.player4Turn = 0;
+            this.purchasesPlayer1 = 0;
+            this.purchasesPlayer2 = 0;
+            this.purchasesPlayer3 = 0;
+            this.purchasesPlayer4 = 0;
+            setWalletPlayer(1, 1500);
+            setWalletPlayer(2, 1500);
+            setWalletPlayer(3, 1500);
+            setWalletPlayer(4, 1500);
+            setWalletPercentage(1);
+            setWalletPercentage(2);
+            setWalletPercentage(3);
+            setWalletPercentage(4);
             setNumberOfAgents(4);
 
             for(int i = 1; i < 5; i++) {
@@ -147,35 +172,93 @@ public class RepastLauncher extends Repast3Launcher {
         int totalWallet= walletPlayer1+walletPlayer2+walletPlayer3+walletPlayer4;
         switch (playerNumber) {
             case 1:
-                walletPercent1 = (walletPlayer1*100)/totalWallet;
+                if(walletPlayer1 == 0) {
+                    walletPercent1 = 0;
+                }else {
+                    walletPercent1 = (walletPlayer1*100)/totalWallet;
+                }
                 break;
             case 2:
-                walletPercent2 = (walletPlayer2*100)/totalWallet;
+                if(walletPlayer2 == 0) {
+                    walletPercent2 = 0;
+                }else {
+                    walletPercent2 = (walletPlayer2 * 100) / totalWallet;
+                }
                 break;
             case 3:
-                walletPercent3 = (walletPlayer3*100)/totalWallet;
+                if(walletPlayer3 == 0) {
+                    walletPercent3 = 0;
+                }else {
+                    walletPercent3 = (walletPlayer3*100)/totalWallet;
+                }
                 break;
             case 4:
-                walletPercent4 = (walletPlayer4*100)/totalWallet;
+                if(walletPlayer4 == 0) {
+                    walletPercent4 = 0;
+                }else {
+                    walletPercent4 = (walletPlayer4*100)/totalWallet;
+                }
                 break;
             default:
                 out.println("The number was wrong");
         }
     }
 
+    public void setRecordResultsArrayList(int playerNumber, int position) {
+        switch (playerNumber) {
+            case 1:
+                this.recordOfPlayer1Results.add(position);
+                break;
+            case 2:
+                this.recordOfPlayer2Results.add(position);
+                break;
+            case 3:
+                this.recordOfPlayer3Results.add(position);
+                break;
+            case 4:
+                this.recordOfPlayer4Results.add(position);
+                break;
+            default:
+                out.println("The number was wrong");
+        }
+    }
+
+    private int returnPlayerScoreInRun(ArrayList<Integer> scoreResultList) {
+        switch (scoreResultList.get(scoreResultList.size() - 1)) {
+            case 1:
+                return 4;
+            case 2:
+                return 3;
+            case 3:
+                return 2;
+            case 4:
+                return 1;
+            default:
+                out.println("The number was wrong");
+                return 0;
+        }
+    }
+
+    public void setPlayersTotalScore() {
+        player1TotalScore += returnPlayerScoreInRun(recordOfPlayer1Results);
+        player2TotalScore += returnPlayerScoreInRun(recordOfPlayer2Results);
+        player3TotalScore += returnPlayerScoreInRun(recordOfPlayer3Results);
+        player4TotalScore += returnPlayerScoreInRun(recordOfPlayer4Results);
+    }
+
     public void setPlayerTurn(int playerNumber){
         switch (playerNumber) {
             case 1:
-                player1Turn= player1Turn++;
+                this.player1Turn++;
                 break;
             case 2:
-                player2Turn= player2Turn++;
+                this.player2Turn++;
                 break;
             case 3:
-                player3Turn= player3Turn++;
+                this.player3Turn++;
                 break;
             case 4:
-                player4Turn= player4Turn++;
+                this.player4Turn++;
                 break;
             default:
                 out.println("The number was wrong");
@@ -185,16 +268,16 @@ public class RepastLauncher extends Repast3Launcher {
     public void setPlayerPurchases(int playerNumber){
         switch (playerNumber) {
             case 1:
-                purchasesPlayer1= purchasesPlayer1++;
+                this.purchasesPlayer1++;
                 break;
             case 2:
-                purchasesPlayer2= purchasesPlayer2++;
+                this.purchasesPlayer2++;
                 break;
             case 3:
-                purchasesPlayer3= purchasesPlayer3++;
+                this.purchasesPlayer3++;
                 break;
             case 4:
-                purchasesPlayer4= purchasesPlayer4++;
+                this.purchasesPlayer4++;
                 break;
             default:
                 out.println("The number was wrong");
@@ -265,4 +348,35 @@ public class RepastLauncher extends Repast3Launcher {
         return purchasesPlayer4;
     }
 
+    public ArrayList<Integer> getRecordOfPlayer1Results() {
+        return recordOfPlayer1Results;
+    }
+
+    public ArrayList<Integer> getRecordOfPlayer2Results() {
+        return recordOfPlayer2Results;
+    }
+
+    public ArrayList<Integer> getRecordOfPlayer3Results() {
+        return recordOfPlayer3Results;
+    }
+
+    public ArrayList<Integer> getRecordOfPlayer4Results() {
+        return recordOfPlayer4Results;
+    }
+
+    public int getPlayer1TotalScore() {
+        return player1TotalScore;
+    }
+
+    public int getPlayer2TotalScore() {
+        return player2TotalScore;
+    }
+
+    public int getPlayer3TotalScore() {
+        return player3TotalScore;
+    }
+
+    public int getPlayer4TotalScore() {
+        return player4TotalScore;
+    }
 }

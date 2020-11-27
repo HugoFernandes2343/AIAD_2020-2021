@@ -25,7 +25,7 @@ public class Player extends Agent {
     public MonopolyMain monopolyMain;
 
 
-    public  HashMap<Integer, Integer> ledger = new HashMap<>();
+    public HashMap<Integer, Integer> ledger = new HashMap<>();
 
     private int currentSquareNumber = 0; // where player is currently located on (0 - 19). initially zero
     private int currentTurnCounter;
@@ -87,17 +87,32 @@ public class Player extends Agent {
         addBehaviour(new PlayListeningBehaviour(this));
     }
 
+    private void getPlayerPosition() {
+        if(this.otherPlayersQueue.size() == 3) {
+            this.getImpl().setRecordResultsArrayList(this.playerNumber, 4);
+        }
+        else if(this.otherPlayersQueue.size() == 2) {
+            this.getImpl().setRecordResultsArrayList(this.playerNumber, 3);
+        }
+        else if(this.otherPlayersQueue.size() == 1) {
+            this.getImpl().setRecordResultsArrayList(this.playerNumber, 2);
+        }
+        else {
+            this.getImpl().setRecordResultsArrayList(this.playerNumber, 1);
+        }
+    }
+
     @Override
     protected void takeDown() {
         try {
             DFService.deregister(this);
+            getPlayerPosition();
             impl.decrementNumberOfAgents();
             this.getContainerController().removeLocalAgent(this);
         } catch (FIPAException e) {
             e.printStackTrace();
         }
         System.out.println(getLocalName() + ": done working.");
-
     }
 
     protected void searchForPlayers() {
@@ -168,17 +183,25 @@ public class Player extends Agent {
                 Square s = monopolyMain.gameBoard.getSquareAtIndex(titleDeeds.get(i));
                 s.resetSquare();
             }
+            wallet = 0;
+            this.getImpl().setWalletPlayer(playerNumber, wallet);
+            this.getImpl().setWalletPercentage(playerNumber);
             sendBustToOtherPlayers(PREFIX + this.getPlayerNumber());
             return false;
         } else {
             wallet -= withdrawAmount;
+            this.getImpl().setWalletPlayer(playerNumber, wallet);
+            this.getImpl().setWalletPercentage(playerNumber);
             System.out.println("Player_" + playerNumber + " paid " + withdrawAmount + " at square " + currentSquareNumber);
         }
+
         return true;
     }
 
     public void depositToWallet(int depositAmount) {
         wallet += depositAmount;
+        this.getImpl().setWalletPlayer(playerNumber, wallet);
+        this.getImpl().setWalletPercentage(playerNumber);
         System.out.println("Payday for player " + getPlayerNumber() + ". You earned $" + depositAmount + "!");
     }
 
@@ -303,7 +326,7 @@ public class Player extends Agent {
             this.isInJail = false;
         }
 
-
+        this.getImpl().setPlayerTurn(playerNumber);
         int dicesTotal = diceResult.get(0) + diceResult.get(1);
         if (currentSquareNumber + dicesTotal > 35) {
             this.currentTurnCounter++;
@@ -404,6 +427,7 @@ public class Player extends Agent {
                 double squareEfficiency = monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getEfficiency();
                 int decision = strategy.strategize(currentSquareNumber ,wallet, priceOfPurchase, this.currentTurnCounter, squareColor,squareEfficiency);
                 if (decision == 1) {
+                    this.getImpl().setPlayerPurchases(playerNumber);
                     monopolyMain.infoConsole.setText("The property " + monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName() + " was bought by Player " + this.getPlayerNumber() + ".");
                     buySquare(currentSquareNumber, this.getPlayerNumber());
                 }
@@ -487,9 +511,7 @@ public class Player extends Agent {
             this.getContainerController().getPlatformController().kill();
             this.getImpl().stopSimulation();
             this.getImpl().getController().stopSim();
-        } catch (ControllerException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (ControllerException | InterruptedException e) {
             e.printStackTrace();
         }
     }
