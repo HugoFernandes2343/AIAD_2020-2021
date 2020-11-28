@@ -297,7 +297,6 @@ public class Player extends Agent {
         for (String player : otherPlayersQueue) {
             sendBustMessage(player, originalPlayer);
         }
-        takeDown();
     }
 
     public void move() throws InterruptedException {
@@ -437,6 +436,7 @@ public class Player extends Agent {
                 monopolyMain.changeConsoleMessage("Next Player's turn");
                 //Thread.sleep(100);
                 sendPlayMessage(nextPlayerNumber);
+                takeDown();
             }
             return;
         }else {

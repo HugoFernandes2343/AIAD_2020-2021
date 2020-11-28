@@ -293,15 +293,6 @@ public class RepastLauncher extends Repast3Launcher {
 
         degreeDist.createHistogramItem("P1", this.players,
                 "getWallet");
-
-        degreeDist.createHistogramItem("P2", this.players,
-                "getWallet");
-
-        degreeDist.createHistogramItem("P3", this.players,
-                "getWallet");
-
-        degreeDist.createHistogramItem("P4", this.players,
-                "getWallet");
     }
 
     public int getWalletPlayer1() {
