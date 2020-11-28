@@ -10,12 +10,9 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import sajas.proto.SubscriptionInitiator;
-import sajas.sim.repast3.Repast3Launcher;
-import uchicago.src.sim.engine.SimModelImpl;
 import utils.ColorHelper;
 import utils.MessageType;
 
-import javax.swing.*;
 import java.util.*;
 
 public class Player extends Agent {
@@ -177,20 +174,20 @@ public class Player extends Agent {
     }
 
     public boolean withdrawFromWallet(int withdrawAmount) {
-        if (withdrawAmount > wallet) {
+        if (withdrawAmount > getWallet()) {
             System.out.println("Player_" + playerNumber + " went bankrupt!");
             for(int i =0; i<titleDeeds.size();i++){
                 Square s = monopolyMain.gameBoard.getSquareAtIndex(titleDeeds.get(i));
                 s.resetSquare();
             }
             wallet = 0;
-            this.getImpl().setWalletPlayer(playerNumber, wallet);
+            this.getImpl().setWalletPlayer(playerNumber, getWallet());
             this.getImpl().setWalletPercentage(playerNumber);
             sendBustToOtherPlayers(PREFIX + this.getPlayerNumber());
             return false;
         } else {
-            wallet -= withdrawAmount;
-            this.getImpl().setWalletPlayer(playerNumber, wallet);
+            wallet = getWallet() - withdrawAmount;
+            this.getImpl().setWalletPlayer(playerNumber, getWallet());
             this.getImpl().setWalletPercentage(playerNumber);
             System.out.println("Player_" + playerNumber + " paid " + withdrawAmount + " at square " + currentSquareNumber);
         }
@@ -199,8 +196,8 @@ public class Player extends Agent {
     }
 
     public void depositToWallet(int depositAmount) {
-        wallet += depositAmount;
-        this.getImpl().setWalletPlayer(playerNumber, wallet);
+        wallet = getWallet() + depositAmount;
+        this.getImpl().setWalletPlayer(playerNumber, getWallet());
         this.getImpl().setWalletPercentage(playerNumber);
         System.out.println("Payday for player " + getPlayerNumber() + ". You earned $" + depositAmount + "!");
     }
@@ -409,7 +406,7 @@ public class Player extends Agent {
                 alive = payRent(PREFIX + ledger.get(currentSquareNumber), monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
             }else{
                 Square currentSquare = monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber);
-                if(wallet>currentSquare.getHousePrice()*3.5 && currentSquare.getHouseCounter()<4){
+                if(getWallet() >currentSquare.getHousePrice()*3.5 && currentSquare.getHouseCounter()<4){
                     double efficiency = currentSquare.getEfficiency();
                     int percent = (int) (efficiency*100);
                     if(r.nextInt(100)<percent){
@@ -425,7 +422,7 @@ public class Player extends Agent {
                 int priceOfPurchase = monopolyMain.priceOfPurchase(currentSquareNumber);
                 String squareColor = monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getColor();
                 double squareEfficiency = monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getEfficiency();
-                int decision = strategy.strategize(currentSquareNumber ,wallet, priceOfPurchase, this.currentTurnCounter, squareColor,squareEfficiency);
+                int decision = strategy.strategize(currentSquareNumber , getWallet(), priceOfPurchase, this.currentTurnCounter, squareColor,squareEfficiency);
                 if (decision == 1) {
                     this.getImpl().setPlayerPurchases(playerNumber);
                     monopolyMain.infoConsole.setText("The property " + monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName() + " was bought by Player " + this.getPlayerNumber() + ".");
@@ -508,9 +505,8 @@ public class Player extends Agent {
             monopolyMain.dispose();
 
             takeDown();
-            this.getContainerController().getPlatformController().kill();
             this.getImpl().stopSimulation();
-            this.getImpl().getController().stopSim();
+            this.getContainerController().getPlatformController().kill();
         } catch (ControllerException | InterruptedException e) {
             e.printStackTrace();
         }

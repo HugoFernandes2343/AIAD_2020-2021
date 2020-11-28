@@ -7,6 +7,7 @@ import sajas.core.Runtime;
 import sajas.sim.repast3.Repast3Launcher;
 import sajas.wrapper.AgentController;
 import sajas.wrapper.ContainerController;
+import uchicago.src.sim.analysis.Histogram;
 import uchicago.src.sim.engine.SimInit;
 
 import java.util.ArrayList;
@@ -51,6 +52,8 @@ public class RepastLauncher extends Repast3Launcher {
     private int player3TotalScore = 0;
     private int player4TotalScore = 0;
 
+    private Histogram degreeDist;
+
     @Override
     protected void launchJADE() {
         this.runtimeInstance = Runtime.instance();
@@ -68,7 +71,9 @@ public class RepastLauncher extends Repast3Launcher {
                 finalFrame.start();
             }
         };
-
+        degreeDist = null;
+        makeHistogram();
+        degreeDist.display();
         thread.start();
     }
 
@@ -108,7 +113,6 @@ public class RepastLauncher extends Repast3Launcher {
                 AgentController agentController = this.containerController.acceptNewAgent(id, players.get(i-1));
                 agentController.start();
             }
-
         } catch (StaleProxyException e) {
             e.printStackTrace();
         }
@@ -138,15 +142,10 @@ public class RepastLauncher extends Repast3Launcher {
         return "Monopoly";
     }
 
-    public void stopCurrentSim() {
-        this.fireStopSim();
-        this.fireEndSim();
-    }
-
     public static void main(String[] args) {
         SimInit init = new SimInit();
-      //  init.setNumRuns(4);   // works only in batch mode
-        init.loadModel(new RepastLauncher(), null, false);
+        init.setNumRuns(7);   // works only in batch mode
+        init.loadModel(new RepastLauncher(), null, true);
 	}
 
 	public void setWalletPlayer(int playerNumber,int wallet){
@@ -282,6 +281,27 @@ public class RepastLauncher extends Repast3Launcher {
             default:
                 out.println("The number was wrong");
         }
+    }
+
+    /*
+     * Creates a histogram of the degree distribution.
+     */
+    private void makeHistogram() {
+
+        degreeDist = new Histogram("Degree Distribution", 10, 0,
+                10000, this);
+
+        degreeDist.createHistogramItem("P1", this.players,
+                "getWallet");
+
+        degreeDist.createHistogramItem("P2", this.players,
+                "getWallet");
+
+        degreeDist.createHistogramItem("P3", this.players,
+                "getWallet");
+
+        degreeDist.createHistogramItem("P4", this.players,
+                "getWallet");
     }
 
     public int getWalletPlayer1() {
