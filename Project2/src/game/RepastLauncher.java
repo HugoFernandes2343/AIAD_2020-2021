@@ -91,7 +91,12 @@ public class RepastLauncher extends Repast3Launcher {
                 finalFrame.start();
             }
         };
-        makePlot();
+        //makePlot();
+        if(degreeDist != null) {
+            degreeDist.dispose();
+        }
+        makeHistogram();
+        degreeDist.display();
         thread.start();
         numRuns++;
     }
@@ -207,6 +212,7 @@ public class RepastLauncher extends Repast3Launcher {
         SimInit init = new SimInit();
         init.setNumRuns(7);   // works only in batch mode
         init.loadModel(new RepastLauncher(), null, true);
+        numRuns = 1;
 	}
 
 	public void setWalletPlayer(int playerNumber,int wallet){
@@ -368,19 +374,23 @@ public class RepastLauncher extends Repast3Launcher {
      */
     private void makeHistogram() {
 
-        BinDataSource source = new BinDataSource() {
+        BinDataSource source1 = new BinDataSource() {
             @Override
             public double getBinValue(Object o) {
-                Player player = (Player) o;
-                return 100;
+                return Double.parseDouble(o.toString());
             }
         };
 
-        degreeDist = new Histogram("Degree Distribution", this.players.size(), 0,
-                4);
-        degreeDist.setYRange(0, 10000.0);
+        degreeDist = new Histogram("Degree Distribution", players.size(), 0,
+                4500);
+        degreeDist.setXRange(100, 300);
+        degreeDist.setYRange(10, 3000);
 
-        degreeDist.createHistogramItem("W", this.players, "getWallet");
+        degreeDist.createHistogramItem("", this.recordOfPlayer1Wallets, source1);
+        //degreeDist.createHistogramItem("", this.recordOfPlayer2Wallets, source1);
+        //degreeDist.createHistogramItem("", this.recordOfPlayer3Wallets, source1);
+        //degreeDist.createHistogramItem("", this.recordOfPlayer4Wallets, source1);
+        getSchedule().scheduleActionAtInterval(1, degreeDist, "step");
     }
 
     public int getWalletPlayer1() {
