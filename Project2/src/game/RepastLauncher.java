@@ -7,9 +7,13 @@ import sajas.core.Runtime;
 import sajas.sim.repast3.Repast3Launcher;
 import sajas.wrapper.AgentController;
 import sajas.wrapper.ContainerController;
+import uchicago.src.sim.analysis.BinDataSource;
 import uchicago.src.sim.analysis.Histogram;
+import uchicago.src.sim.analysis.OpenSequenceGraph;
+import uchicago.src.sim.analysis.Sequence;
 import uchicago.src.sim.engine.SimInit;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 import static java.lang.System.out;
@@ -42,6 +46,11 @@ public class RepastLauncher extends Repast3Launcher {
     int purchasesPlayer3;
     int purchasesPlayer4;
 
+    private ArrayList<Integer> recordOfPlayer1Wallets = new ArrayList<>();
+    private ArrayList<Integer> recordOfPlayer2Wallets = new ArrayList<>();
+    private ArrayList<Integer> recordOfPlayer3Wallets = new ArrayList<>();
+    private ArrayList<Integer> recordOfPlayer4Wallets = new ArrayList<>();
+
     private ArrayList<Integer> recordOfPlayer1Results = new ArrayList<>();
     private ArrayList<Integer> recordOfPlayer2Results = new ArrayList<>();
     private ArrayList<Integer> recordOfPlayer3Results = new ArrayList<>();
@@ -53,6 +62,12 @@ public class RepastLauncher extends Repast3Launcher {
     private int player4TotalScore = 0;
 
     private Histogram degreeDist;
+    private OpenSequenceGraph plotTotalPointsPlayer1 = new OpenSequenceGraph("Total Points By Player 1", this);
+    private OpenSequenceGraph plotTotalPointsPlayer2 = new OpenSequenceGraph("Total Points By Player 2", this);
+    private OpenSequenceGraph plotTotalPointsPlayer3 = new OpenSequenceGraph("Total Points By Player 3", this);
+    private OpenSequenceGraph plotTotalPointsPlayer4 = new OpenSequenceGraph("Total Points By Player 4", this);
+
+    private static int numRuns = 1;
 
     @Override
     protected void launchJADE() {
@@ -61,6 +76,11 @@ public class RepastLauncher extends Repast3Launcher {
         this.containerController = runtimeInstance.createMainContainer(profile);
         players.clear();
         launchAgents();
+
+        recordOfPlayer1Wallets.add(1500);
+        recordOfPlayer2Wallets.add(1500);
+        recordOfPlayer3Wallets.add(1500);
+        recordOfPlayer4Wallets.add(1500);
 
         MonopolyMain frame = null;
         frame = new MonopolyMain(players, this);
@@ -71,10 +91,51 @@ public class RepastLauncher extends Repast3Launcher {
                 finalFrame.start();
             }
         };
-        degreeDist = null;
-        makeHistogram();
-        degreeDist.display();
+        makePlot();
         thread.start();
+        numRuns++;
+    }
+
+    private void makePlot() {
+        plotTotalPointsPlayer1.setXRange(0, 1000);
+        plotTotalPointsPlayer1.setYRange(0, 1000);
+        plotTotalPointsPlayer2.setXRange(0, 1000);
+        plotTotalPointsPlayer2.setYRange(0, 1000);
+        plotTotalPointsPlayer3.setXRange(0, 1000);
+        plotTotalPointsPlayer3.setYRange(0, 1000);
+        plotTotalPointsPlayer4.setXRange(0, 1000);
+        plotTotalPointsPlayer4.setYRange(0, 1000);
+        if(numRuns == 1) {
+            plotTotalPointsPlayer1.addSequence("P1", new Sequence() {
+                public double getSValue() {
+                    return recordOfPlayer1Wallets.get(recordOfPlayer1Wallets.size() - 1);
+                }
+            }, Color.RED);
+            plotTotalPointsPlayer2.addSequence("P2", new Sequence() {
+                public double getSValue() {
+                    return recordOfPlayer2Wallets.get(recordOfPlayer2Wallets.size() - 1);
+                }
+            }, Color.BLUE);
+            plotTotalPointsPlayer3.addSequence("P3", new Sequence() {
+                public double getSValue() {
+                    return recordOfPlayer3Wallets.get(recordOfPlayer3Wallets.size() - 1);
+                }
+            }, Color.YELLOW);
+            plotTotalPointsPlayer4.addSequence("P4", new Sequence() {
+                public double getSValue() {
+                    return recordOfPlayer4Wallets.get(recordOfPlayer4Wallets.size() - 1);
+                }
+            }, Color.GREEN);
+        }
+        plotTotalPointsPlayer1.display();
+        plotTotalPointsPlayer2.display();
+        plotTotalPointsPlayer3.display();
+        plotTotalPointsPlayer4.display();
+
+        getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer1, "step");
+        getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer2, "step");
+        getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer3, "step");
+        getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer4, "step");
     }
 
     private void launchAgents() {
@@ -264,6 +325,25 @@ public class RepastLauncher extends Repast3Launcher {
         }
     }
 
+    public void setRecordPlayerWallets(int playerNumber, int walletValue){
+        switch (playerNumber) {
+            case 1:
+                this.recordOfPlayer1Wallets.add(walletValue);
+                break;
+            case 2:
+                this.recordOfPlayer2Wallets.add(walletValue);
+                break;
+            case 3:
+                this.recordOfPlayer3Wallets.add(walletValue);
+                break;
+            case 4:
+                this.recordOfPlayer4Wallets.add(walletValue);
+                break;
+            default:
+                out.println("The number was wrong");
+        }
+    }
+
     public void setPlayerPurchases(int playerNumber){
         switch (playerNumber) {
             case 1:
@@ -288,11 +368,19 @@ public class RepastLauncher extends Repast3Launcher {
      */
     private void makeHistogram() {
 
-        degreeDist = new Histogram("Degree Distribution", 10, 0,
-                10000, this);
+        BinDataSource source = new BinDataSource() {
+            @Override
+            public double getBinValue(Object o) {
+                Player player = (Player) o;
+                return 100;
+            }
+        };
 
-        degreeDist.createHistogramItem("P1", this.players,
-                "getWallet");
+        degreeDist = new Histogram("Degree Distribution", this.players.size(), 0,
+                4);
+        degreeDist.setYRange(0, 10000.0);
+
+        degreeDist.createHistogramItem("W", this.players, "getWallet");
     }
 
     public int getWalletPlayer1() {
