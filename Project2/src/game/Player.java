@@ -105,7 +105,10 @@ public class Player extends Agent {
             DFService.deregister(this);
             getPlayerPosition();
             impl.decrementNumberOfAgents();
+            impl.setAverageOfPlayerWallets(this.playerNumber);
+            impl.setTotalPlayerPlayTime(this.playerNumber, System.currentTimeMillis());
             this.getContainerController().removeLocalAgent(this);
+            //impl.resetTimeStamp(this.playerNumber);
         } catch (FIPAException e) {
             e.printStackTrace();
         }
