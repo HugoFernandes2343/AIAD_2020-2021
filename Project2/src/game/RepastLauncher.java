@@ -41,10 +41,10 @@ public class RepastLauncher extends Repast3Launcher {
     int player3Turn;
     int player4Turn;
 
-    int purchasesPlayer1;
-    int purchasesPlayer2;
-    int purchasesPlayer3;
-    int purchasesPlayer4;
+    int maxPurchasesPlayer1 = 0;
+    int maxPurchasesPlayer2 = 0;
+    int maxPurchasesPlayer3 = 0;
+    int maxPurchasesPlayer4 = 0;
 
     private ArrayList<Integer> recordOfPlayer1Wallets = new ArrayList<>();
     private ArrayList<Integer> recordOfPlayer2Wallets = new ArrayList<>();
@@ -75,24 +75,22 @@ public class RepastLauncher extends Repast3Launcher {
     private Histogram player4WalletAverageHistogram = new Histogram("P4 Wallet Average Distribution", 4, 0,
             4500);
 
+    private Histogram numberOfTimesHousesWereBoughtByWinningPlayerHistogram = new Histogram("Number Of Times A House Was Bought", 36, 0 ,36);
+
     private OpenSequenceGraph plotTotalPointsPlayer1 = new OpenSequenceGraph("Total Points By Player 1", this);
     private OpenSequenceGraph plotTotalPointsPlayer2 = new OpenSequenceGraph("Total Points By Player 2", this);
     private OpenSequenceGraph plotTotalPointsPlayer3 = new OpenSequenceGraph("Total Points By Player 3", this);
     private OpenSequenceGraph plotTotalPointsPlayer4 = new OpenSequenceGraph("Total Points By Player 4", this);
 
-    private OpenSequenceGraph plotTotalPlayTimePlayer1 = new OpenSequenceGraph("Total Time Of Play By Player 1", this);
-    private OpenSequenceGraph plotTotalPlayTimePlayer2 = new OpenSequenceGraph("Total Time Of Play By Player 2", this);
-    private OpenSequenceGraph plotTotalPlayTimePlayer3 = new OpenSequenceGraph("Total Time Of Play By Player 3", this);
-    private OpenSequenceGraph plotTotalPlayTimePlayer4 = new OpenSequenceGraph("Total Time Of Play By Player 4", this);
+    private OpenSequenceGraph plotTotalPlayTimeByRun = new OpenSequenceGraph("Total Time Of Play By Run", this);
+    private OpenSequenceGraph plotMaxPurchasesByPlayer = new OpenSequenceGraph("Max Purchases By Player", this);
 
-    private long player1TotalTime;
-    private long player2TotalTime;
-    private long player3TotalTime;
-    private long player4TotalTime;
+    private long runTotalTime = 0;
 
     private long startTime = System.currentTimeMillis();
 
     private static int numRuns = 1;
+    private ArrayList<Integer> listOfNumberOfTimesHouseWasBought = new ArrayList<>();
 
     @Override
     protected void launchJADE() {
@@ -116,37 +114,26 @@ public class RepastLauncher extends Repast3Launcher {
                 finalFrame.start();
             }
         };
-        // makePlot();
 
-        // makeHistograms();
+        makeHistograms();
         makeTotalTimePlot();
-        //degreeDist.display();
+        makeMaxPurchasesPlot();
         thread.start();
         numRuns++;
         resetTimeStamps();
     }
 
     private void makeHistograms() {
-        /*if(player1WalletAverageHistogram != null) {
-            player1WalletAverageHistogram.dispose();
-        }*/
         makePlayer1WalletAverageHistogram();
         player1WalletAverageHistogram.display();
-        /*if(player2WalletAverageHistogram != null) {
-            player2WalletAverageHistogram.dispose();
-        }*/
         makePlayer2WalletAverageHistogram();
         player2WalletAverageHistogram.display();
-        /*if(player3WalletAverageHistogram != null) {
-            player3WalletAverageHistogram.dispose();
-        }*/
         makePlayer3WalletAverageHistogram();
         player3WalletAverageHistogram.display();
-        /*if(player4WalletAverageHistogram != null) {
-            player4WalletAverageHistogram.dispose();
-        }*/
         makePlayer4WalletAverageHistogram();
         player4WalletAverageHistogram.display();
+        makeHousesBoughtHistogram();
+        numberOfTimesHousesWereBoughtByWinningPlayerHistogram.display();
     }
 
     private void makeTotalPointsPlot() {
@@ -191,53 +178,39 @@ public class RepastLauncher extends Repast3Launcher {
         getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer4, "step");
     }
 
-    public void resetTimeStamps() {
-        this.player1TotalTime = 0;
-        this.player2TotalTime = 0;
-        this.player3TotalTime = 0;
-        this.player4TotalTime = 0;
-    }
+    private void makeMaxPurchasesPlot() {
+        plotMaxPurchasesByPlayer.setXRange(0, 1);
 
-    private void makeTotalTimePlot() {
-        plotTotalPlayTimePlayer1.setXRange(0, 1000);
-        plotTotalPlayTimePlayer1.setYRange(0, 10000);
-        plotTotalPlayTimePlayer2.setXRange(0, 1000);
-        plotTotalPlayTimePlayer2.setYRange(0, 10000);
-        plotTotalPlayTimePlayer3.setXRange(0, 1000);
-        plotTotalPlayTimePlayer3.setYRange(0, 10000);
-        plotTotalPlayTimePlayer4.setXRange(0, 1000);
-        plotTotalPlayTimePlayer4.setYRange(0, 10000);
+        plotMaxPurchasesByPlayer.setYRange(0, 1);
         if (numRuns == 1) {
-            plotTotalPlayTimePlayer1.addSequence("P1", new Sequence() {
+            plotMaxPurchasesByPlayer.addSequence("P1", new Sequence() {
                 public double getSValue() {
-                    return player1TotalTime;
+                    return maxPurchasesPlayer1;
                 }
             }, Color.RED);
-            plotTotalPlayTimePlayer2.addSequence("P2", new Sequence() {
+            plotMaxPurchasesByPlayer.addSequence("P2", new Sequence() {
                 public double getSValue() {
-                    return player2TotalTime;
+                    return maxPurchasesPlayer2;
                 }
             }, Color.BLUE);
-            plotTotalPlayTimePlayer3.addSequence("P3", new Sequence() {
+            plotMaxPurchasesByPlayer.addSequence("P3", new Sequence() {
                 public double getSValue() {
-                    return player3TotalTime;
+                    return maxPurchasesPlayer3;
                 }
             }, Color.YELLOW);
-            plotTotalPlayTimePlayer4.addSequence("P4", new Sequence() {
+            plotMaxPurchasesByPlayer.addSequence("P4", new Sequence() {
                 public double getSValue() {
-                    return player4TotalTime;
+                    return maxPurchasesPlayer4;
                 }
             }, Color.GREEN);
         }
-        plotTotalPlayTimePlayer1.display();
-        plotTotalPlayTimePlayer2.display();
-        plotTotalPlayTimePlayer3.display();
-        plotTotalPlayTimePlayer4.display();
+        plotMaxPurchasesByPlayer.display();
 
-        getSchedule().scheduleActionAtInterval(1, plotTotalPlayTimePlayer1, "step");
-        getSchedule().scheduleActionAtInterval(1, plotTotalPlayTimePlayer2, "step");
-        getSchedule().scheduleActionAtInterval(1, plotTotalPlayTimePlayer3, "step");
-        getSchedule().scheduleActionAtInterval(1, plotTotalPlayTimePlayer4, "step");
+        getSchedule().scheduleActionAtInterval(1, plotMaxPurchasesByPlayer, "step");
+    }
+
+    public void resetTimeStamps() {
+        this.runTotalTime = 0;
     }
 
     private void launchAgents() {
@@ -257,10 +230,6 @@ public class RepastLauncher extends Repast3Launcher {
             this.player2Turn = 0;
             this.player3Turn = 0;
             this.player4Turn = 0;
-            this.purchasesPlayer1 = 0;
-            this.purchasesPlayer2 = 0;
-            this.purchasesPlayer3 = 0;
-            this.purchasesPlayer4 = 0;
             setWalletPlayer(1, 1500);
             setWalletPlayer(2, 1500);
             setWalletPlayer(3, 1500);
@@ -329,6 +298,10 @@ public class RepastLauncher extends Repast3Launcher {
             default:
                 out.println("The number was wrong");
         }
+    }
+
+    public void setNumberOfTimesHouseWasBoughtByWinningPlayer(ArrayList<Integer> housesBoughtByWinningPlayer){
+        this.listOfNumberOfTimesHouseWasBought.addAll(housesBoughtByWinningPlayer);
     }
 
     public void setWalletPercentage(int playerNumber) {
@@ -447,19 +420,27 @@ public class RepastLauncher extends Repast3Launcher {
         }
     }
 
-    public void setPlayerPurchases(int playerNumber) {
+    public void setMaxPlayerPurchases(int playerNumber, int numberOfPurchases) {
         switch (playerNumber) {
             case 1:
-                this.purchasesPlayer1++;
+                //if(numberOfPurchases > this.maxPurchasesPlayer1) {
+                    this.maxPurchasesPlayer1 = numberOfPurchases;
+                //}
                 break;
             case 2:
-                this.purchasesPlayer2++;
+                //if(numberOfPurchases > this.maxPurchasesPlayer2) {
+                    this.maxPurchasesPlayer2 = numberOfPurchases;
+                //}
                 break;
             case 3:
-                this.purchasesPlayer3++;
+                //if(numberOfPurchases > this.maxPurchasesPlayer3) {
+                    this.maxPurchasesPlayer3 = numberOfPurchases;
+                //}
                 break;
             case 4:
-                this.purchasesPlayer4++;
+                //if(numberOfPurchases > this.maxPurchasesPlayer3) {
+                    this.maxPurchasesPlayer4 = numberOfPurchases;
+                //}
                 break;
             default:
                 out.println("The number was wrong");
@@ -495,6 +476,22 @@ public class RepastLauncher extends Repast3Launcher {
         }
     }
 
+    private void makeTotalTimePlot() {
+        plotTotalPlayTimeByRun.setXRange(0, 1000);
+        plotTotalPlayTimeByRun.setYRange(0, 10000);
+        
+        if (numRuns == 1) {
+            plotTotalPlayTimeByRun.addSequence("Run", new Sequence() {
+                public double getSValue() {
+                    return runTotalTime;
+                }
+            }, Color.BLACK);
+        }
+        plotTotalPlayTimeByRun.display();
+
+        getSchedule().scheduleActionAtInterval(1, plotTotalPlayTimeByRun, "step");
+    }
+
     /*
      * Creates a histogram of the degree distribution.
      */
@@ -513,9 +510,7 @@ public class RepastLauncher extends Repast3Launcher {
         if (numRuns == 1) {
             player1WalletAverageHistogram.createHistogramItem("P1", this.averageOfPlayer1Wallets, source1);
         }
-        //degreeDist.createHistogramItem("", this.recordOfPlayer2Wallets, source1);
-        //degreeDist.createHistogramItem("", this.recordOfPlayer3Wallets, source1);
-        //degreeDist.createHistogramItem("", this.recordOfPlayer4Wallets, source1);
+
         getSchedule().scheduleActionAtInterval(1, player1WalletAverageHistogram, "step");
     }
 
@@ -537,9 +532,7 @@ public class RepastLauncher extends Repast3Launcher {
         if (numRuns == 1) {
             player2WalletAverageHistogram.createHistogramItem("P2", this.averageOfPlayer2Wallets, source1);
         }
-        //degreeDist.createHistogramItem("", this.recordOfPlayer2Wallets, source1);
-        //degreeDist.createHistogramItem("", this.recordOfPlayer3Wallets, source1);
-        //degreeDist.createHistogramItem("", this.recordOfPlayer4Wallets, source1);
+
         getSchedule().scheduleActionAtInterval(1, player2WalletAverageHistogram, "step");
     }
 
@@ -561,9 +554,7 @@ public class RepastLauncher extends Repast3Launcher {
         if (numRuns == 1) {
             player3WalletAverageHistogram.createHistogramItem("P3", this.averageOfPlayer3Wallets, source1);
         }
-        //degreeDist.createHistogramItem("", this.recordOfPlayer2Wallets, source1);
-        //degreeDist.createHistogramItem("", this.recordOfPlayer3Wallets, source1);
-        //degreeDist.createHistogramItem("", this.recordOfPlayer4Wallets, source1);
+
         getSchedule().scheduleActionAtInterval(1, player3WalletAverageHistogram, "step");
     }
 
@@ -581,164 +572,40 @@ public class RepastLauncher extends Repast3Launcher {
 
         player4WalletAverageHistogram.setXRange(100, 300);
         player4WalletAverageHistogram.setYRange(10, 3000);
+        player4WalletAverageHistogram.setAxisTitles("Houses", "");
 
         if (numRuns == 1) {
             player4WalletAverageHistogram.createHistogramItem("P3", this.averageOfPlayer4Wallets, source1);
         }
-        //degreeDist.createHistogramItem("", this.recordOfPlayer2Wallets, source1);
-        //degreeDist.createHistogramItem("", this.recordOfPlayer3Wallets, source1);
-        //degreeDist.createHistogramItem("", this.recordOfPlayer4Wallets, source1);
+
         getSchedule().scheduleActionAtInterval(1, player4WalletAverageHistogram, "step");
     }
 
-    public void setTotalPlayerPlayTime(int playerNumber, long finishTime) {
-        switch (playerNumber) {
-            case 1:
-                this.player1TotalTime = finishTime - this.getStartTime();
-                break;
-            case 2:
-                this.player2TotalTime = finishTime - this.getStartTime();
-                break;
-            case 3:
-                this.player3TotalTime = finishTime - this.getStartTime();
-                break;
-            case 4:
-                this.player4TotalTime = finishTime - this.getStartTime();
-                break;
-            default:
-                out.println("The number was wrong");
+    /*
+     * Creates a histogram of the degree distribution.
+     */
+    private void makeHousesBoughtHistogram() {
+        BinDataSource source1 = new BinDataSource() {
+            @Override
+            public double getBinValue(Object o) {
+                return Double.parseDouble(o.toString());
+            }
+        };
+
+        numberOfTimesHousesWereBoughtByWinningPlayerHistogram.setAxisTitles("Houses By Number", "Number Of Times Winning Player Bought It");
+
+        if (numRuns == 1) {
+            numberOfTimesHousesWereBoughtByWinningPlayerHistogram.createHistogramItem("", this.listOfNumberOfTimesHouseWasBought, source1);
         }
+
+        getSchedule().scheduleActionAtInterval(1, numberOfTimesHousesWereBoughtByWinningPlayerHistogram, "step");
     }
 
-    public int getWalletPlayer1() {
-        return walletPlayer1;
-    }
-
-    public int getWalletPlayer2() {
-        return walletPlayer2;
-    }
-
-    public int getWalletPlayer3() {
-        return walletPlayer3;
-    }
-
-    public int getWalletPlayer4() {
-        return walletPlayer4;
-    }
-
-    public int getWalletPercent1() {
-        return walletPercent1;
-    }
-
-    public int getWalletPercent2() {
-        return walletPercent2;
-    }
-
-    public int getWalletPercent3() {
-        return walletPercent3;
-    }
-
-    public int getWalletPercent4() {
-        return walletPercent4;
-    }
-
-    public int getPlayer1Turn() {
-        return player1Turn;
-    }
-
-    public int getPlayer2Turn() {
-        return player2Turn;
-    }
-
-    public int getPlayer3Turn() {
-        return player3Turn;
-    }
-
-    public int getPlayer4Turn() {
-        return player4Turn;
-    }
-
-    public int getPurchasesPlayer1() {
-        return purchasesPlayer1;
-    }
-
-    public int getPurchasesPlayer2() {
-        return purchasesPlayer2;
-    }
-
-    public int getPurchasesPlayer3() {
-        return purchasesPlayer3;
-    }
-
-    public int getPurchasesPlayer4() {
-        return purchasesPlayer4;
-    }
-
-    public ArrayList<Integer> getRecordOfPlayer1Results() {
-        return recordOfPlayer1Results;
-    }
-
-    public ArrayList<Integer> getRecordOfPlayer2Results() {
-        return recordOfPlayer2Results;
-    }
-
-    public ArrayList<Integer> getRecordOfPlayer3Results() {
-        return recordOfPlayer3Results;
-    }
-
-    public ArrayList<Integer> getRecordOfPlayer4Results() {
-        return recordOfPlayer4Results;
-    }
-
-    public ArrayList<Integer> getRecordOfPlayer1Wallets() {
-        return recordOfPlayer1Wallets;
-    }
-
-    public ArrayList<Integer> getRecordOfPlayer2Wallets() {
-        return recordOfPlayer2Wallets;
-    }
-
-    public ArrayList<Integer> getRecordOfPlayer3Wallets() {
-        return recordOfPlayer3Wallets;
-    }
-
-    public ArrayList<Integer> getRecordOfPlayer4Wallets() {
-        return recordOfPlayer4Wallets;
-    }
-
-    public int getPlayer1TotalScore() {
-        return player1TotalScore;
-    }
-
-    public int getPlayer2TotalScore() {
-        return player2TotalScore;
-    }
-
-    public int getPlayer3TotalScore() {
-        return player3TotalScore;
-    }
-
-    public int getPlayer4TotalScore() {
-        return player4TotalScore;
+    public void setTotalPlayerPlayTime(long finishTime) {
+        this.runTotalTime = finishTime - this.getStartTime();
     }
 
     public long getStartTime() {
         return startTime;
-    }
-
-    public long getPlayer1TotalTime() {
-        return player1TotalTime;
-    }
-
-    public long getPlayer2TotalTime() {
-        return player2TotalTime;
-    }
-
-    public long getPlayer3TotalTime() {
-        return player3TotalTime;
-    }
-
-    public long getPlayer4TotalTime() {
-        return player4TotalTime;
     }
 }

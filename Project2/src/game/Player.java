@@ -106,9 +106,8 @@ public class Player extends Agent {
             getPlayerPosition();
             impl.decrementNumberOfAgents();
             impl.setAverageOfPlayerWallets(this.playerNumber);
-            impl.setTotalPlayerPlayTime(this.playerNumber, System.currentTimeMillis());
+            impl.setMaxPlayerPurchases(this.playerNumber, this.getTitleDeeds().size());
             this.getContainerController().removeLocalAgent(this);
-            //impl.resetTimeStamp(this.playerNumber);
         } catch (FIPAException e) {
             e.printStackTrace();
         }
@@ -421,7 +420,6 @@ public class Player extends Agent {
                 double squareEfficiency = monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getEfficiency();
                 int decision = strategy.strategize(currentSquareNumber , wallet, priceOfPurchase, this.currentTurnCounter, squareColor,squareEfficiency);
                 if (decision == 1) {
-                    this.getImpl().setPlayerPurchases(playerNumber);
                     monopolyMain.infoConsole.setText("The property " + monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName() + " was bought by Player " + this.getPlayerNumber() + ".");
                     buySquare(currentSquareNumber, this.getPlayerNumber());
                 }
@@ -504,6 +502,8 @@ public class Player extends Agent {
 
             takeDown();
             this.getImpl().stopSimulation();
+            impl.setTotalPlayerPlayTime(System.currentTimeMillis());
+            impl.setNumberOfTimesHouseWasBoughtByWinningPlayer(this.getTitleDeeds());
             this.getContainerController().getPlatformController().kill();
         } catch (ControllerException | InterruptedException e) {
             e.printStackTrace();
