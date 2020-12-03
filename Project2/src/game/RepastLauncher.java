@@ -36,10 +36,10 @@ public class RepastLauncher extends Repast3Launcher {
     int walletPercent3;
     int walletPercent4;
 
-    int player1Turn;
-    int player2Turn;
-    int player3Turn;
-    int player4Turn;
+    int player1Turn = 0;
+    int player2Turn = 0;
+    int player3Turn = 0;
+    int player4Turn = 0;
 
     int maxPurchasesPlayer1 = 0;
     int maxPurchasesPlayer2 = 0;
@@ -82,6 +82,11 @@ public class RepastLauncher extends Repast3Launcher {
     private OpenSequenceGraph plotTotalPointsPlayer3 = new OpenSequenceGraph("Total Points By Player 3", this);
     private OpenSequenceGraph plotTotalPointsPlayer4 = new OpenSequenceGraph("Total Points By Player 4", this);
 
+    private OpenSequenceGraph plotPlayer1Turns = new OpenSequenceGraph("Total Turns By Player 1", this);
+    private OpenSequenceGraph plotPlayer2Turns = new OpenSequenceGraph("Total Turns By Player 2", this);
+    private OpenSequenceGraph plotPlayer3Turns = new OpenSequenceGraph("Total Turns By Player 3", this);
+    private OpenSequenceGraph plotPlayer4Turns = new OpenSequenceGraph("Total Turns By Player 4", this);
+
     private OpenSequenceGraph plotTotalPlayTimeByRun = new OpenSequenceGraph("Total Time Of Play By Run", this);
     private OpenSequenceGraph plotMaxPurchasesByPlayer = new OpenSequenceGraph("Max Purchases By Player", this);
 
@@ -118,9 +123,82 @@ public class RepastLauncher extends Repast3Launcher {
         makeHistograms();
         makeTotalTimePlot();
         makeMaxPurchasesPlot();
+        makePlayerTurnsPlot();
+        makeTotalPointsPlot();
         thread.start();
         numRuns++;
         resetTimeStamps();
+        resetPlayerTurns();
+    }
+
+    private void launchAgents() {
+        try {
+
+            Player player1 = new Player(1, 1);
+            Player player2 = new Player(2, 2, 3);
+            Player player3 = new Player(3, 3);
+            Player player4 = new Player(4, 4);
+
+            players.add(player1);
+            players.add(player2);
+            players.add(player3);
+            players.add(player4);
+            setWalletPlayer(1, 1500);
+            setWalletPlayer(2, 1500);
+            setWalletPlayer(3, 1500);
+            setWalletPlayer(4, 1500);
+            setWalletPercentage(1);
+            setWalletPercentage(2);
+            setWalletPercentage(3);
+            setWalletPercentage(4);
+            setNumberOfAgents(4);
+
+            for (int i = 1; i < 5; i++) {
+                String id = "player_" + i;
+                AgentController agentController = this.containerController.acceptNewAgent(id, players.get(i - 1));
+                agentController.start();
+            }
+        } catch (StaleProxyException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void setNumberOfAgents(int numberOfAgents) {
+        this.numberOfAgents = numberOfAgents;
+    }
+
+    public void decrementNumberOfAgents() {
+        int newNumber = this.numberOfAgents - 1;
+        setNumberOfAgents(newNumber);
+    }
+
+    public int getNumberOfAgents() {
+        return numberOfAgents;
+    }
+
+    @Override
+    public String[] getInitParam() {
+        return new String[]{"numberOfAgents"};
+    }
+
+    @Override
+    public String getName() {
+        return "Monopoly";
+    }
+
+    public static void main(String[] args) {
+        SimInit init = new SimInit();
+        init.setNumRuns(7);   // works only in batch mode
+        init.loadModel(new RepastLauncher(), null, true);
+        numRuns = 1;
+    }
+
+    private void resetPlayerTurns() {
+        this.player1Turn = 0;
+        this.player2Turn = 0;
+        this.player3Turn = 0;
+        this.player4Turn = 0;
     }
 
     private void makeHistograms() {
@@ -178,6 +256,48 @@ public class RepastLauncher extends Repast3Launcher {
         getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer4, "step");
     }
 
+    private void makePlayerTurnsPlot() {
+        plotPlayer1Turns.setXRange(0, 1000);
+        plotPlayer1Turns.setYRange(0, 1000);
+        plotPlayer2Turns.setXRange(0, 1000);
+        plotPlayer2Turns.setYRange(0, 1000);
+        plotPlayer3Turns.setXRange(0, 1000);
+        plotPlayer3Turns.setYRange(0, 1000);
+        plotPlayer4Turns.setXRange(0, 1000);
+        plotPlayer4Turns.setYRange(0, 1000);
+        if (numRuns == 1) {
+            plotPlayer1Turns.addSequence("P1", new Sequence() {
+                public double getSValue() {
+                    return player1Turn;
+                }
+            }, Color.RED);
+            plotPlayer2Turns.addSequence("P2", new Sequence() {
+                public double getSValue() {
+                    return player2Turn;
+                }
+            }, Color.BLUE);
+            plotPlayer3Turns.addSequence("P3", new Sequence() {
+                public double getSValue() {
+                    return player3Turn;
+                }
+            }, Color.YELLOW);
+            plotPlayer4Turns.addSequence("P4", new Sequence() {
+                public double getSValue() {
+                    return player4Turn;
+                }
+            }, Color.GREEN);
+        }
+        plotPlayer1Turns.display();
+        plotPlayer2Turns.display();
+        plotPlayer3Turns.display();
+        plotPlayer4Turns.display();
+
+        getSchedule().scheduleActionAtInterval(1, plotPlayer1Turns, "step");
+        getSchedule().scheduleActionAtInterval(1, plotPlayer2Turns, "step");
+        getSchedule().scheduleActionAtInterval(1, plotPlayer3Turns, "step");
+        getSchedule().scheduleActionAtInterval(1, plotPlayer4Turns, "step");
+    }
+
     private void makeMaxPurchasesPlot() {
         plotMaxPurchasesByPlayer.setXRange(0, 1);
 
@@ -211,74 +331,6 @@ public class RepastLauncher extends Repast3Launcher {
 
     public void resetTimeStamps() {
         this.runTotalTime = 0;
-    }
-
-    private void launchAgents() {
-        try {
-
-            Player player1 = new Player(1, 1);
-            Player player2 = new Player(2, 2, 3);
-            Player player3 = new Player(3, 3);
-            Player player4 = new Player(4, 4);
-
-            players.add(player1);
-            players.add(player2);
-            players.add(player3);
-            players.add(player4);
-
-            this.player1Turn = 0;
-            this.player2Turn = 0;
-            this.player3Turn = 0;
-            this.player4Turn = 0;
-            setWalletPlayer(1, 1500);
-            setWalletPlayer(2, 1500);
-            setWalletPlayer(3, 1500);
-            setWalletPlayer(4, 1500);
-            setWalletPercentage(1);
-            setWalletPercentage(2);
-            setWalletPercentage(3);
-            setWalletPercentage(4);
-            setNumberOfAgents(4);
-
-            for (int i = 1; i < 5; i++) {
-                String id = "player_" + i;
-                AgentController agentController = this.containerController.acceptNewAgent(id, players.get(i - 1));
-                agentController.start();
-            }
-        } catch (StaleProxyException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void setNumberOfAgents(int numberOfAgents) {
-        this.numberOfAgents = numberOfAgents;
-    }
-
-    public void decrementNumberOfAgents() {
-        int newNumber = this.numberOfAgents - 1;
-        setNumberOfAgents(newNumber);
-    }
-
-    public int getNumberOfAgents() {
-        return numberOfAgents;
-    }
-
-    @Override
-    public String[] getInitParam() {
-        return new String[]{"numberOfAgents"};
-    }
-
-    @Override
-    public String getName() {
-        return "Monopoly";
-    }
-
-    public static void main(String[] args) {
-        SimInit init = new SimInit();
-        init.setNumRuns(7);   // works only in batch mode
-        init.loadModel(new RepastLauncher(), null, true);
-        numRuns = 1;
     }
 
     public void setWalletPlayer(int playerNumber, int wallet) {
