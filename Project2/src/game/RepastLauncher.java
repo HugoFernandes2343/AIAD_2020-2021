@@ -15,6 +15,7 @@ import uchicago.src.sim.engine.SimInit;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static java.lang.System.out;
 
@@ -110,15 +111,25 @@ public class RepastLauncher extends Repast3Launcher {
         recordOfPlayer3Wallets.add(1500);
         recordOfPlayer4Wallets.add(1500);
 
-        MonopolyMain frame = null;
-        frame = new MonopolyMain(players, this);
-        frame.setVisible(true);
-        MonopolyMain finalFrame = frame;
+        RepastLauncher r = this;
+
         Thread thread = new Thread("New Thread") {
             public void run() {
+                MonopolyMain frame = null;
+                frame = new MonopolyMain(players, r);
+                frame.setVisible(true);
+                MonopolyMain finalFrame = frame;
                 finalFrame.start();
+                long startTime = System.currentTimeMillis();
+                long elapsedTime = 0L;
+
+                while(finalFrame.isShowing()||elapsedTime<2*60*1000){
+                    elapsedTime = (new Date()).getTime() - startTime;
+                }
             }
         };
+
+
 
         makeHistograms();
         makeTotalTimePlot();
@@ -126,6 +137,9 @@ public class RepastLauncher extends Repast3Launcher {
         makePlayerTurnsPlot();
         makeTotalPointsPlot();
         thread.start();
+
+
+        System.out.println("IM HERE BITCH");
         numRuns++;
         resetTimeStamps();
         resetPlayerTurns();
@@ -189,7 +203,7 @@ public class RepastLauncher extends Repast3Launcher {
 
     public static void main(String[] args) {
         SimInit init = new SimInit();
-        init.setNumRuns(7);   // works only in batch mode
+        init.setNumRuns(50);   // works only in batch mode
         init.loadModel(new RepastLauncher(), null, true);
         numRuns = 1;
     }

@@ -302,7 +302,7 @@ public class Player extends Agent {
         monopolyMain.updatePlayerPanel(ColorHelper.getColor(this.getPlayerNumber()), this.getPlayerNumber());
         monopolyMain.updatePanelPlayerTextArea(this);
 
-       // Thread.sleep(100);
+        Thread.sleep(150);
 
         ArrayList<Integer> diceResult = monopolyMain.rollDiceUI();
 
@@ -311,7 +311,7 @@ public class Player extends Agent {
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
                 monopolyMain.changeConsoleMessage("Next Player's turn");
-                Thread.sleep(100);
+                Thread.sleep(150);
                 sendPlayMessage(nextPlayerNumber);
             }
         } else {
@@ -343,7 +343,7 @@ public class Player extends Agent {
 
         monopolyMain.changeConsoleMessage("Player " + playerNumber + " is at " + monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getName());
 
-       // Thread.sleep(100);
+       // Thread.sleep(150);
 
         boolean alive=true;
 
@@ -351,12 +351,12 @@ public class Player extends Agent {
         if(currentSquareNumber==11){//imposto capitais
             alive = withdrawFromWallet(200);
             monopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 200€ in taxes");
-            //Thread.sleep(100);
+            //Thread.sleep(150);
 
         }else if(currentSquareNumber==25){//imposto luxo
             alive = withdrawFromWallet(100);
             monopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 100€ in taxes");
-            //Thread.sleep(100);
+            //Thread.sleep(150);
 
         }else if( currentSquareNumber==6 || currentSquareNumber==20 || currentSquareNumber== 34) {//sorte
             boolean offset = r.nextBoolean();
@@ -375,7 +375,7 @@ public class Player extends Agent {
             }
 
             monopolyMain.makePlayUI(this);
-            Thread.sleep(100);
+            Thread.sleep(150);
 
         }else if(currentSquareNumber==2 || currentSquareNumber==15 || currentSquareNumber== 30){//caixa comunidade
             boolean offset = r.nextBoolean();
@@ -389,7 +389,7 @@ public class Player extends Agent {
                 System.out.println(PREFIX + playerNumber + " pays " + i + "$ to the comunity");
                 alive = withdrawFromWallet(i);
             }
-            Thread.sleep(100);
+            Thread.sleep(150);
         }
 
         if(!alive){
@@ -430,7 +430,7 @@ public class Player extends Agent {
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
                 monopolyMain.changeConsoleMessage("Next Player's turn");
-                //Thread.sleep(100);
+                //Thread.sleep(150);
                 sendPlayMessage(nextPlayerNumber);
                 takeDown();
             }
@@ -442,13 +442,13 @@ public class Player extends Agent {
 
         if (diceResult.get(0).equals(diceResult.get(1))) {
             monopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
-            //Thread.sleep(100);
+            //Thread.sleep(150);
             move();
         } else {
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
                 monopolyMain.changeConsoleMessage("Next Player's turn");
-                Thread.sleep(100);
+                Thread.sleep(150);
                 sendPlayMessage(nextPlayerNumber);
             }/*else{
                 monopolyMain.changeConsoleMessage("YOU WON PLAYER " + this.playerNumber);
