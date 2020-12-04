@@ -37,6 +37,7 @@ public class Player extends Agent {
     private final transient Strategy strategy;
     private Random r = new Random();
     private RepastLauncher impl;
+    private boolean isAlive;
 
     public Player(int playerNumber, int strategy) {
         this.playerNumber = playerNumber;
@@ -51,6 +52,7 @@ public class Player extends Agent {
         this.jailTurnCounter = 0;
         this.currentTurnCounter = 1;
         this.targetTurn = 0;
+        this.isAlive = true;
     }
 
     public Player(int playerNumber, int strategy, int targetTurn) {
@@ -61,6 +63,7 @@ public class Player extends Agent {
         this.jailTurnCounter = 0;
         this.currentTurnCounter = 1;
         this.targetTurn = targetTurn;
+        this.isAlive = true;
     }
 
     public void setFrame(MonopolyMain monopolyMain){
@@ -165,6 +168,10 @@ public class Player extends Agent {
         colorGeneratedList.add(colorArray[secondChoice]);
         colorGeneratedList.add(colorArray[thirdChoice]);
         return colorGeneratedList;
+    }
+
+    public boolean isAlive(){
+        return isAlive;
     }
 
     public boolean withdrawFromWallet(int withdrawAmount) {
@@ -345,16 +352,16 @@ public class Player extends Agent {
 
        // Thread.sleep(150);
 
-        boolean alive=true;
+        isAlive=true;
 
         //CASAS ESPECIAIS
         if(currentSquareNumber==11){//imposto capitais
-            alive = withdrawFromWallet(200);
+            isAlive = withdrawFromWallet(200);
             monopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 200€ in taxes");
             //Thread.sleep(150);
 
         }else if(currentSquareNumber==25){//imposto luxo
-            alive = withdrawFromWallet(100);
+            isAlive = withdrawFromWallet(100);
             monopolyMain.changeConsoleMessage("Player " + playerNumber + " paid 100€ in taxes");
             //Thread.sleep(150);
 
@@ -387,26 +394,26 @@ public class Player extends Agent {
             }else{
                 monopolyMain.changeConsoleMessage("Player " + playerNumber + " lost " + i);
                 System.out.println(PREFIX + playerNumber + " pays " + i + "$ to the comunity");
-                alive = withdrawFromWallet(i);
+                isAlive = withdrawFromWallet(i);
             }
             Thread.sleep(150);
         }
 
-        if(!alive){
+        if(!isAlive){
             return;
         }
 
         if (ledger.containsKey(currentSquareNumber)) {
             if (ledger.get(currentSquareNumber) != playerNumber) {
                 monopolyMain.infoConsole.setText("This property belongs to player " + ledger.get(currentSquareNumber) + " you need to pay rent.");
-                alive = payRent(PREFIX + ledger.get(currentSquareNumber), monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
+                isAlive = payRent(PREFIX + ledger.get(currentSquareNumber), monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber).getRentPrice());
             }else{
                 Square currentSquare = monopolyMain.gameBoard.getSquareAtIndex(currentSquareNumber);
                 if(wallet >currentSquare.getHousePrice()*3.5 && currentSquare.getHouseCounter()<4){
                     double efficiency = currentSquare.getEfficiency();
                     int percent = (int) (efficiency*100);
                     if(r.nextInt(100)<percent){
-                       alive = withdrawFromWallet(currentSquare.getHousePrice());
+                       isAlive = withdrawFromWallet(currentSquare.getHousePrice());
                         currentSquare.addHouse();
                     }
                 }
@@ -426,7 +433,7 @@ public class Player extends Agent {
             }
         }
 
-        if(!alive){
+        if(!isAlive){
             String nextPlayerNumber = getNextPlayerNumber();
             if (nextPlayerNumber != null) {
                 monopolyMain.changeConsoleMessage("Next Player's turn");
@@ -493,19 +500,22 @@ public class Player extends Agent {
         this.send(msg);
     }
 
-    private void shutdown(){
+    public void shutdown(){
         // shutdown
         try {
-            Thread.sleep(5000);
 
+            monopolyMain.setVisible(false);
+
+            Thread.sleep(100);
+            monopolyMain.setEnabled(false);
             monopolyMain.dispose();
 
             takeDown();
-            this.getImpl().stopSimulation();
+
             impl.setTotalPlayerPlayTime(System.currentTimeMillis());
             impl.setNumberOfTimesHouseWasBoughtByWinningPlayer(this.getTitleDeeds());
-            this.getContainerController().getPlatformController().kill();
-        } catch (ControllerException | InterruptedException e) {
+
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

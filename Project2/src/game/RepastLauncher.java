@@ -2,6 +2,7 @@ package game;
 
 import jade.core.Profile;
 import jade.core.ProfileImpl;
+import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
 import sajas.core.Runtime;
 import sajas.sim.repast3.Repast3Launcher;
@@ -14,6 +15,7 @@ import uchicago.src.sim.analysis.Sequence;
 import uchicago.src.sim.engine.SimInit;
 
 import java.awt.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -112,37 +114,75 @@ public class RepastLauncher extends Repast3Launcher {
         recordOfPlayer4Wallets.add(1500);
 
         RepastLauncher r = this;
+        ContainerController c =this.containerController;
+
+
+        makeHistograms();
+        //makeTotalTimePlot();
+        //makeMaxPurchasesPlot();
+        //makePlayerTurnsPlot();
+        //makeTotalPointsPlot();
 
         Thread thread = new Thread("New Thread") {
             public void run() {
                 MonopolyMain frame = null;
                 frame = new MonopolyMain(players, r);
                 frame.setVisible(true);
-                MonopolyMain finalFrame = frame;
-                finalFrame.start();
-                long startTime = System.currentTimeMillis();
-                long elapsedTime = 0L;
+                frame.start();
+                String numberRun = String.valueOf(numRuns);
+                long startTime = Instant.now().toEpochMilli();;
+                long elapsedTime,currentTime;
+                System.out.println("IM HERE cunt"+" run number: "+ numberRun);
+                boolean saidIt= false;
+                do{
+                    if(!frame.isVisible()){
+                        System.out.println("i KMS cuz of visible");
+                        break;
+                    }
+                    if(!frame.isEnabled()){
+                        System.out.println("i KMS cuz of enabled");
+                        break;
+                    }
+                    currentTime = Instant.now().toEpochMilli();
+                    elapsedTime = currentTime - startTime;
 
-                while(finalFrame.isShowing()||elapsedTime<2*60*1000){
-                    elapsedTime = (new Date()).getTime() - startTime;
+                    if(elapsedTime>=110000){
+                        System.out.println("i KMS cuz of time");
+                    }
+
+                }while(elapsedTime < 110000);
+
+                System.out.println("afterhours" + " run number: "+ numberRun);
+                numRuns++;
+                resetTimeStamps();
+                resetPlayerTurns();
+                boolean playtime = false;
+                for (int i = 0; i < players.size() ; i++) {
+                    if(players.get(i).isAlive()){
+                        frame.setVisible(false);
+                        frame.dispose();
+
+                        players.get(i).takeDown();
+
+                        if(!playtime){
+                            r.setTotalPlayerPlayTime(System.currentTimeMillis());
+                            playtime=true;
+                        }
+                    }
+
                 }
+                try {
+                    c.getPlatformController().kill();
+                } catch (ControllerException e) {
+                    e.printStackTrace();
+                }
+                r.stopSimulation();
+
+
             }
         };
 
-
-
-        makeHistograms();
-        makeTotalTimePlot();
-        makeMaxPurchasesPlot();
-        makePlayerTurnsPlot();
-        makeTotalPointsPlot();
         thread.start();
-
-
-        System.out.println("IM HERE BITCH");
-        numRuns++;
-        resetTimeStamps();
-        resetPlayerTurns();
     }
 
     private void launchAgents() {
@@ -216,14 +256,14 @@ public class RepastLauncher extends Repast3Launcher {
     }
 
     private void makeHistograms() {
-        makePlayer1WalletAverageHistogram();
+/*        makePlayer1WalletAverageHistogram();
         player1WalletAverageHistogram.display();
         makePlayer2WalletAverageHistogram();
         player2WalletAverageHistogram.display();
         makePlayer3WalletAverageHistogram();
         player3WalletAverageHistogram.display();
         makePlayer4WalletAverageHistogram();
-        player4WalletAverageHistogram.display();
+        player4WalletAverageHistogram.display();*/
         makeHousesBoughtHistogram();
         numberOfTimesHousesWereBoughtByWinningPlayerHistogram.display();
     }
