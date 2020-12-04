@@ -133,7 +133,7 @@ public class RepastLauncher extends Repast3Launcher {
                 long startTime = Instant.now().toEpochMilli();;
                 long elapsedTime,currentTime;
                 System.out.println("IM HERE cunt"+" run number: "+ numberRun);
-                boolean saidIt= false;
+                boolean cleanup=false;
                 do{
                     if(!frame.isVisible()){
                         System.out.println("i KMS cuz of visible");
@@ -148,6 +148,7 @@ public class RepastLauncher extends Repast3Launcher {
 
                     if(elapsedTime>=110000){
                         System.out.println("i KMS cuz of time");
+                        cleanup = true;
                     }
 
                 }while(elapsedTime < 110000);
@@ -156,20 +157,25 @@ public class RepastLauncher extends Repast3Launcher {
                 numRuns++;
                 resetTimeStamps();
                 resetPlayerTurns();
-                boolean playtime = false;
-                for (int i = 0; i < players.size() ; i++) {
-                    if(players.get(i).isAlive()){
-                        frame.setVisible(false);
-                        frame.dispose();
 
-                        players.get(i).takeDown();
+                if(cleanup){
+                    System.out.println("Starting the cleanup");
+                    boolean playtime = false;
+                    for (int i = 0; i < players.size() ; i++) {
+                        if(players.get(i).isAlive()){
+                            players.get(i).takeDown();
 
-                        if(!playtime){
-                            r.setTotalPlayerPlayTime(System.currentTimeMillis());
-                            playtime=true;
+                            if(!playtime){
+                                r.setTotalPlayerPlayTime(System.currentTimeMillis());
+                                playtime=true;
+                            }
                         }
-                    }
 
+                    }
+                    frame.setVisible(false);
+                    frame.dispose();
+                }else{
+                    System.out.println("No need to cleanup");
                 }
                 try {
                     c.getPlatformController().kill();
