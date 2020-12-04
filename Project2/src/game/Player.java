@@ -512,6 +512,7 @@ public class Player extends Agent {
 
             takeDown();
 
+            impl.setPlayersTotalScore();
             impl.setTotalPlayerPlayTime(System.currentTimeMillis());
             impl.setNumberOfTimesHouseWasBoughtByWinningPlayer(this.getTitleDeeds());
 
