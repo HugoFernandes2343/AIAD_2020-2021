@@ -126,7 +126,7 @@ public class Player extends Agent {
             DFAgentDescription[] result = DFService.search(this, template);
             for (DFAgentDescription dfAgentDescription : result) {
                 String playerName = dfAgentDescription.getName().getName();
-                System.out.println("I'm player_" + playerNumber +" I found " + playerName);
+               // System.out.println("I'm player_" + playerNumber +" I found " + playerName);
                 String[] splitInformation = playerName.split("@");
                 if (!splitInformation[0].equals(PREFIX + this.getPlayerNumber())) {
                     this.otherPlayersQueue.add(splitInformation[0]);
@@ -192,7 +192,7 @@ public class Player extends Agent {
             this.getImpl().setWalletPlayer(playerNumber, wallet);
             this.getImpl().setWalletPercentage(playerNumber);
             this.getImpl().setRecordPlayerWallets(playerNumber, wallet);
-            System.out.println("Player_" + playerNumber + " paid " + withdrawAmount + " at square " + currentSquareNumber);
+           // System.out.println("Player_" + playerNumber + " paid " + withdrawAmount + " at square " + currentSquareNumber);
         }
 
         return true;
@@ -203,7 +203,7 @@ public class Player extends Agent {
         this.getImpl().setWalletPlayer(playerNumber, wallet);
         this.getImpl().setWalletPercentage(playerNumber);
         this.getImpl().setRecordPlayerWallets(playerNumber, wallet);
-        System.out.println("Payday for player " + getPlayerNumber() + ". You earned $" + depositAmount + "!");
+       // System.out.println("Payday for player " + getPlayerNumber() + ". You earned $" + depositAmount + "!");
     }
 
     public int getCurrentSquareNumber() {
@@ -238,7 +238,7 @@ public class Player extends Agent {
         }
         titleDeeds.add(squareNumber);
         this.registerTransactionInLedger(squareNumber, playerNumber);  // everytime a player buys a title deed, it is written in ledger, for example square 1 belongs to player 2
-        System.out.println(PREFIX+playerNumber + " bought square number " + squareNumber);
+       // System.out.println(PREFIX+playerNumber + " bought square number " + squareNumber);
 
         for (String player : this.otherPlayersQueue) {
             sendBuyMessage(player, squareNumber, playerNumber);
@@ -290,7 +290,7 @@ public class Player extends Agent {
 
     private boolean payRent(String squareOwner, int rentValue) {
         boolean b = this.withdrawFromWallet(rentValue);
-        System.out.println(PREFIX + playerNumber + " pays player " + squareOwner + " $" + rentValue );
+       // System.out.println(PREFIX + playerNumber + " pays player " + squareOwner + " $" + rentValue );
         this.sendPaymentMessage(squareOwner, rentValue);
         return b;
     }
@@ -330,7 +330,7 @@ public class Player extends Agent {
         int dicesTotal = diceResult.get(0) + diceResult.get(1);
         if (currentSquareNumber + dicesTotal > 35) {
             this.currentTurnCounter++;
-            System.out.println(PREFIX+playerNumber + " passed by Partida gain 200$");
+           // System.out.println(PREFIX+playerNumber + " passed by Partida gain 200$");
             depositToWallet(200);
         }
         int targetSquare = (currentSquareNumber + dicesTotal) % 36;
@@ -389,11 +389,11 @@ public class Player extends Agent {
             int i = r.nextInt(200 - 10) + 10;
             if(offset){
                 monopolyMain.changeConsoleMessage("Player " + playerNumber + " recieved " + i );
-                System.out.println(PREFIX + playerNumber + " recieves " + i + "$ from the comunity");
+              //  System.out.println(PREFIX + playerNumber + " recieves " + i + "$ from the comunity");
                 depositToWallet(i);
             }else{
                 monopolyMain.changeConsoleMessage("Player " + playerNumber + " lost " + i);
-                System.out.println(PREFIX + playerNumber + " pays " + i + "$ to the comunity");
+               // System.out.println(PREFIX + playerNumber + " pays " + i + "$ to the comunity");
                 isAlive = withdrawFromWallet(i);
             }
             Thread.sleep(150);
@@ -554,7 +554,7 @@ public class Player extends Agent {
                 DFAgentDescription[] dfds = DFService.decodeNotification(inform.getContent());
                 for (int i = 0; i < dfds.length; i++) {
                     if(!(dfds[i] ==null)){
-                        System.out.println("Agent: " + dfds[i].getName().getLocalName());
+                       // System.out.println("Agent: " + dfds[i].getName().getLocalName());
                     }
                 }
             } catch (FIPAException fe) {

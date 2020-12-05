@@ -23,7 +23,7 @@ import java.util.Date;
 import static java.lang.System.out;
 
 public class RepastLauncher extends Repast3Launcher {
-    private static final int NUMBER_OF_RUNS = 2;
+    private static final int NUMBER_OF_RUNS = 3;
     private Runtime runtimeInstance;
     private Profile profile;
     private ContainerController containerController;
@@ -90,7 +90,7 @@ public class RepastLauncher extends Repast3Launcher {
 
     private long runTotalTime = 0;
 
-    private long startTime = System.currentTimeMillis();
+    private long startTime = 0;
 
     private static int numRuns = 1;
     private ArrayList<Integer> listOfNumberOfTimesHouseWasBought = new ArrayList<>();
@@ -120,7 +120,7 @@ public class RepastLauncher extends Repast3Launcher {
 
 
         createFiles(new String[]{"PropertiesBoughtByWinner",
-                "Player1PositionDist","Player2PositionDist","Player3PositionDist","Player4PositionDist"});
+                "Player1PositionDist","Player2PositionDist","Player3PositionDist","Player4PositionDist","TimesOfRuns"});
 
         makeHistograms();
         makeTotalTimePlot();
@@ -129,6 +129,8 @@ public class RepastLauncher extends Repast3Launcher {
         makeTotalPointsPlot();
         makePlayerWalletsPlot();
 
+        this.startTime = System.currentTimeMillis();
+
         Thread thread = new Thread("New Thread") {
             public void run() {
                 MonopolyMain frame = null;
@@ -136,7 +138,8 @@ public class RepastLauncher extends Repast3Launcher {
                 frame.setVisible(true);
                 frame.start();
                 String numberRun = String.valueOf(numRuns);
-                long startTime = Instant.now().toEpochMilli();
+
+                long startTimeRun = Instant.now().toEpochMilli();
                 long elapsedTime,currentTime;
                 System.out.println("IM HERE cunt"+" run number: "+ numberRun);
                 boolean cleanup=false;
@@ -150,7 +153,7 @@ public class RepastLauncher extends Repast3Launcher {
                         break;
                     }
                     currentTime = Instant.now().toEpochMilli();
-                    elapsedTime = currentTime - startTime;
+                    elapsedTime = currentTime - startTimeRun;
 
                     if(elapsedTime>=110000){
                         System.out.println("i KMS cuz of time");
@@ -170,6 +173,8 @@ public class RepastLauncher extends Repast3Launcher {
                     player3PositionHistogram.updateGraph();
                     player4PositionHistogram.updateGraph();
 
+                    //
+                    plotTotalPlayTimeByRun.updateGraph();
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
@@ -183,6 +188,8 @@ public class RepastLauncher extends Repast3Launcher {
                     player3PositionHistogram.takeSnapshot();
                     player4PositionHistogram.takeSnapshot();
                     //
+                    plotTotalPlayTimeByRun.takeSnapshot();
+
                     System.out.println("pics saved");
                 }
                 numRuns++;
@@ -197,7 +204,8 @@ public class RepastLauncher extends Repast3Launcher {
                             players.get(i).takeDown();
 
                             if(!playtime){
-                                r.setTotalPlayerPlayTime(System.currentTimeMillis());
+                                r.setTotalPlayerPlayTime(120000);
+                                r.resetTimeStamps();
                                 r.setPlayersTotalScore();
                                 playtime=true;
                             }
@@ -223,16 +231,14 @@ public class RepastLauncher extends Repast3Launcher {
     }
 
     private void makeTotalTimePlot() {
-        plotTotalPlayTimeByRun.setXRange(0, 100);
+        plotTotalPlayTimeByRun.setXRange(0, NUMBER_OF_RUNS);
 
-        plotTotalPlayTimeByRun.setYRange(0, 10000);
+        plotTotalPlayTimeByRun.setYRange(0, 120000);
         plotTotalPlayTimeByRun.setAxisTitles("Number of Runs", "Time in Milliseconds");
         if (numRuns == 1) {
             plotTotalPlayTimeByRun.addLegend(0, "", Color.BLACK);
         }
-        plotTotalPlayTimeByRun.plotPoint(numRuns, runTotalTime, 0);
-        plotTotalPlayTimeByRun.fillPlot();
-        plotTotalPlayTimeByRun.updateGraph();
+        plotTotalPlayTimeByRun.setSnapshotFileName(RESULTS_DIR_GRAPH + "TimesOfRuns");
         plotTotalPlayTimeByRun.display();
 
         getSchedule().scheduleActionAt(1, plotTotalPlayTimeByRun, "step");
@@ -402,6 +408,7 @@ public class RepastLauncher extends Repast3Launcher {
 
     public void resetTimeStamps() {
         this.runTotalTime = 0;
+        this.startTime = 0;
     }
 
     public void setWalletPlayer(int playerNumber, int wallet) {
@@ -754,9 +761,16 @@ public class RepastLauncher extends Repast3Launcher {
 
     public void setTotalPlayerPlayTime(long finishTime) {
         this.runTotalTime = finishTime - this.getStartTime();
+        updateTimeOfRun();
     }
 
     public long getStartTime() {
         return startTime;
+    }
+
+    private void updateTimeOfRun(){
+        plotTotalPlayTimeByRun.plotPoint(numRuns, runTotalTime, 0);
+        plotTotalPlayTimeByRun.fillPlot();
+        plotTotalPlayTimeByRun.updateGraph();
     }
 }

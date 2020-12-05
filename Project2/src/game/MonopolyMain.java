@@ -38,6 +38,10 @@ public class MonopolyMain extends JFrame{
 	JLayeredPane layeredPane;
 	RepastLauncher impl;
 	int nowPlaying = 0;
+	boolean removedP1=false;
+	boolean removedP2=false;
+	boolean removedP3=false;
+	boolean removedP4=false;
 
 	public MonopolyMain(ArrayList<Player> players, RepastLauncher impl) {
 		/*this.runtimeInstance = Runtime.instance();
@@ -250,8 +254,31 @@ public class MonopolyMain extends JFrame{
 	public void removeFromUI(int player) {
 		for(PlayerUi playerUi : playerUis) {
 			if(playerUi.getPlayer().getPlayerNumber() == player) {
-				if(playerUi.isVisible()){
-					playerUi.removeComponent();
+				switch (player) {
+					case 1:
+						if(!removedP1){
+							playerUi.removeComponent();
+							this.removedP1 = true;
+						}
+						break;
+					case 2:
+						if(!removedP2){
+							playerUi.removeComponent();
+							this.removedP2 = true;
+						}
+						break;
+					case 3:
+						if(!removedP3){
+							playerUi.removeComponent();
+							this.removedP3 = true;
+						}
+						break;
+					case 4:
+						if(!removedP4){
+							playerUi.removeComponent();
+							this.removedP4 = true;
+						}
+						break;
 				}
 			}
 		}
