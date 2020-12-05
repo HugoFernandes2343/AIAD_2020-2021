@@ -70,8 +70,6 @@ public class RepastLauncher extends Repast3Launcher {
     private int player3TotalScore = 0;
     private int player4TotalScore = 0;
 
-    private Plot plotPlayerWallets = new Plot("Player Wallets Plot", this);
-
     private Histogram player1PositionHistogram = new Histogram("P1 Position Distribution", 4, 0,
             4);
     private Histogram player2PositionHistogram = new Histogram("P2 Position Distribution", 4, 0,
@@ -83,18 +81,12 @@ public class RepastLauncher extends Repast3Launcher {
 
     private Histogram numberOfTimesHousesWereBoughtByWinningPlayerHistogram = new Histogram("Number Of Times A House Was Bought", 36, 0 ,36,this);
 
-    private OpenSequenceGraph plotTotalPointsPlayer1 = new OpenSequenceGraph("Total Points By Player 1", this);
-    private OpenSequenceGraph plotTotalPointsPlayer2 = new OpenSequenceGraph("Total Points By Player 2", this);
-    private OpenSequenceGraph plotTotalPointsPlayer3 = new OpenSequenceGraph("Total Points By Player 3", this);
-    private OpenSequenceGraph plotTotalPointsPlayer4 = new OpenSequenceGraph("Total Points By Player 4", this);
-
-    private OpenSequenceGraph plotPlayer1Turns = new OpenSequenceGraph("Total Turns By Player 1", this);
-    private OpenSequenceGraph plotPlayer2Turns = new OpenSequenceGraph("Total Turns By Player 2", this);
-    private OpenSequenceGraph plotPlayer3Turns = new OpenSequenceGraph("Total Turns By Player 3", this);
-    private OpenSequenceGraph plotPlayer4Turns = new OpenSequenceGraph("Total Turns By Player 4", this);
-
+    private Plot plotTotalPointsPlayer = new Plot("Total Points By Player ", this);
+    private Plot plotPlayerTurns = new Plot("Total Turns By Player", this);
     private Plot plotTotalPlayTimeByRun = new Plot("Total Time Of Play By Run", this);
     private Plot plotMaxPurchasesByPlayer = new Plot("Max Purchases By Player", this);
+    private Plot plotPlayerWallets = new Plot("Player Wallets Plot", this);
+
     private long runTotalTime = 0;
 
     private long startTime = System.currentTimeMillis();
@@ -125,6 +117,7 @@ public class RepastLauncher extends Repast3Launcher {
         ContainerController c =this.containerController;
 
 
+
         createFiles(new String[]{"histogram1"});
 
         makeHistograms();
@@ -132,6 +125,7 @@ public class RepastLauncher extends Repast3Launcher {
         makeMaxPurchasesPlotPlayer();
         makePlayerTurnsPlot();
         makeTotalPointsPlot();
+        makePlayerWalletsPlot();
 
         Thread thread = new Thread("New Thread") {
             public void run() {
@@ -330,87 +324,35 @@ public class RepastLauncher extends Repast3Launcher {
     }
 
     private void makeTotalPointsPlot() {
-        plotTotalPointsPlayer1.setXRange(0, 1000);
-        plotTotalPointsPlayer1.setYRange(0, 1000);
-        plotTotalPointsPlayer2.setXRange(0, 1000);
-        plotTotalPointsPlayer2.setYRange(0, 1000);
-        plotTotalPointsPlayer3.setXRange(0, 1000);
-        plotTotalPointsPlayer3.setYRange(0, 1000);
-        plotTotalPointsPlayer4.setXRange(0, 1000);
-        plotTotalPointsPlayer4.setYRange(0, 1000);
+        plotTotalPointsPlayer.setXRange(0, 100);
+        plotTotalPointsPlayer.setYRange(0, 100);
         if (numRuns == 1) {
-            plotTotalPointsPlayer1.addSequence("P1", new Sequence() {
-                public double getSValue() {
-                    return player1TotalScore;
-                }
-            }, Color.RED);
-            plotTotalPointsPlayer2.addSequence("P2", new Sequence() {
-                public double getSValue() {
-                    return player2TotalScore;
-                }
-            }, Color.BLUE);
-            plotTotalPointsPlayer3.addSequence("P3", new Sequence() {
-                public double getSValue() {
-                    return player3TotalScore;
-                }
-            }, Color.YELLOW);
-            plotTotalPointsPlayer4.addSequence("P4", new Sequence() {
-                public double getSValue() {
-                    return player4TotalScore;
-                }
-            }, Color.GREEN);
+            plotTotalPointsPlayer.addLegend(0,"P1", Color.RED);
+            plotTotalPointsPlayer.addLegend(1,"P2", Color.BLUE);
+            plotTotalPointsPlayer.addLegend(2,"P3", Color.YELLOW);
+            plotTotalPointsPlayer.addLegend(1,"P4", Color.GREEN);
         }
-        plotTotalPointsPlayer1.display();
-        plotTotalPointsPlayer2.display();
-        plotTotalPointsPlayer3.display();
-        plotTotalPointsPlayer4.display();
+        plotTotalPointsPlayer.display();
 
-        getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer1, "step");
-        getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer2, "step");
-        getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer3, "step");
-        getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer4, "step");
+        getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer, "step");
     }
 
     private void makePlayerTurnsPlot() {
-        plotPlayer1Turns.setXRange(0, 1000);
-        plotPlayer1Turns.setYRange(0, 1000);
-        plotPlayer2Turns.setXRange(0, 1000);
-        plotPlayer2Turns.setYRange(0, 1000);
-        plotPlayer3Turns.setXRange(0, 1000);
-        plotPlayer3Turns.setYRange(0, 1000);
-        plotPlayer4Turns.setXRange(0, 1000);
-        plotPlayer4Turns.setYRange(0, 1000);
+        plotPlayerTurns.setXRange(0, 1000);
+        plotPlayerTurns.setYRange(0, 100);
         if (numRuns == 1) {
-            plotPlayer1Turns.addSequence("P1", new Sequence() {
-                public double getSValue() {
-                    return player1Turn;
-                }
-            }, Color.RED);
-            plotPlayer2Turns.addSequence("P2", new Sequence() {
-                public double getSValue() {
-                    return player2Turn;
-                }
-            }, Color.BLUE);
-            plotPlayer3Turns.addSequence("P3", new Sequence() {
-                public double getSValue() {
-                    return player3Turn;
-                }
-            }, Color.YELLOW);
-            plotPlayer4Turns.addSequence("P4", new Sequence() {
-                public double getSValue() {
-                    return player4Turn;
-                }
-            }, Color.GREEN);
+            plotPlayerTurns.addLegend(0, "P1", Color.RED);
+            plotPlayerTurns.addLegend(1, "P2", Color.BLUE);
+            plotPlayerTurns.addLegend(2, "P3", Color.YELLOW);
+            plotPlayerTurns.addLegend(3, "P4", Color.GREEN);
         }
-        plotPlayer1Turns.display();
-        plotPlayer2Turns.display();
-        plotPlayer3Turns.display();
-        plotPlayer4Turns.display();
+        plotMaxPurchasesByPlayer.plotPoint(numRuns, player1Turn, 0);
+        plotMaxPurchasesByPlayer.plotPoint(numRuns, player2Turn, 0);
+        plotMaxPurchasesByPlayer.plotPoint(numRuns, player3Turn, 0);
+        plotMaxPurchasesByPlayer.plotPoint(numRuns, player4Turn, 0);
+        plotPlayerTurns.display();
 
-        getSchedule().scheduleActionAtInterval(1, plotPlayer1Turns, "step");
-        getSchedule().scheduleActionAtInterval(1, plotPlayer2Turns, "step");
-        getSchedule().scheduleActionAtInterval(1, plotPlayer3Turns, "step");
-        getSchedule().scheduleActionAtInterval(1, plotPlayer4Turns, "step");
+        getSchedule().scheduleActionAtInterval(1, plotPlayerTurns, "step");
     }
 
     private void makeMaxPurchasesPlotPlayer() {
