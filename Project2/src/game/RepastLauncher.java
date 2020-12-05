@@ -12,8 +12,12 @@ import uchicago.src.sim.analysis.*;
 import uchicago.src.sim.engine.SimInit;
 
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import static java.lang.System.out;
@@ -77,7 +81,7 @@ public class RepastLauncher extends Repast3Launcher {
     private Histogram player4PositionHistogram = new Histogram("P4 Position Distribution", 4, 0,
             4);
 
-    private Histogram numberOfTimesHousesWereBoughtByWinningPlayerHistogram = new Histogram("Number Of Times A House Was Bought", 36, 0 ,36);
+    private Histogram numberOfTimesHousesWereBoughtByWinningPlayerHistogram = new Histogram("Number Of Times A House Was Bought", 36, 0 ,36,this);
 
     private OpenSequenceGraph plotTotalPointsPlayer1 = new OpenSequenceGraph("Total Points By Player 1", this);
     private OpenSequenceGraph plotTotalPointsPlayer2 = new OpenSequenceGraph("Total Points By Player 2", this);
@@ -102,6 +106,8 @@ public class RepastLauncher extends Repast3Launcher {
     private ArrayList<Integer> player3Position = new ArrayList<>();
     private ArrayList<Integer> player4Position = new ArrayList<>();
 
+    public static String RESULTS_DIR_GRAPH = "graphs/" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss/").format(Calendar.getInstance().getTime()) + "/";
+
     @Override
     protected void launchJADE() {
         this.runtimeInstance = Runtime.instance();
@@ -119,6 +125,8 @@ public class RepastLauncher extends Repast3Launcher {
         ContainerController c =this.containerController;
 
 
+        createFiles(new String[]{"histogram1"});
+
         makeHistograms();
         makeTotalTimePlot();
         makeMaxPurchasesPlotPlayer();
@@ -132,7 +140,7 @@ public class RepastLauncher extends Repast3Launcher {
                 frame.setVisible(true);
                 frame.start();
                 String numberRun = String.valueOf(numRuns);
-                long startTime = Instant.now().toEpochMilli();;
+                long startTime = Instant.now().toEpochMilli();
                 long elapsedTime,currentTime;
                 System.out.println("IM HERE cunt"+" run number: "+ numberRun);
                 boolean cleanup=false;
@@ -156,6 +164,18 @@ public class RepastLauncher extends Repast3Launcher {
                 }while(elapsedTime < 110000);
 
                 System.out.println("afterhours" + " run number: "+ numberRun);
+
+                if(numRuns==2){
+                    System.out.println("saving pic");
+                    numberOfTimesHousesWereBoughtByWinningPlayerHistogram.updateGraph();
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    numberOfTimesHousesWereBoughtByWinningPlayerHistogram.takeSnapshot();
+                    System.out.println("pic saved");
+                }
                 numRuns++;
                 resetTimeStamps();
                 resetPlayerTurns();
@@ -267,7 +287,7 @@ public class RepastLauncher extends Repast3Launcher {
 
     public static void main(String[] args) {
         SimInit init = new SimInit();
-        init.setNumRuns(50);   // works only in batch mode
+        init.setNumRuns(2);   // works only in batch mode
         init.loadModel(new RepastLauncher(), null, true);
         numRuns = 1;
     }
@@ -289,7 +309,24 @@ public class RepastLauncher extends Repast3Launcher {
         makePlayer4PositionHistogram();
         player4PositionHistogram.display();
         makeHousesBoughtHistogram();
+        numberOfTimesHousesWereBoughtByWinningPlayerHistogram.setSnapshotFileName(RESULTS_DIR_GRAPH + "histogram1.png");
         numberOfTimesHousesWereBoughtByWinningPlayerHistogram.display();
+    }
+
+    public void createFiles(String[] fileNames) {
+        for (String fileName : fileNames) {
+            File myObj = new File(RESULTS_DIR_GRAPH + fileName);
+            try {
+                if (!myObj.getParentFile().exists())
+                    myObj.getParentFile().mkdirs();
+                if (!myObj.exists()) {
+                    myObj.createNewFile();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     private void makeTotalPointsPlot() {
@@ -493,22 +530,26 @@ public class RepastLauncher extends Repast3Launcher {
     }
 
     private int returnPlayerScoreInRun(ArrayList<Integer> scoreResultList, int playerNumber) {
-        switch (scoreResultList.get(scoreResultList.size() - 1)) {
-            case 1:
-                addPositionsToList(playerNumber, 0);
-                return 4;
-            case 2:
-                addPositionsToList(playerNumber, 1);
-                return 3;
-            case 3:
-                addPositionsToList(playerNumber, 2);
-                return 2;
-            case 4:
-                addPositionsToList(playerNumber, 3);
-                return 1;
-            default:
-                out.println("The number was wrong");
-                return 0;
+        if(scoreResultList.size()>0){
+            switch (scoreResultList.get(scoreResultList.size() - 1)) {
+                case 1:
+                    addPositionsToList(playerNumber, 0);
+                    return 4;
+                case 2:
+                    addPositionsToList(playerNumber, 1);
+                    return 3;
+                case 3:
+                    addPositionsToList(playerNumber, 2);
+                    return 2;
+                case 4:
+                    addPositionsToList(playerNumber, 3);
+                    return 1;
+                default:
+                    out.println("The number was wrong");
+                    return 0;
+            }
+        }else{
+            return 0;
         }
     }
 

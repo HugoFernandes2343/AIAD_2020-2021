@@ -503,6 +503,9 @@ public class Player extends Agent {
     public void shutdown(){
         // shutdown
         try {
+            impl.setPlayersTotalScore();
+            impl.setTotalPlayerPlayTime(System.currentTimeMillis());
+            impl.setNumberOfTimesHouseWasBoughtByWinningPlayer(this.getTitleDeeds());
 
             monopolyMain.setVisible(false);
 
@@ -512,9 +515,6 @@ public class Player extends Agent {
 
             takeDown();
 
-            impl.setPlayersTotalScore();
-            impl.setTotalPlayerPlayTime(System.currentTimeMillis());
-            impl.setNumberOfTimesHouseWasBoughtByWinningPlayer(this.getTitleDeeds());
 
         } catch (InterruptedException e) {
             e.printStackTrace();
