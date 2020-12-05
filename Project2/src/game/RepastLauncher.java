@@ -23,6 +23,7 @@ import java.util.Date;
 import static java.lang.System.out;
 
 public class RepastLauncher extends Repast3Launcher {
+    private static final int NUMBER_OF_RUNS = 2;
     private Runtime runtimeInstance;
     private Profile profile;
     private ContainerController containerController;
@@ -71,13 +72,13 @@ public class RepastLauncher extends Repast3Launcher {
     private int player4TotalScore = 0;
 
     private Histogram player1PositionHistogram = new Histogram("P1 Position Distribution", 4, 0,
-            4);
+            4,this);
     private Histogram player2PositionHistogram = new Histogram("P2 Position Distribution", 4, 0,
-            4);
+            4,this);
     private Histogram player3PositionHistogram = new Histogram("P3 Position Distribution", 4, 0,
-            4);
+            4,this);
     private Histogram player4PositionHistogram = new Histogram("P4 Position Distribution", 4, 0,
-            4);
+            4,this);
 
     private Histogram numberOfTimesHousesWereBoughtByWinningPlayerHistogram = new Histogram("Number Of Times A House Was Bought", 36, 0 ,36,this);
 
@@ -118,7 +119,8 @@ public class RepastLauncher extends Repast3Launcher {
 
 
 
-        createFiles(new String[]{"histogram1"});
+        createFiles(new String[]{"PropertiesBoughtByWinner",
+                "Player1PositionDist","Player2PositionDist","Player3PositionDist","Player4PositionDist"});
 
         makeHistograms();
         makeTotalTimePlot();
@@ -159,16 +161,29 @@ public class RepastLauncher extends Repast3Launcher {
 
                 System.out.println("afterhours" + " run number: "+ numberRun);
 
-                if(numRuns==2){
-                    System.out.println("saving pic");
+                if(numRuns==NUMBER_OF_RUNS){
+                    System.out.println("saving pics");
                     numberOfTimesHousesWereBoughtByWinningPlayerHistogram.updateGraph();
+                    //
+                    player1PositionHistogram.updateGraph();
+                    player2PositionHistogram.updateGraph();
+                    player3PositionHistogram.updateGraph();
+                    player4PositionHistogram.updateGraph();
+
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+
                     numberOfTimesHousesWereBoughtByWinningPlayerHistogram.takeSnapshot();
-                    System.out.println("pic saved");
+                    //
+                    player1PositionHistogram.takeSnapshot();
+                    player2PositionHistogram.takeSnapshot();
+                    player3PositionHistogram.takeSnapshot();
+                    player4PositionHistogram.takeSnapshot();
+                    //
+                    System.out.println("pics saved");
                 }
                 numRuns++;
                 resetTimeStamps();
@@ -281,7 +296,7 @@ public class RepastLauncher extends Repast3Launcher {
 
     public static void main(String[] args) {
         SimInit init = new SimInit();
-        init.setNumRuns(2);   // works only in batch mode
+        init.setNumRuns(NUMBER_OF_RUNS);   // works only in batch mode
         init.loadModel(new RepastLauncher(), null, true);
         numRuns = 1;
     }
@@ -295,15 +310,23 @@ public class RepastLauncher extends Repast3Launcher {
 
     private void makeHistograms() {
         makePlayer1PositionHistogram();
+        player1PositionHistogram.setSnapshotFileName(RESULTS_DIR_GRAPH + "Player1PositionDist" );
         player1PositionHistogram.display();
+
         makePlayer2PositionHistogram();
+        player2PositionHistogram.setSnapshotFileName(RESULTS_DIR_GRAPH + "Player2PositionDist" );
         player2PositionHistogram.display();
+
         makePlayer3PositionHistogram();
+        player3PositionHistogram.setSnapshotFileName(RESULTS_DIR_GRAPH + "Player3PositionDist");
         player3PositionHistogram.display();
+
         makePlayer4PositionHistogram();
+        player4PositionHistogram.setSnapshotFileName(RESULTS_DIR_GRAPH + "Player4PositionDist");
         player4PositionHistogram.display();
+
         makeHousesBoughtHistogram();
-        numberOfTimesHousesWereBoughtByWinningPlayerHistogram.setSnapshotFileName(RESULTS_DIR_GRAPH + "histogram1.png");
+        numberOfTimesHousesWereBoughtByWinningPlayerHistogram.setSnapshotFileName(RESULTS_DIR_GRAPH + "PropertiesBoughtByWinner");
         numberOfTimesHousesWereBoughtByWinningPlayerHistogram.display();
     }
 
@@ -330,7 +353,7 @@ public class RepastLauncher extends Repast3Launcher {
             plotTotalPointsPlayer.addLegend(0,"P1", Color.RED);
             plotTotalPointsPlayer.addLegend(1,"P2", Color.BLUE);
             plotTotalPointsPlayer.addLegend(2,"P3", Color.YELLOW);
-            plotTotalPointsPlayer.addLegend(1,"P4", Color.GREEN);
+            plotTotalPointsPlayer.addLegend(3,"P4", Color.GREEN);
         }
         plotTotalPointsPlayer.display();
 
@@ -364,7 +387,7 @@ public class RepastLauncher extends Repast3Launcher {
             plotMaxPurchasesByPlayer.addLegend(0, "P1", Color.RED);
             plotMaxPurchasesByPlayer.addLegend(1, "P2", Color.BLUE);
             plotMaxPurchasesByPlayer.addLegend(2, "P3", Color.YELLOW);
-            plotMaxPurchasesByPlayer.addLegend(4, "P4", Color.GREEN);
+            plotMaxPurchasesByPlayer.addLegend(3, "P4", Color.GREEN);
         }
         plotMaxPurchasesByPlayer.plotPoint(numRuns, maxPurchasesPlayer1, 0);
         plotMaxPurchasesByPlayer.plotPoint(numRuns, maxPurchasesPlayer2, 0);
@@ -608,6 +631,13 @@ public class RepastLauncher extends Repast3Launcher {
         }
 
         getSchedule().scheduleActionAtInterval(1, player1PositionHistogram, "step");
+    }
+
+    public void updatePositions(){
+        player1PositionHistogram.updateGraph();
+        player2PositionHistogram.updateGraph();
+        player3PositionHistogram.updateGraph();
+        player4PositionHistogram.updateGraph();
     }
 
     /*

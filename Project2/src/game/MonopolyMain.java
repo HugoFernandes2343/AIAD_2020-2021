@@ -250,7 +250,9 @@ public class MonopolyMain extends JFrame{
 	public void removeFromUI(int player) {
 		for(PlayerUi playerUi : playerUis) {
 			if(playerUi.getPlayer().getPlayerNumber() == player) {
-				playerUi.removeComponent();
+				if(playerUi.isVisible()){
+					playerUi.removeComponent();
+				}
 			}
 		}
 	}
