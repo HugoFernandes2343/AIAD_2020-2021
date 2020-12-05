@@ -1,7 +1,6 @@
 package game;
 
 import behaviors.PlayListeningBehaviour;
-import jade.wrapper.ControllerException;
 import sajas.core.AID;
 import sajas.core.Agent;
 import sajas.domain.DFService;
@@ -33,6 +32,8 @@ public class Player extends Agent {
     private ArrayList<String> otherPlayersQueue;
     private ArrayList<String> generatedColorsList;
     private int wallet = 1500; // initial money
+    private int turnCounter;
+    private int doubleCounter;
     private static final String PREFIX = "player_";
     private final transient Strategy strategy;
     private Random r = new Random();
@@ -52,6 +53,7 @@ public class Player extends Agent {
         this.jailTurnCounter = 0;
         this.currentTurnCounter = 1;
         this.targetTurn = 0;
+        this.turnCounter = 0;
         this.isAlive = true;
     }
 
@@ -63,6 +65,7 @@ public class Player extends Agent {
         this.jailTurnCounter = 0;
         this.currentTurnCounter = 1;
         this.targetTurn = targetTurn;
+        this.turnCounter = 0;
         this.isAlive = true;
     }
 
@@ -109,6 +112,7 @@ public class Player extends Agent {
             getPlayerPosition();
             impl.decrementNumberOfAgents();
             impl.setAverageOfPlayerWallets(this.playerNumber);
+            impl.setPlayerTurn(this.playerNumber, this.turnCounter);
             impl.setMaxPlayerPurchases(this.playerNumber, this.getTitleDeeds().size());
             this.getContainerController().removeLocalAgent(this);
         } catch (FIPAException e) {
@@ -326,7 +330,7 @@ public class Player extends Agent {
             this.isInJail = false;
         }
 
-        this.getImpl().setPlayerTurn(playerNumber);
+        this.turnCounter++;
         int dicesTotal = diceResult.get(0) + diceResult.get(1);
         if (currentSquareNumber + dicesTotal > 35) {
             this.currentTurnCounter++;
@@ -449,6 +453,7 @@ public class Player extends Agent {
 
         if (diceResult.get(0).equals(diceResult.get(1))) {
             monopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
+            this.getImpl().setDoubleCounter(this.playerNumber);
             //Thread.sleep(150);
             move();
         } else {

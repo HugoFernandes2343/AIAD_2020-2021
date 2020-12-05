@@ -18,7 +18,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 import static java.lang.System.out;
 
@@ -71,6 +70,17 @@ public class RepastLauncher extends Repast3Launcher {
     private int player3TotalScore = 0;
     private int player4TotalScore = 0;
 
+    private int player1Doubles = 0;
+    private int player2Doubles = 0;
+    private int player3Doubles = 0;
+    private int player4Doubles = 0;
+
+    private ArrayList<Integer> listOfNumberOfTimesHouseWasBought = new ArrayList<>();
+    private ArrayList<Integer> player1Position = new ArrayList<>();
+    private ArrayList<Integer> player2Position = new ArrayList<>();
+    private ArrayList<Integer> player3Position = new ArrayList<>();
+    private ArrayList<Integer> player4Position = new ArrayList<>();
+
     private Histogram player1PositionHistogram = new Histogram("P1 Position Distribution", 4, 0,
             4,this);
     private Histogram player2PositionHistogram = new Histogram("P2 Position Distribution", 4, 0,
@@ -81,6 +91,8 @@ public class RepastLauncher extends Repast3Launcher {
             4,this);
 
     private Histogram numberOfTimesHousesWereBoughtByWinningPlayerHistogram = new Histogram("Number Of Times A House Was Bought", 36, 0 ,36,this);
+
+    private OpenSequenceGraph doublesSequenceGraph = new OpenSequenceGraph("Number Of Doubles By Player", this);
 
     private Plot plotTotalPointsPlayer = new Plot("Total Points By Player ", this);
     private Plot plotPlayerTurns = new Plot("Total Turns By Player", this);
@@ -93,11 +105,6 @@ public class RepastLauncher extends Repast3Launcher {
     private long startTime = 0;
 
     private static int numRuns = 1;
-    private ArrayList<Integer> listOfNumberOfTimesHouseWasBought = new ArrayList<>();
-    private ArrayList<Integer> player1Position = new ArrayList<>();
-    private ArrayList<Integer> player2Position = new ArrayList<>();
-    private ArrayList<Integer> player3Position = new ArrayList<>();
-    private ArrayList<Integer> player4Position = new ArrayList<>();
 
     public static String RESULTS_DIR_GRAPH = "graphs/" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss/").format(Calendar.getInstance().getTime()) + "/";
 
@@ -128,6 +135,7 @@ public class RepastLauncher extends Repast3Launcher {
         makePlayerTurnsPlot();
         makeTotalPointsPlot();
         makePlayerWalletsPlot();
+        createDoublesGraph();
 
         this.startTime = System.currentTimeMillis();
 
@@ -194,7 +202,6 @@ public class RepastLauncher extends Repast3Launcher {
                 }
                 numRuns++;
                 resetTimeStamps();
-                resetPlayerTurns();
 
                 if(cleanup){
                     System.out.println("Starting the cleanup");
@@ -230,7 +237,6 @@ public class RepastLauncher extends Repast3Launcher {
 
     private void makeTotalTimePlot() {
         plotTotalPlayTimeByRun.setXRange(0, NUMBER_OF_RUNS);
-
         plotTotalPlayTimeByRun.setYRange(0, 120000);
         plotTotalPlayTimeByRun.setAxisTitles("Number of Runs", "Time in Milliseconds");
         if (numRuns == 1) {
@@ -305,13 +311,6 @@ public class RepastLauncher extends Repast3Launcher {
         numRuns = 1;
     }
 
-    private void resetPlayerTurns() {
-        this.player1Turn = 0;
-        this.player2Turn = 0;
-        this.player3Turn = 0;
-        this.player4Turn = 0;
-    }
-
     private void makeHistograms() {
         makePlayer1PositionHistogram();
         player1PositionHistogram.setSnapshotFileName(RESULTS_DIR_GRAPH + "Player1PositionDist" );
@@ -346,7 +345,6 @@ public class RepastLauncher extends Repast3Launcher {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -359,13 +357,17 @@ public class RepastLauncher extends Repast3Launcher {
             plotTotalPointsPlayer.addLegend(2,"P3", Color.YELLOW);
             plotTotalPointsPlayer.addLegend(3,"P4", Color.GREEN);
         }
+        plotTotalPointsPlayer.plotPoint(numRuns, player1TotalScore, 0);
+        plotTotalPointsPlayer.plotPoint(numRuns, player2TotalScore, 1);
+        plotTotalPointsPlayer.plotPoint(numRuns, player3TotalScore, 2);
+        plotTotalPointsPlayer.plotPoint(numRuns, player4TotalScore, 3);
         plotTotalPointsPlayer.display();
 
         getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer, "step");
     }
 
     private void makePlayerTurnsPlot() {
-        plotPlayerTurns.setXRange(0, 1000);
+        plotPlayerTurns.setXRange(0, 100);
         plotPlayerTurns.setYRange(0, 100);
         if (numRuns == 1) {
             plotPlayerTurns.addLegend(0, "P1", Color.RED);
@@ -373,10 +375,10 @@ public class RepastLauncher extends Repast3Launcher {
             plotPlayerTurns.addLegend(2, "P3", Color.YELLOW);
             plotPlayerTurns.addLegend(3, "P4", Color.GREEN);
         }
-        plotMaxPurchasesByPlayer.plotPoint(numRuns, player1Turn, 0);
-        plotMaxPurchasesByPlayer.plotPoint(numRuns, player2Turn, 0);
-        plotMaxPurchasesByPlayer.plotPoint(numRuns, player3Turn, 0);
-        plotMaxPurchasesByPlayer.plotPoint(numRuns, player4Turn, 0);
+        plotPlayerTurns.plotPoint(numRuns, player1Turn, 0);
+        plotPlayerTurns.plotPoint(numRuns, player2Turn, 1);
+        plotPlayerTurns.plotPoint(numRuns, player3Turn, 2);
+        plotPlayerTurns.plotPoint(numRuns, player4Turn, 3);
         plotPlayerTurns.display();
 
         getSchedule().scheduleActionAtInterval(1, plotPlayerTurns, "step");
@@ -384,7 +386,6 @@ public class RepastLauncher extends Repast3Launcher {
 
     private void makeMaxPurchasesPlotPlayer() {
         plotMaxPurchasesByPlayer.setXRange(0, 100);
-
         plotMaxPurchasesByPlayer.setYRange(0, 100);
         plotMaxPurchasesByPlayer.setAxisTitles("Number of Runs", "Number of occurrences");
         if (numRuns == 1) {
@@ -394,14 +395,46 @@ public class RepastLauncher extends Repast3Launcher {
             plotMaxPurchasesByPlayer.addLegend(3, "P4", Color.GREEN);
         }
         plotMaxPurchasesByPlayer.plotPoint(numRuns, maxPurchasesPlayer1, 0);
-        plotMaxPurchasesByPlayer.plotPoint(numRuns, maxPurchasesPlayer2, 0);
-        plotMaxPurchasesByPlayer.plotPoint(numRuns, maxPurchasesPlayer3, 0);
-        plotMaxPurchasesByPlayer.plotPoint(numRuns, maxPurchasesPlayer4, 0);
+        plotMaxPurchasesByPlayer.plotPoint(numRuns, maxPurchasesPlayer2, 1);
+        plotMaxPurchasesByPlayer.plotPoint(numRuns, maxPurchasesPlayer3, 2);
+        plotMaxPurchasesByPlayer.plotPoint(numRuns, maxPurchasesPlayer4, 3);
         plotMaxPurchasesByPlayer.fillPlot();
         plotMaxPurchasesByPlayer.updateGraph();
         plotMaxPurchasesByPlayer.display();
 
         getSchedule().scheduleActionAtInterval(1, plotMaxPurchasesByPlayer, "step");
+    }
+
+    public void createDoublesGraph() {
+        doublesSequenceGraph.setXRange(0, 1);
+        doublesSequenceGraph.setYRange(0, 1);
+        doublesSequenceGraph.setXAutoExpand(true);
+        doublesSequenceGraph.setYAutoExpand(true);
+        if(numRuns == 1) {
+            doublesSequenceGraph.addSequence("P1", new Sequence() {
+                public double getSValue() {
+                    return player1Doubles;
+                }
+            }, Color.RED);
+            doublesSequenceGraph.addSequence("P2", new Sequence() {
+                public double getSValue() {
+                    return player2Doubles;
+                }
+            }, Color.BLUE);
+            doublesSequenceGraph.addSequence("P3", new Sequence() {
+                public double getSValue() {
+                    return player3Doubles;
+                }
+            }, Color.YELLOW);
+            doublesSequenceGraph.addSequence("P4", new Sequence() {
+                public double getSValue() {
+                    return player4Doubles;
+                }
+            }, Color.GREEN);
+        }
+        doublesSequenceGraph.display();
+
+        getSchedule().scheduleActionAtInterval(1, doublesSequenceGraph, "step");
     }
 
     public void resetTimeStamps() {
@@ -530,19 +563,38 @@ public class RepastLauncher extends Repast3Launcher {
         player4TotalScore += returnPlayerScoreInRun(recordOfPlayer4Results, 4);
     }
 
-    public void setPlayerTurn(int playerNumber) {
+    public void setPlayerTurn(int playerNumber, int turnCounter) {
         switch (playerNumber) {
             case 1:
-                this.player1Turn++;
+                this.player1Turn = turnCounter;
                 break;
             case 2:
-                this.player2Turn++;
+                this.player2Turn = turnCounter;
                 break;
             case 3:
-                this.player3Turn++;
+                this.player3Turn = turnCounter;
                 break;
             case 4:
-                this.player4Turn++;
+                this.player4Turn = turnCounter;
+                break;
+            default:
+                out.println("The number was wrong");
+        }
+    }
+
+    public void setDoubleCounter(int playerNumber) {
+        switch (playerNumber) {
+            case 1:
+                this.player1Doubles++;
+                break;
+            case 2:
+                this.player2Doubles++;
+                break;
+            case 3:
+                this.player3Doubles++;
+                break;
+            case 4:
+                this.player4Doubles++;
                 break;
             default:
                 out.println("The number was wrong");
@@ -726,9 +778,9 @@ public class RepastLauncher extends Repast3Launcher {
             plotPlayerWallets.addLegend(3, "P4", Color.GREEN);
         }
         plotPlayerWallets.plotPoint(numRuns, averageOfPlayer1Wallets, 0);
-        plotPlayerWallets.plotPoint(numRuns, averageOfPlayer2Wallets, 0);
-        plotPlayerWallets.plotPoint(numRuns, averageOfPlayer3Wallets, 0);
-        plotPlayerWallets.plotPoint(numRuns, averageOfPlayer4Wallets, 0);
+        plotPlayerWallets.plotPoint(numRuns, averageOfPlayer2Wallets, 1);
+        plotPlayerWallets.plotPoint(numRuns, averageOfPlayer3Wallets, 2);
+        plotPlayerWallets.plotPoint(numRuns, averageOfPlayer4Wallets, 3);
         plotPlayerWallets.fillPlot();
         plotPlayerWallets.updateGraph();
         plotPlayerWallets.display();
