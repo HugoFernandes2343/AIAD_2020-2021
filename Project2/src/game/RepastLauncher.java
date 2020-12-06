@@ -22,7 +22,7 @@ import java.util.Calendar;
 import static java.lang.System.out;
 
 public class RepastLauncher extends Repast3Launcher {
-    private static final int NUMBER_OF_RUNS = 250;
+    private static final int NUMBER_OF_RUNS = 3;
     private Runtime runtimeInstance;
     private Profile profile;
     private ContainerController containerController;
@@ -127,7 +127,12 @@ public class RepastLauncher extends Repast3Launcher {
 
 
         createFiles(new String[]{"PropertiesBoughtByWinner",
-                "Player1PositionDist","Player2PositionDist","Player3PositionDist","Player4PositionDist","TimesOfRuns"});
+                "Player1PositionDist","Player2PositionDist","Player3PositionDist","Player4PositionDist",
+                "TimesOfRuns",
+                "MaxPurchasesByPlayer",
+                "PlayerTurns",
+                "TotalPoints",
+                "PlayerWallets"});
 
         makeHistograms();
         makeTotalTimePlot();
@@ -183,6 +188,17 @@ public class RepastLauncher extends Repast3Launcher {
 
                     //
                     plotTotalPlayTimeByRun.updateGraph();
+                    //
+
+                    plotMaxPurchasesByPlayer.updateGraph();
+
+                    //
+                    plotPlayerTurns.updateGraph();
+                    //
+                    plotTotalPointsPlayer.updateGraph();
+                    //
+                    plotPlayerWallets.updateGraph();
+
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
@@ -197,6 +213,14 @@ public class RepastLauncher extends Repast3Launcher {
                     player4PositionHistogram.takeSnapshot();
                     //
                     plotTotalPlayTimeByRun.takeSnapshot();
+                    //
+                    plotMaxPurchasesByPlayer.takeSnapshot();
+                    //
+                    plotPlayerTurns.takeSnapshot();
+                    //
+                    plotTotalPointsPlayer.takeSnapshot();
+                    //
+                    plotPlayerWallets.takeSnapshot();
 
                     System.out.println("pics saved");
                 }
@@ -361,6 +385,7 @@ public class RepastLauncher extends Repast3Launcher {
         plotTotalPointsPlayer.plotPoint(numRuns, player2TotalScore, 1);
         plotTotalPointsPlayer.plotPoint(numRuns, player3TotalScore, 2);
         plotTotalPointsPlayer.plotPoint(numRuns, player4TotalScore, 3);
+        plotTotalPointsPlayer.setSnapshotFileName(RESULTS_DIR_GRAPH +"TotalPoints");
         plotTotalPointsPlayer.display();
 
         getSchedule().scheduleActionAtInterval(1, plotTotalPointsPlayer, "step");
@@ -369,6 +394,7 @@ public class RepastLauncher extends Repast3Launcher {
     private void makePlayerTurnsPlot() {
         plotPlayerTurns.setXRange(0, 100);
         plotPlayerTurns.setYRange(0, 100);
+
         if (numRuns == 1) {
             plotPlayerTurns.addLegend(0, "P1", Color.RED);
             plotPlayerTurns.addLegend(1, "P2", Color.BLUE);
@@ -379,6 +405,9 @@ public class RepastLauncher extends Repast3Launcher {
         plotPlayerTurns.plotPoint(numRuns, player2Turn, 1);
         plotPlayerTurns.plotPoint(numRuns, player3Turn, 2);
         plotPlayerTurns.plotPoint(numRuns, player4Turn, 3);
+        plotPlayerTurns.fillPlot();
+        plotPlayerTurns.updateGraph();
+        plotPlayerTurns.setSnapshotFileName(RESULTS_DIR_GRAPH + "PlayerTurns");
         plotPlayerTurns.display();
 
         getSchedule().scheduleActionAtInterval(1, plotPlayerTurns, "step");
@@ -400,6 +429,7 @@ public class RepastLauncher extends Repast3Launcher {
         plotMaxPurchasesByPlayer.plotPoint(numRuns, maxPurchasesPlayer4, 3);
         plotMaxPurchasesByPlayer.fillPlot();
         plotMaxPurchasesByPlayer.updateGraph();
+        plotMaxPurchasesByPlayer.setSnapshotFileName(RESULTS_DIR_GRAPH + "MaxPurchasesByPlayer");
         plotMaxPurchasesByPlayer.display();
 
         getSchedule().scheduleActionAtInterval(1, plotMaxPurchasesByPlayer, "step");
@@ -783,6 +813,7 @@ public class RepastLauncher extends Repast3Launcher {
         plotPlayerWallets.plotPoint(numRuns, averageOfPlayer4Wallets, 3);
         plotPlayerWallets.fillPlot();
         plotPlayerWallets.updateGraph();
+        plotPlayerWallets.setSnapshotFileName(RESULTS_DIR_GRAPH + "PlayerWallets");
         plotPlayerWallets.display();
 
         getSchedule().scheduleActionAt(1, plotPlayerWallets, "step");
