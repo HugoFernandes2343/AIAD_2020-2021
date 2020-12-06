@@ -54,6 +54,7 @@ public class Player extends Agent {
         this.currentTurnCounter = 1;
         this.targetTurn = 0;
         this.turnCounter = 0;
+        this.doubleCounter = 0;
         this.isAlive = true;
     }
 
@@ -66,6 +67,7 @@ public class Player extends Agent {
         this.currentTurnCounter = 1;
         this.targetTurn = targetTurn;
         this.turnCounter = 0;
+        this.doubleCounter = 0;
         this.isAlive = true;
     }
 
@@ -112,6 +114,7 @@ public class Player extends Agent {
             getPlayerPosition();
             impl.decrementNumberOfAgents();
             impl.setAverageOfPlayerWallets(this.playerNumber);
+            impl.setDoubleCounter(this.playerNumber, this.doubleCounter);
             impl.setPlayerTurn(this.playerNumber, this.turnCounter);
             impl.setMaxPlayerPurchases(this.playerNumber, this.getTitleDeeds().size());
             this.getContainerController().removeLocalAgent(this);
@@ -453,7 +456,8 @@ public class Player extends Agent {
 
         if (diceResult.get(0).equals(diceResult.get(1))) {
             monopolyMain.changeConsoleMessage("Double Dice Roll Have Another Turn Player " + this.getPlayerNumber());
-            this.getImpl().setDoubleCounter(this.playerNumber);
+            System.out.println("Double For player_" + this.playerNumber);
+            this.doubleCounter++;
             //Thread.sleep(150);
             move();
         } else {
@@ -514,6 +518,12 @@ public class Player extends Agent {
             impl.setPlayersTotalScore();
             impl.setTotalPlayerPlayTime(System.currentTimeMillis());
             impl.setNumberOfTimesHouseWasBoughtByWinningPlayer(this.getTitleDeeds());
+
+            impl.updateDoublesByPlayerPlot();
+            impl.updatePlayerWalletsPlot();
+            impl.updateTotalPointsByPlayerPlot();
+            impl.updatePlayerTurnsPlot();
+            impl.updateMaxPurchasesByPlayerPlot();
 
             Thread.sleep(1000);
 
