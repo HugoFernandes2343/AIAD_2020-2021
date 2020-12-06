@@ -382,7 +382,7 @@ public class RepastLauncher extends Repast3Launcher {
     }
 
     private void makeTotalPointsPlot() {
-        plotTotalPointsPlayer.setXRange(0, 100);
+        plotTotalPointsPlayer.setXRange(0, NUMBER_OF_RUNS);
         plotTotalPointsPlayer.setYRange(0, 100);
         if (numRuns == 1) {
             plotTotalPointsPlayer.addLegend(0,"P1", Color.RED);
@@ -398,7 +398,7 @@ public class RepastLauncher extends Repast3Launcher {
     }
 
     private void makePlayerTurnsPlot() {
-        plotPlayerTurns.setXRange(0, 100);
+        plotPlayerTurns.setXRange(0, NUMBER_OF_RUNS);
         plotPlayerTurns.setYRange(0, 100);
 
         if (numRuns == 1) {
@@ -416,7 +416,7 @@ public class RepastLauncher extends Repast3Launcher {
     }
 
     private void makeMaxPurchasesPlotPlayer() {
-        plotMaxPurchasesByPlayer.setXRange(0, 100);
+        plotMaxPurchasesByPlayer.setXRange(0, NUMBER_OF_RUNS);
         plotMaxPurchasesByPlayer.setYRange(0, 100);
         plotMaxPurchasesByPlayer.setAxisTitles("Number of Runs", "Number of occurrences");
         if (numRuns == 1) {
@@ -434,7 +434,7 @@ public class RepastLauncher extends Repast3Launcher {
     }
 
     public void makeDoublesPlot() {
-        plotDoubleByPlayer.setXRange(0, 1000);
+        plotDoubleByPlayer.setXRange(0, NUMBER_OF_RUNS);
         plotDoubleByPlayer.setYRange(0, 100);
         if(numRuns == 1) {
             plotDoubleByPlayer.addLegend(0, "P1", Color.RED);
@@ -782,7 +782,7 @@ public class RepastLauncher extends Repast3Launcher {
      * Creates a histogram of the degree distribution.
      */
     private void makePlayerWalletsPlot() {
-        plotPlayerWallets.setXRange(0, 10);
+        plotPlayerWallets.setXRange(0, NUMBER_OF_RUNS);
         plotPlayerWallets.setYRange(0, 4000);
 
         plotPlayerWallets.setAxisTitles("Number of Runs", "Value Of Wallet Per Run");
