@@ -22,7 +22,7 @@ import java.util.Calendar;
 import static java.lang.System.out;
 
 public class RepastLauncher extends Repast3Launcher {
-    private static final int NUMBER_OF_RUNS = 3;
+    private static final int NUMBER_OF_RUNS = 250;
     private Runtime runtimeInstance;
     private Profile profile;
     private ContainerController containerController;
