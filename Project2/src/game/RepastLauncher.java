@@ -154,7 +154,7 @@ public class RepastLauncher extends Repast3Launcher {
 
                 long startTimeRun = Instant.now().toEpochMilli();
                 long elapsedTime,currentTime;
-                System.out.println("IM HERE cunt"+" run number: "+ numberRun);
+                System.out.println("IM HERE "+" run number: "+ numberRun);
                 boolean cleanup=false;
                 do{
                     if(!frame.isVisible()){
